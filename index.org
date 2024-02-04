@@ -1,0 +1,25 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+* Trada Blog
+:PROPERTIES:
+:CUSTOM_ID: blog_main_page
+:END:
+
+
+** Easy Jumps
+- Introduction
+- [[file:Programming.org::#goto_programming][Programming (C++ and Linux)]]
+- Boarding
+- Trips
+  
+
+
+
+
+
+
+
+
+
+
+
