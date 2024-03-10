@@ -1,0 +1,102 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+* Table of Contents
+- [[#what-is-seqlock][What is SeqLock and how it works]]
+  - [[#how-seqlock-works][How it works]]
+  - [[#actual-code-of-seqlock][Actual code]]
+- [[#why-use-seqlock-over-mutex][Why use Seqlock over Mutex]]
+  - [[#why-use-seqlock-over-mutex-short-answer][Short Answer]]
+  - [[#why-use-seqlock-over-mutex-long-answer][Long Answer]]
+  
+* What is SeqLock and how it works
+:PROPERTIES:
+:CUSTOM_ID: what-is-seqlock
+:END:
+
+Before I begin, I must say I love *SeqLock*.
+
+*SeqLock* is to provide the concurrency of multiple writes and reads without [[https://stackoverflow.com/q/14011849/921070][having to lock]] any thread.
+I love it, not because it's lock-free but because of the way it works uses a really clever and simple mechanism.
+
+For educational purposes, it also gives us good materials to think about, such as [[https://en.cppreference.com/w/cpp/atomic/memory_order][Memory Order]] in C++.
+
+** How it works
+:PROPERTIES:
+:CUSTOM_ID: how-seqlock-works
+:END:
+
+#+begin_example
+  Sequence Counter: 0 (even - no write in progress)
+        |
+        v
+  +-----+-----+
+  | Writer    |---(1)--> Increments counter to 1 (odd - write in progress)
+  +-----------+                |
+                               v
+                           (2) Writes data
+                               |
+                               v
+                      Increments counter to 2 (even - write complete)
+                               |
+        +----------------------+
+        |
+        v
+  +-----+-----------------+
+  | Readers               |-----> (3) Checks counter (even, proceed to read)
+  +-----------------------+      |
+  | - Reader 1 reads data |<-----+
+  | - Reader 2 reads data |      |---(4) If counter changed or odd during read, retry.
+  | - Reader 3 reads data |<-----+
+  +-----------------------+
+#+end_example
+
+** Actual code
+:PROPERTIES:
+:CUSTOM_ID: actual-code-of-seqlock
+:END:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+
+#+END_SRC
+
+** Why use *SeqLock* over *Mutex*?
+:PROPERTIES:
+:CUSTOM_ID: why-use-seqlock-over-mutex
+:END:
+
+*** Short Answer
+:PROPERTIES:
+:CUSTOM_ID: why-use-seqlock-over-mutex-short-answer
+:END:
+
+because it's faster.
+
+*** Long Answer
+:PROPERTIES:
+:CUSTOM_ID: why-use-seqlock-over-mutex-long-answer
+:END:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

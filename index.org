@@ -5,7 +5,6 @@
 :CUSTOM_ID: blog_main_page
 :END:
 
-
 ** Easy Jumps
 - Introduction
 - [[file:Programming.org::#goto_programming][Programming (C++ and Linux)]]
