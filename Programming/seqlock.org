@@ -1,18 +1,17 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 
 * Table of Contents
-- [[#what-is-seqlock][What is SeqLock and how it works]]
-  - [[#how-seqlock-works][How it works]]
-  - [[#actual-code-of-seqlock][Actual code]]
-- [[#why-use-seqlock-over-mutex][Why use Seqlock over Mutex]]
-  - [[#why-use-seqlock-over-mutex-short-answer][Short Answer]]
-  - [[#why-use-seqlock-over-mutex-long-answer][Long Answer]]
+- [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
+  - [[#how-it-works][How it works]]
+  - [[#actual-code][Actual code]]
+  - [[#why-use-seqlock-over-mutex][Why use SeqLock over Mutex?]]
+    - [[#short-answer][Short Answer]]
+    - [[#long-answer][Long Answer]]
   
 * What is SeqLock and how it works
 :PROPERTIES:
-:CUSTOM_ID: what-is-seqlock
+:CUSTOM_ID: what-is-seqlock-and-how-it-works
 :END:
-
 Before I begin, I must say I love *SeqLock*.
 
 *SeqLock* is to provide the concurrency of multiple writes and reads without [[https://stackoverflow.com/q/14011849/921070][having to lock]] any thread.
@@ -22,9 +21,8 @@ For educational purposes, it also gives us good materials to think about, such a
 
 ** How it works
 :PROPERTIES:
-:CUSTOM_ID: how-seqlock-works
+:CUSTOM_ID: how-it-works
 :END:
-
 #+begin_example
   Sequence Counter: 0 (even - no write in progress)
         |
@@ -52,7 +50,7 @@ For educational purposes, it also gives us good materials to think about, such a
 
 ** Actual code
 :PROPERTIES:
-:CUSTOM_ID: actual-code-of-seqlock
+:CUSTOM_ID: actual-code
 :END:
 #+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
 
@@ -62,17 +60,15 @@ For educational purposes, it also gives us good materials to think about, such a
 :PROPERTIES:
 :CUSTOM_ID: why-use-seqlock-over-mutex
 :END:
-
 *** Short Answer
 :PROPERTIES:
-:CUSTOM_ID: why-use-seqlock-over-mutex-short-answer
+:CUSTOM_ID: short-answer
 :END:
-
 because it's faster.
 
 *** Long Answer
 :PROPERTIES:
-:CUSTOM_ID: why-use-seqlock-over-mutex-long-answer
+:CUSTOM_ID: long-answer
 :END:
 
 
