@@ -27,7 +27,7 @@ You can reach me via *deaniac.seo@gmail.com* anytime!
 .
 
 ** Credits
-This blog is entirely written by [[https://orgmode.org/][org-mode]].
+This blog is written, using [[https://orgmode.org/][org-mode]].
 I mainly used [[https://github.com/fniessen/org-html-themes][fniessen's themes]] to make it look /modern/.
 
 
