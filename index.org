@@ -5,9 +5,11 @@
 :CUSTOM_ID: blog_main_page
 :END:
 
-** Easy Jumps
+Hi.
+
+** Pages
 - Introduction
-- [[file:Programming.org::#goto_programming][Programming (C++ and Linux)]]
+- [[file:Programming/Programming.org][Programming (C++ and Linux)]]
 - Boarding
 - Trips
   

@@ -1,0 +1,25 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+* Table of Contents
+- [[#programming][Programming]]
+  - [[#c][C++]]
+  - [[#linux][Linux]]
+
+* Programming
+:PROPERTIES:
+:CUSTOM_ID: programming
+:END:
+
+** C++
+:PROPERTIES:
+:CUSTOM_ID: c
+:END:
+- [[file:seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
+
+** Linux
+:PROPERTIES:
+:CUSTOM_ID: linux
+:END:
+
+
+
