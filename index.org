@@ -5,14 +5,31 @@
 :CUSTOM_ID: blog_main_page
 :END:
 
-Hi.
+Hello, my name is Dean Seo.
 
-** Pages
-- Introduction
-- [[file:Programming/Programming.org][Programming (C++ and Linux)]]
-- Boarding
-- Trips
+I am a seasoned C++ developer specializing in the creation of low-latency, high-performance applications.
+With a deep understanding of modern C++ techniques, I am dedicated to optimizing software to operate at the peak of efficiency.
+
+My passion lies in tackling complex coding challenges and transforming them into elegantly engineered solutions that push the boundaries of technological capabilities.
+Over the years, I have honed my skills in system architecture and performance engineering, focusing on delivering robust solutions in fast-paced environments.
+
+Whether it's refining processes or pioneering new software innovations, my goal is to enhance user experience through exceptional speed and reliability, ensuring that every line of code not only meets but exceeds the rigorous demands of today's tech landscape.
+
+You can reach me via *deaniac.seo@gmail.com* anytime!
+
+** Programming
+- [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
   
+** Boarding
+.
+
+** Trips
+.
+
+** Credits
+This blog is entirely written by [[https://orgmode.org/][org-mode]].
+I mainly used [[https://github.com/fniessen/org-html-themes][fniessen's themes]] to make it look /modern/.
+
 
 
 
