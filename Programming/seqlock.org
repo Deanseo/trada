@@ -98,7 +98,7 @@ That being said, if there are more than one writer thread running, it's advisibl
 In x86, every store is a release store and every load is a release load.
 The legacy =MOV= instruction is guaranteed to be atomic.
 
-In other words, using a relaxed operation on =seq_= (or a naive `int` type) with a compiler barrier is probably sufficient if we don't care about keeping it portable.
+In other words, we only need to worry about reordering done by the compiler so using a relaxed operation on =seq_= (or a naive `int` type) with compiler barriers is probably sufficient if we don't care about keeping it portable.
 
 *** What prevents the store on =value_= from being reordered with =start_seq=?
 :PROPERTIES:
