@@ -2,22 +2,50 @@
 
 * Table of Contents
 - [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
-  - [[#how-it-works][How it works]]
   - [[#actual-code][Actual code]]
-  - [[#why-use-seqlock-over-mutex][Why use SeqLock over Mutex?]]
-    - [[#short-answer][Short Answer]]
-    - [[#long-answer][Long Answer]]
+  - [[#how-it-works][How it works]]
+  - [[#caveats][Caveats]]
+    - [[#single-writer-only][Single Writer Only]]
+    - [[#relaxed-operation-might-be-sufficient-in-x86][Relaxed operation might be sufficient in x86]]
+    - [[#what-prevents-the-store-on-value_-from-being-reordered-with-start_seq][What prevents the store on value_ from being reordered with start_seq?]]
   
 * What is SeqLock and how it works
 :PROPERTIES:
 :CUSTOM_ID: what-is-seqlock-and-how-it-works
 :END:
-Before I begin, I must say I love *SeqLock*.
+Before I begin, I must say *SeqLock* is one of my favorite lock-free algorithms.
+Why? Because it works in a really clever and simple way!
 
-*SeqLock* is to provide the concurrency of multiple writes and reads without [[https://stackoverflow.com/q/14011849/921070][having to lock]] any thread.
-I love it, not because it's lock-free but because of the way it works uses a really clever and simple mechanism.
+Just like any other lock mechanisms, *SeqLock* is to provide the concurrency of multiple writes and reads without [[https://stackoverflow.com/q/14011849/921070][having to lock]] any thread.
+Furthermore, it also gives us good materials to think about, such as [[https://en.cppreference.com/w/cpp/atomic/memory_order][Memory Order]] in C++, for educational purposes.
 
-For educational purposes, it also gives us good materials to think about, such as [[https://en.cppreference.com/w/cpp/atomic/memory_order][Memory Order]] in C++.
+Let's look at the actual code first. Then we will break it down.
+** Actual code
+:PROPERTIES:
+:CUSTOM_ID: actual-code
+:END:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+template <class T>                                  
+struct alignas(std::hardware_destructive_interference_size) seq_lock {
+    [[nodiscard]] bool load(T & required) const noexcept {
+        const auto s0 = seq_.load(std::memory_order_acquire);
+        if (s0 & 1) { return false; }
+        required = value_;
+        return s0 == seq_.load(std::memory_order_acquire);
+    }
+
+    void store(const T value) noexcept {
+        const auto start_seq = seq_.load(std::memory_order_relaxed);
+        seq_.store(start_seq + 1, std::memory_order_release);
+        value_ = value;
+        seq_.store(start_seq + 2, std::memory_order_release);
+    }
+    
+private:
+    std::atomic<std::uint64_t> seq_ = 0;
+    T value_;
+};
+#+END_SRC
 
 ** How it works
 :PROPERTIES:
@@ -48,29 +76,43 @@ For educational purposes, it also gives us good materials to think about, such a
   +-----------------------+
 #+end_example
 
-** Actual code
+** Caveats
 :PROPERTIES:
-:CUSTOM_ID: actual-code
+:CUSTOM_ID: caveats
 :END:
-#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+*** Single Writer Only
+:PROPERTIES:
+:CUSTOM_ID: single-writer-only
+:END:
+The implementation above only supports a single writer because =store= doesn't verify its read,
+presuming that there's only one writer (itself) incrementing the sequence.
 
+=store= doesn't use a RMW(read-modify-write) operation so there's no lock emitted in instructuion level.
+The current implementation only takes care of memory orders and atomicity on =seq_=.
+
+That being said, if there are more than one writer thread running, it's advisible to look for a different lock-free structure, which I can hopefully post about in future.
+*** Relaxed operation might be sufficient in x86
+:PROPERTIES:
+:CUSTOM_ID: relaxed-operation-might-be-sufficient-in-x86
+:END:
+In x86, every store is a release store and every load is a release load.
+The legacy =MOV= instruction is guaranteed to be atomic.
+
+In other words, using a relaxed operation on =seq_= (or a naive `int` type) with a compiler barrier is probably sufficient if we don't care about keeping it portable.
+
+*** What prevents the store on =value_= from being reordered with =start_seq=?
+:PROPERTIES:
+:CUSTOM_ID: what-prevents-the-store-on-value_-from-being-reordered-with-start_seq
+:END:
+Probably not by the memory order defined by the C++ standard, although the compiler gives the correct order:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  mov     QWORD PTR [rax], rsi
+  mov     DWORD PTR [rax+8], ecx
+  mov     QWORD PTR [rax], rdx
 #+END_SRC
 
-** Why use *SeqLock* over *Mutex*?
-:PROPERTIES:
-:CUSTOM_ID: why-use-seqlock-over-mutex
-:END:
-*** Short Answer
-:PROPERTIES:
-:CUSTOM_ID: short-answer
-:END:
-because it's faster.
-
-*** Long Answer
-:PROPERTIES:
-:CUSTOM_ID: long-answer
-:END:
-
+my presumtion is that in x86 #StoreStore is a by-default trait in a release store so there's no accidential reorder that can be caught.
+This is the same for the 2nd load.
 
 
 
