@@ -1,0 +1,83 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+* Table of Contents
+DRAFT
+
+* What's Transaction Limitter?
+Transaction Limiter makes sure you don't accidentally send more orders than you're allowed to.
+
+* Why do we need Transaction Limitter?
+For a fair trading environemt and to protect individual traders, Many global exchanges constraints a total count of order request a market participant can send in a fixed duration.
+Crypto exchanges tend to apply a more strict restriction.
+
+A severe punishment can be followed if you break this rule.
+For example, you'll be probably prohibited from trading for a couple of hours, if it's the first time.
+If /the mistake/ continues, there's a risk that you'll get banned from the exchange for LONG (3 months, 6 months, or forever).
+
+This is not good.
+It's probably a good decision to ban those because they aren't in control, obviously.
+
+//info box?
+In my opinion, it's an interesting project to implement a limiter class, not only in the trading industry but in general!
+The implementation can be generic such that you can control certain tasks to be executed in a fixed window.
+//info box end
+
+#+begin_info
+*Info example* \\
+Did you know...
+#+end_info
+
+#+begin_tip
+*Tip example* \\
+Try doing it this way...
+#+end_tip
+
+A note box is displayed as follows:
+
+#+begin_note
+*Note example* \\
+This is a useful note...
+#+end_note
+
+
+A warning box is displayed as follows:
+
+#+begin_warning
+*Warning example* \\
+Be careful!  Check that you have...
+#+end_warning
+
+#+begin_quote
+Let us change our traditional attitude to the construction of programs:
+Instead of imagining that our main task is to instruct a computer what to do,
+let us concentrate rather on explaining to human beings what we want a
+computer to do.
+
+The practitioner of literate programming can be regarded as an essayist, whose
+main concern is with exposition and excellence of style. Such an author, with
+thesaurus in hand, chooses the names of variables carefully and explains what
+each variable means. He or she strives for a program that is comprehensible
+because its concepts have been introduced in an order that is best for human
+understanding, using a mixture of formal and informal methods that reinforce
+each other.
+
+--- Donald Knuth
+#+end_quote
+
+
+
+
+
+
+* How to develop Transaction Limitter?
+#+begin_example
+
+#+end_exampleo
+ 
+
+
+
+
+
+
+

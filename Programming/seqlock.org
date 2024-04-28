@@ -114,7 +114,9 @@ Probably not by the memory order defined by the C++ standard, although the compi
 my presumtion is that in x86 #StoreStore is a by-default trait in a release store so there's no accidential reorder that can be caught.
 This is the same for the 2nd load.
 
-
+* Conclusion
+*seqlock* is a simple and fask locking mechanism that doesn't block the writer.
+It's often used to solve /real-world/ problems and in fact part of the kernel in Linux as well.
 
 
 
