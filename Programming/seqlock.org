@@ -1,6 +1,7 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 
 * Table of Contents
+- [[#table-of-contents][Table of Contents]]
 - [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
   - [[#actual-code][Actual code]]
   - [[#how-it-works][How it works]]
@@ -8,7 +9,8 @@
     - [[#single-writer-only][Single Writer Only]]
     - [[#relaxed-operation-might-be-sufficient-in-x86][Relaxed operation might be sufficient in x86]]
     - [[#what-prevents-the-store-on-value_-from-being-reordered-with-start_seq][What prevents the store on value_ from being reordered with start_seq?]]
-  
+- [[#conclusion][Conclusion]]
+
 * What is SeqLock and how it works
 :PROPERTIES:
 :CUSTOM_ID: what-is-seqlock-and-how-it-works
@@ -115,8 +117,13 @@ my presumtion is that in x86 #StoreStore is a by-default trait in a release stor
 This is the same for the 2nd load.
 
 * Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
 *seqlock* is a simple and fask locking mechanism that doesn't block the writer.
-It's often used to solve /real-world/ problems and in fact part of the kernel in Linux as well.
+That trait is especially useful when a thread has to constantly feeds tick data into other algo carriers.
+
+Not only that, it's often used to solve many /real-world/ problems and in fact part of the kernel in Linux as well.
 
 
 
