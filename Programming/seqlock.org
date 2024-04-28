@@ -1,7 +1,6 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 
 * Table of Contents
-- [[#table-of-contents][Table of Contents]]
 - [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
   - [[#actual-code][Actual code]]
   - [[#how-it-works][How it works]]
@@ -120,10 +119,10 @@ This is the same for the 2nd load.
 :PROPERTIES:
 :CUSTOM_ID: conclusion
 :END:
-*seqlock* is a simple and fask locking mechanism that doesn't block the writer.
+*SeqLock* is a simple and fast locking mechanism that doesn't block the writer.
 That trait is especially useful when a thread has to constantly feeds tick data into other algo carriers.
 
-Not only that, it's often used to solve many /real-world/ problems and in fact part of the kernel in Linux as well.
+Not only that, but also it's often used to solve many /real-world/ problems and in fact part of the kernel in Linux as well.
 
 
 
