@@ -1,0 +1,19 @@
+* Once upon a time ...
+The first time I learned about Blood-Brain Barrier, I was a kid perscribed with Cetirizine 10mg.
+After I told my doctor I was feeling sleepy after the doze, he /roughly/ explained to me the other medicines would make me even more sleepy.   
+
+I moved on but didn't really understand how a pill for my cat allergiies can have that side-effect.
+I mean, I was thinking I should rather be awake and energitic because these "evil allergy germs" must've been dissolved?
+
+Of course, now I know there's such a thing no evil ellergy germ and as an engineer it's interesting to know why certain drugs makes ones feel
+- tired
+- excited
+- awake
+
+It's all related to the brain!
+
+* BBB(Blood-Brain Barrier)
+.
+
+
+
