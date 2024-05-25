@@ -12,33 +12,46 @@
 :PROPERTIES:
 :CUSTOM_ID: once-upon-a-time-
 :END:
-The first time I learned about Blood-Brain Barrier, I was a kid perscribed with Cetirizine 10mg.
-After I told my doctor I was feeling sleepy after the doze, he /roughly/ explained to me the other medicines would make me even more sleepy.   
+#+begin_warning
+*Disclaimer*
 
-I moved on but didn't really understand how a pill for my cat allergiies can have that side-effect.
-I mean, I was thinking I should rather be awake and energitic because these "evil allergy germs" must've been dissolved?
+If you're looking for a medical advice, plase go see a doctor for consultation. (/No, I'm *not* a doctor./) \\
+This posting may have errors or inaccurate/misleading information by mistake.
+#+end_warning
 
-Of course, now I know there's such a thing no evil ellergy germ and as an engineer it's interesting to know why certain drugs makes ones feel
-- tired
-- excited
-- awake
+When I was a kid, I got sick once and my doctor gave me a 10mg of Cetirizine, a very common anti-histamine pill that you can even buy at a 7/11 today.
+After taking the pill, I felt sleepy.
 
-It's all related to the brain.
-Brain has a /barrier/ that selectively allows substances to pass through your cerebral blood vessels into the brain.
+I told my doctor about it and he explained that still, Cetirizine was the best choice, saying other similar medicines would make me even more drowsy, 
+
+At the time, I didn't really understand why a pill would have that side effect.
+I mean, I thought it should make me feel more /energetic/...? because it's supposed to kill those "evil allergy germs," so I get /helthier/, right?
+
+Of course, now I know there's no such thing as evil allergy germs.
+Certain drugs make us feel:
+
+- Tired
+- Excited
+- Awake
+
+There have been many studies describing why that happens.
+Although it's a complicated matter, the (superficial) mechanism itself is simple. It all comes down to how our "brain" works!
 
 * BBB(Blood-Brain Barrier)
 :PROPERTIES:
 :CUSTOM_ID: bbbblood-brain-barrier
 :END:
-The *Blood-Brain Barrier (BBB)* is the selective barrier that separates the blood from the brain's extracellular fluid in the central nervous system (CNS). 
-It's there to protect the brain from harmful substances, while allowing essential nutrients to get into the brain.
+Our brain has a barrier that selectively allows certain substances to pass from the bloodstream into the brain. 
+The *Blood-Brain Barrier (BBB)* is this selective barrier that separates the blood from the brain's extracellular fluid in the CNS(Central Nervous System).
+
+Its main function is to protect the brain from harmful substances while allowing essential nutrients to enter.
 
 #+ATTR_HTML: :width 300px :class center
-[[file:BBB.png]]
-/Figure 1. Taken from "Cordance Medical"/
+[[file:images/BBB.png]]
+/Figure 1. An image of Blood-Brain Barrier in the brain, (Taken from "Cordance Medical"/).
 
-In general, lipid soluble molecules, which are "oil-friendly", are the let-in substnaces while water-soluble molecules aren't.
-That being said, some of the drugs /happen to/ be easily crosisng the BBB, while the other kinds of drugs are /specifically designed/ to be. 
+Generally, lipid-soluble molecules, which are "oil-friendly," can pass through the BBB, whereas water-soluble molecules cannot. \\
+Some drugs /happen to/ cross the BBB even though we don't want them to, while some others drugs (most of psychoactive drugs) are specifically designed to do so.
 
 * Well-known drugs that enter the BBB with side-effects
 :PROPERTIES:
@@ -48,12 +61,12 @@ That being said, some of the drugs /happen to/ be easily crosisng the BBB, while
 :PROPERTIES:
 :CUSTOM_ID: caffein-and-coffee
 :END:
-The most loved drug among the people today, arguably I think, is Caffein. 
-Caffein goes through the BBB, blocking adenosine receptors. 
+Arguably, the most loved drug among people today is coffee, though you don't need a doctor's prescription.
+Caffeine in tne coffee can cross the BBB and block adenosine receptors.
 
-When your brain gets adenosine, it makes you calm. 
-However, caffein blocks its receptors. Therefore your brain can't calm, resulting in a state of alertness.
-Too much caffein can give you excessive alertness, thus giving you a side-effect of insomnia, as follows:
+Adenosine makes you feel calm, but when caffeine blocks its receptors, your brain can't calm down, resulting in a state of alertness.
+Too much caffeine can lead to excessive alertness, causing side effects like insomnia, as shown below:
+
 #+begin_example
   Step 1: Caffeine Ingestion
         |
@@ -99,10 +112,10 @@ Too much caffein can give you excessive alertness, thus giving you a side-effect
 :PROPERTIES:
 :CUSTOM_ID: adderall
 :END:
-The notorious Adderall also uses a similar mechanism. 
+The notorious drug Adderall uses a similar mechanism.
+It's designed to cross the BBB and directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
 
-It goes thorugh the BBB, directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
-That leads to hyper alertness (stronger than caffein to simply block a bit of adenosine receptors).
+That results in a hyper-alertness, stronger than the /regular/ alertness caused by caffeine as described above, which merely blocks some adenosine receptors.
 
 
 
