@@ -1,4 +1,17 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+
+* Table of Contents
+- [[#once-upon-a-time-][Once upon a time ...]]
+- [[#bbbblood-brain-barrier][BBB(Blood-Brain Barrier)]]
+- [[#well-known-drugs-that-enter-the-bbb-with-side-effects][Well-known drugs that enter the BBB with side-effects]]
+  - [[#caffein-and-coffee][Caffein and coffee]]
+  - [[#adderall][Adderall]]
+
 * Once upon a time ...
+:PROPERTIES:
+:CUSTOM_ID: once-upon-a-time-
+:END:
 The first time I learned about Blood-Brain Barrier, I was a kid perscribed with Cetirizine 10mg.
 After I told my doctor I was feeling sleepy after the doze, he /roughly/ explained to me the other medicines would make me even more sleepy.   
 
@@ -14,65 +27,89 @@ It's all related to the brain.
 Brain has a /barrier/ that selectively allows substances to pass through your cerebral blood vessels into the brain.
 
 * BBB(Blood-Brain Barrier)
+:PROPERTIES:
+:CUSTOM_ID: bbbblood-brain-barrier
+:END:
 The *Blood-Brain Barrier (BBB)* is the selective barrier that separates the blood from the brain's extracellular fluid in the central nervous system (CNS). 
-It's there to protect the brain from harmful substances, while allowing essential nutrients to get into the brain. 
+It's there to protect the brain from harmful substances, while allowing essential nutrients to get into the brain.
+
+#+ATTR_HTML: :width 300px :class center
+[[file:BBB.png]]
+/Figure 1. Taken from "Cordance Medical"/
 
 In general, lipid soluble molecules, which are "oil-friendly", are the let-in substnaces while water-soluble molecules aren't.
 That being said, some of the drugs /happen to/ be easily crosisng the BBB, while the other kinds of drugs are /specifically designed/ to be. 
 
-** Well-known drugs that enter the BBB with side-effects
-*** Caffein and coffee
+* Well-known drugs that enter the BBB with side-effects
+:PROPERTIES:
+:CUSTOM_ID: well-known-drugs-that-enter-the-bbb-with-side-effects
+:END:
+** Caffein and coffee
+:PROPERTIES:
+:CUSTOM_ID: caffein-and-coffee
+:END:
 The most loved drug among the people today, arguably I think, is Caffein. 
 Caffein goes through the BBB, blocking adenosine receptors. 
 
 When your brain gets adenosine, it makes you calm. 
 However, caffein blocks its receptors. Therefore your brain can't calm, resulting in a state of alertness.
 Too much caffein can give you excessive alertness, thus giving you a side-effect of insomnia, as follows:
+#+begin_example
+  Step 1: Caffeine Ingestion
+        |
+        v
+  +-----------------------+
+  |  Caffeine enters the  |
+  |    blood stream        |
+  +-----------------------+
+        |
+        v
+  Step 2: Caffeine Crosses the BBB
+        |
+        v
+  +-----------------------+    +-----------------------+
+  |   Caffeine crosses    | -> |   Caffeine reaches    |
+  |   the Blood-Brain     |    |      the brain        |
+  |       Barrier         |    +-----------------------+
+  +-----------------------+            |
+                                       v
+  Step 3: Blocking Adenosine Receptors
+                                       |
+                                       v
+  +-----------------------+    +-----------------------+    +-----------------------+
+  |   Caffeine binds to   | -> |  Adenosine receptors  | -> |  Blocking adenosine   |
+  |  adenosine receptors  |    |      are blocked      |    |  reduces the calming  |
+  +-----------------------+    +-----------------------+    |       effect          |
+                                                            +-----------------------+
+                                                                   |
+                        +------------------------------------------+                                           
+                        |
+                        v
+  Step 4: Increased Alertness
+                        |                                            
+                        v                                           
+  +-----------------------+    +-----------------------+
+  |  State of alertness   | -> | Excessive alertness   |
+  |    is maintained      |    | can lead to insomnia  |
+  +-----------------------+    |      and anxiety      |
+                               +-----------------------+
+#+end_example
 
-Step 1: Caffeine Ingestion
-      |
-      v
-+-----------------------+
-|  Caffeine enters the  |
-|    blood stream        |
-+-----------------------+
-      |
-      v
-Step 2: Caffeine Crosses the BBB
-      |
-      v
-+-----------------------+    +-----------------------+
-|   Caffeine crosses    | -> |   Caffeine reaches    |
-|   the Blood-Brain     |    |      the brain        |
-|       Barrier         |    +-----------------------+
-+-----------------------+            |
-                                     v
-Step 3: Blocking Adenosine Receptors
-                                     |
-                                     v
-+-----------------------+    +-----------------------+    +-----------------------+
-|   Caffeine binds to   | -> |  Adenosine receptors  | -> |  Blocking adenosine   |
-|  adenosine receptors  |    |      are blocked      |    |  reduces the calming  |
-+-----------------------+    +-----------------------+    |       effect          |
-                                                          +-----------------------+
-                                                                 |
-                      +------------------------------------------+                                           
-                      |
-                      v
-Step 4: Increased Alertness
-                      |                                            
-                      v                                           
-+-----------------------+    +-----------------------+
-|  State of alertness   | -> | Excessive alertness   |
-|    is maintained      |    | can lead to insomnia  |
-+-----------------------+    |      and anxiety      |
-                             +-----------------------+
-
-*** Adderall
+** Adderall
+:PROPERTIES:
+:CUSTOM_ID: adderall
+:END:
 The notorious Adderall also uses a similar mechanism. 
 
 It goes thorugh the BBB, directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
 That leads to hyper alertness (stronger than caffein to simply block a bit of adenosine receptors).
+
+
+
+
+
+
+
 
 
 
