@@ -1,5 +1,9 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+TITLE: Dean's Blog
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  <2024-05-26 일 08:01>
+#+options: timestamp:nil
 
 * Table of Contents
 - [[#once-upon-a-time-][Once upon a time ...]]
