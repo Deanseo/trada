@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dean's Blog</title>
+<title>SeqLock</title>
 <meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
@@ -17,12 +17,12 @@
 </head>
 <body>
 <div id="content" class="content">
-<h1 class="title">Dean's Blog</h1>
+<h1 class="title">SeqLock</h1>
 <div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org4a037f8">1. Table of Contents</a></li>
+<li><a href="#orgbca66a8">1. Table of Contents</a></li>
 <li><a href="#what-is-seqlock-and-how-it-works">2. What is SeqLock and how it works</a>
 <ul>
 <li><a href="#actual-code">2.1. Actual code</a></li>
@@ -41,8 +41,8 @@
 </div>
 </div>
 
-<div id="outline-container-org4a037f8" class="outline-2">
-<h2 id="org4a037f8"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-orgbca66a8" class="outline-2">
+<h2 id="orgbca66a8"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li><a href="#what-is-seqlock-and-how-it-works">What is SeqLock and how it works</a>
@@ -110,7 +110,7 @@ Let's look at the actual code first. Then we will break it down.
 <div id="outline-container-how-it-works" class="outline-3">
 <h3 id="how-it-works"><span class="section-number-3">2.2.</span> How it works</h3>
 <div class="outline-text-3" id="text-how-it-works">
-<pre class="example" id="org1115447">
+<pre class="example" id="orgf1276ed">
 Sequence Counter: 0 (even - no write in progress)
       |
       v
