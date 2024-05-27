@@ -56,6 +56,7 @@ private:
 :PROPERTIES:
 :CUSTOM_ID: how-it-works
 :END:
+SeqLock, short for Sequence Lock, is a synchronization mechanism that operates using a sequence counter that monitors updates to the data:
 #+begin_example
   Sequence Counter: 0 (even - no write in progress)
         |
@@ -80,6 +81,14 @@ private:
   | - Reader 3 reads data |<-----+
   +-----------------------+
 #+end_example
+
+When a writer wishes to update the shared data, it first increments the counter to an odd value, signaling that a write operation is in progress. 
+After the write is completed, the counter is incremented again to an even number, indicating that the data is stable and valid for reading. 
+
+Readers, on the other hand, check the counter before and after they access the data. If the counter value is odd or changes between their two checks, 
+it suggests the shared data is corrupted due to a concurrent write.
+
+The benefits of this mechanism is that it minimizes the locking overhead for writers.
 
 ** Caveats
 :PROPERTIES:
