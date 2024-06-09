@@ -8,9 +8,13 @@
 * Table of Contents
 - [[#once-upon-a-time-][Once upon a time ...]]
 - [[#bbbblood-brain-barrier][BBB(Blood-Brain Barrier)]]
-- [[#well-known-drugs-that-enter-the-bbb-with-side-effects][Well-known drugs that enter the BBB with side-effects]]
-  - [[#caffein-and-coffee][Caffein and coffee]]
-  - [[#adderall][Adderall]]
+  - [[#well-known-drugs-that-enter-the-bbb-with-side-effects][Well-known drugs that enter the BBB with side-effects]]
+    - [[#cetirizine][Cetirizine]]
+      - [[#diphenhydramine][Diphenhydramine]]
+    - [[#adderall][Adderall]]
+    - [[#caffein-and-coffee][Caffein and coffee]]
+- [[#connection-to-dementia][Connection to dementia]]
+- [[#conclusion][Conclusion]]
 
 * Once upon a time ...
 :PROPERTIES:
@@ -57,11 +61,46 @@ Its main function is to protect the brain from harmful substances while allowing
 Generally, lipid-soluble molecules, which are "oil-friendly," can pass through the BBB, whereas water-soluble molecules cannot. \\
 Some drugs /happen to/ cross the BBB even though we don't want them to, while some others drugs (most of psychoactive drugs) are specifically designed to do so.
 
-* Well-known drugs that enter the BBB with side-effects
+** Well-known drugs that enter the BBB with side-effects
 :PROPERTIES:
 :CUSTOM_ID: well-known-drugs-that-enter-the-bbb-with-side-effects
 :END:
-** Caffein and coffee
+
+*** Cetirizine
+:PROPERTIES:
+:CUSTOM_ID: cetirizine
+:END:
+Cetirizine, one of the most famouse antihistamines, is what first came to my mind to write this article.
+it can cause drowsiness, although it's generally known for being /less sedating/ compared to those /first-generation/ antihistamines, which aren't really a preferred choice to treat your allergy.
+
+It is indded far less fat-soluble, but it still penetrates the BBB, entering the CNS.
+
+One of the important roles Histamine plays is that it regulates wakefulness and alertness in the brain.
+Therefore, Cetirizine blocking histamine H1 receptors in the CNS, even to a small extent, would result in drowsiness and sedation.
+
+**** Diphenhydramine
+:PROPERTIES:
+:CUSTOM_ID: diphenhydramine
+:END:
+Diphenhydramine is the 1st gen. antihistamine with anticholinergic toxicity.
+Although it's labled as an antihistamine, it's more often used as a sleep inducer today.
+The scary part is that it's quite anticholinergic and there are strong evidences that its chronic use is related to dementia.
+#+ATTR_HTML: :width 200px :class center
+[[file:images/Sleep-eze.jpg]]
+/Figure 2. Wanna ride an express train to lowering your IQ with a risk of dementia?/
+
+In my opinion, it's unfortunate that in most countries you can buy this without doctor's prescription considering the risk after a long term use is significant.
+
+*** Adderall
+:PROPERTIES:
+:CUSTOM_ID: adderall
+:END:
+The notorious drug Adderall uses a similar mechanism.
+It's designed to cross the BBB and directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
+
+That results in a hyper-alertness, stronger than the /regular/ alertness caused by caffeine as described above, which merely blocks some adenosine receptors.
+
+*** Caffein and coffee
 :PROPERTIES:
 :CUSTOM_ID: caffein-and-coffee
 :END:
@@ -112,17 +151,27 @@ Too much caffeine can lead to excessive alertness, causing side effects like ins
                                +-----------------------+
 #+end_example
 
-** Adderall
+* Connection to dementia
 :PROPERTIES:
-:CUSTOM_ID: adderall
+:CUSTOM_ID: connection-to-dementia
 :END:
-The notorious drug Adderall uses a similar mechanism.
-It's designed to cross the BBB and directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
-
-That results in a hyper-alertness, stronger than the /regular/ alertness caused by caffeine as described above, which merely blocks some adenosine receptors.
+There are many studies published, show that the long-term use of those drug affecting the CNS by crossing the BBB is /strongly/ associated with an increased risk of dementia. 
 
 * Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
 .
+
+
+
+
+
+
+
+
+
+
 
 
 
