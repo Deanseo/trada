@@ -3,11 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-04-28 일 14:37 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>&lrm;</title>
-<meta name="author" content="U-SGITGLAP01\admin" />
+<title>Dean's Blog</title>
+<meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -18,161 +17,169 @@
 </head>
 <body>
 <div id="content" class="content">
+<h1 class="title">Dean's Blog</h1>
 <div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgf9daa35">1. Table of Contents</a></li>
-<li><a href="#org916e595">2. What's Transaction Limitter?</a></li>
-<li><a href="#org8bba982">3. Why do we need Transaction Limitter?</a></li>
-<li><a href="#orgf7e6cc0">4. How to develop Transaction Limitter?</a></li>
+<li><a href="#org7dfe690">1. Table of Contents</a></li>
+<li><a href="#org17601d4">2. What's Transaction Limiter?</a></li>
+<li><a href="#orge6797f5">3. Why do we need Transaction Limiter?</a>
+<ul>
+<li><a href="#orgeb03e17">3.1. Crypto Trading and Transaction Limiter</a></li>
+</ul>
+</li>
+<li><a href="#org36e6eb3">4. How to develop Transaction Limiter?</a>
+<ul>
+<li><a href="#org88ba7ae">4.1. Implement a base class</a></li>
+<li><a href="#org0dc5deb">4.2. Implement a circular buffer</a></li>
+</ul>
+</li>
+<li><a href="#org47c30fe">5. Conclusion</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgf9daa35" class="outline-2">
-<h2 id="orgf9daa35"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-org7dfe690" class="outline-2">
+<h2 id="org7dfe690"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-DRAFT
+.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org916e595" class="outline-2">
-<h2 id="org916e595"><span class="section-number-2">2.</span> What's Transaction Limitter?</h2>
+<div id="outline-container-org17601d4" class="outline-2">
+<h2 id="org17601d4"><span class="section-number-2">2.</span> What's Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-Transaction Limiter makes sure you don't accidentally send more orders than you're allowed to.
+A Transaction Limiter helps ensure you don't accidentally send more orders than you're allowed to.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org8bba982" class="outline-2">
-<h2 id="org8bba982"><span class="section-number-2">3.</span> Why do we need Transaction Limitter?</h2>
+<div id="outline-container-orge6797f5" class="outline-2">
+<h2 id="orge6797f5"><span class="section-number-2">3.</span> Why do we need Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-3">
 <p>
-For a fair trading environemt and to protect individual traders, Many global exchanges constraints a total count of order request a market participant can send in a fixed duration.
-Crypto exchanges tend to apply a more strict restriction.
+To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
+Breaking this rule is never a good idea, because there will be consequences(punishment).
 </p>
 
 <p>
-A severe punishment can be followed if you break this rule.
-For example, you'll be probably prohibited from trading for a couple of hours, if it's the first time.
-If <i>the mistake</i> continues, there's a risk that you'll get banned from the exchange for LONG (3 months, 6 months, or forever).
+For example, the first offense might result in a trading suspension for a few hours.
+If the behavior continues, you could face a longer ban - three months, six months, or even permanently.
 </p>
 
 <p>
-This is not good.
-It's probably a good decision to ban those because they aren't in control, obviously.
+Don't get me wrong. These rules are essential.
+It's a good idea to ban those who can't keep their trading system under control. This is for everyone and to maintain fairness in the market.
 </p>
-
-<p>
-//info box?
-In my opinion, it's an interesting project to implement a limiter class, not only in the trading industry but in general!
-The implementation can be generic such that you can control certain tasks to be executed in a fixed window.
-//info box end
-</p>
-
-<div class="info" id="orgbc83939">
-<p>
-<b>Info example</b> <br />
-Did you know&#x2026;
-</p>
-
 </div>
 
-<div class="tip" id="orgdbcfb25">
+<div id="outline-container-orgeb03e17" class="outline-3">
+<h3 id="orgeb03e17"><span class="section-number-3">3.1.</span> Crypto Trading and Transaction Limiter</h3>
+<div class="outline-text-3" id="text-3-1">
 <p>
-<b>Tip example</b> <br />
-Try doing it this way&#x2026;
+Crypto exchanges often impose even stricter restrictions.
+Since <a href="https://en.wikipedia.org/wiki/Bankruptcy_of_FTX">the fall of FTX</a>, which supported the <a href="https://en.wikipedia.org/wiki/Financial_Information_eXchange#Technical_specifications">FIX protocol</a>, most users trade, using the exchange's WebAPIs where the definition of the transaction limit is somewhat <i>vague</i>
+such that they're advised to make order requests in a more <i>conservative</i> stance.
 </p>
-
 </div>
-
-<p>
-A note box is displayed as follows:
-</p>
-
-<div class="note" id="orgdea1f8f">
-<p>
-<b>Note example</b> <br />
-This is a useful note&#x2026;
-</p>
-
-</div>
-
-<p>
-A note box is displayed as follows:
-</p>
-
-<div class="note" id="org10ce14c">
-<p>
-<b>Note example</b> <br />
-This is a useful note&#x2026;
-</p>
-
-</div>
-
-
-<p>
-A warning box is displayed as follows:
-</p>
-
-<div class="warning" id="orgd530912">
-<p>
-<b>Warning example</b> <br />
-Be careful!  Check that you have&#x2026;
-</p>
-
-</div>
-
-<blockquote>
-<p>
-Let us change our traditional attitude to the construction of programs:
-Instead of imagining that our main task is to instruct a computer what to do,
-let us concentrate rather on explaining to human beings what we want a
-computer to do.
-</p>
-
-<p>
-The practitioner of literate programming can be regarded as an essayist, whose
-main concern is with exposition and excellence of style. Such an author, with
-thesaurus in hand, chooses the names of variables carefully and explains what
-each variable means. He or she strives for a program that is comprehensible
-because its concepts have been introduced in an order that is best for human
-understanding, using a mixture of formal and informal methods that reinforce
-each other.
-</p>
-
-<p>
-&#x2014; Donald Knuth
-</p>
-</blockquote>
 </div>
 </div>
 
-
-
-
-
-
-<div id="outline-container-orgf7e6cc0" class="outline-2">
-<h2 id="orgf7e6cc0"><span class="section-number-2">4.</span> How to develop Transaction Limitter?</h2>
+<div id="outline-container-org36e6eb3" class="outline-2">
+<h2 id="org36e6eb3"><span class="section-number-2">4.</span> How to develop Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-4">
+<div class="note" id="org4f26ba1">
 <p>
-#+begin<sub>example</sub>
+In my opinion, it's an interesting project to write a limiter class, not only in the trading industry but in general.
+The implementation can be generic to your business requirements, such that you can control certain tasks to be executed up to certain times only.
+</p>
+
+</div>
+
+<p>
+For simplicity, let's say we don't support any rich features but focus on these abolustely minimal requirements: <br />
+</p>
+<ul class="org-ul">
+<li><b>Check</b>, if we have capacity.</li>
+<li><b>Decrement</b> capacity by 1, if we do.</li>
+</ul>
+
+<p>
+We've got those two interfaces defined, <code>check()</code> and <code>decrement()</code>, but how are we supposed to define and checking the capacity?
+Though there are different ways to implement that, I'll use a circular buffer in this article.
 </p>
 
 <p>
-#+end<sub>exampleo</sub>
+One more thing - imagine a scenario where we <b>must</b> send orders, no matter what, even if the limitter says no.
+For example, we might have to send cancellation orders due to a sudden price move or our hedging position becoming neutral.
+</p>
+
+<p>
+To get around that situation, we'll also create another exclusive buffer that only accepts when the order comes with a priority tag.
+</p>
+</div>
+
+<div id="outline-container-org88ba7ae" class="outline-3">
+<h3 id="org88ba7ae"><span class="section-number-3">4.1.</span> Implement a base class</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+A base class defines those two interfaces as well as the priority tag.
+Note that I made the base class let the priority tag optional, rather than enforcing the priority tag to be <i>always</i> present but rather 
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-keyword">enum</span> <span class="org-keyword">class</span> <span class="org-type">priority_tag</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-variable-name">Tag_</span> <span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">ImplType</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
+<span class="org-keyword">struct</span> <span class="org-type">base_limitter</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">auto</span> *<span class="org-function-name">This</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> <span class="org-keyword">static_cast</span><span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">ImplType</span> *<span class="org-rainbow-delimiters-depth-3">&gt;(</span><span class="org-keyword">this</span><span class="org-rainbow-delimiters-depth-3">)</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
+    <span class="org-keyword">auto</span> *<span class="org-function-name">This</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-keyword">const</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> <span class="org-keyword">static_cast</span><span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-keyword">const</span> <span class="org-type">ImplType</span> *<span class="org-rainbow-delimiters-depth-3">&gt;(</span><span class="org-keyword">this</span><span class="org-rainbow-delimiters-depth-3">)</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">[</span>nodiscard<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-keyword">constexpr</span> <span class="org-keyword">auto</span> <span class="org-function-name">size</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-keyword">const</span> <span class="org-keyword">noexcept</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-3">()</span>-&gt;size<span class="org-rainbow-delimiters-depth-3">()</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">check_capacity_and_add</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-3">()</span>-&gt;check_capacity_and_add<span class="org-rainbow-delimiters-depth-3">()</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
+    <span class="org-type">bool</span> <span class="org-function-name">check_capacity_and_add</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">priority_tag</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-keyword">constexpr</span> <span class="org-rainbow-delimiters-depth-3">(</span>requires<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">ImplType</span> <span class="org-variable-name">impl</span>, <span class="org-type">priority_tag</span> <span class="org-variable-name">tag</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+                          <span class="org-rainbow-delimiters-depth-5">{</span> impl.check_capacity_and_add<span class="org-rainbow-delimiters-depth-6">(</span>tag<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-5">}</span> -&gt; <span class="org-constant">std</span>::<span class="org-type">same_as</span><span class="org-rainbow-delimiters-depth-5">&lt;</span><span class="org-type">bool</span><span class="org-rainbow-delimiters-depth-5">&gt;</span>;
+                      <span class="org-rainbow-delimiters-depth-4">}</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-4">()</span>-&gt;check_capacity_and_add<span class="org-rainbow-delimiters-depth-4">(</span>priority_tag<span class="org-rainbow-delimiters-depth-5">{}</span><span class="org-rainbow-delimiters-depth-4">)</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span> <span class="org-keyword">else</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-4">()</span>-&gt;check_capacity_and_add<span class="org-rainbow-delimiters-depth-4">()</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0dc5deb" class="outline-3">
+<h3 id="org0dc5deb"><span class="section-number-3">4.2.</span> Implement a circular buffer</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+A <a href="circular-buffer.html">circular buffer</a> is an essential data structure Transaction Limiter needs to use.
+There are many solid implementations of circular buffer available, including <a href="https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html">boost::circular<sub>buffer</sub></a>.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org47c30fe" class="outline-2">
+<h2 id="org47c30fe"><span class="section-number-2">5.</span> Conclusion</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+.
 </p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Author: U-SGITGLAP01\admin</p>
-<p class="date">Created: 2024-04-28 일 14:37</p>
+<p class="date">Date: 2024-05-25 Sat 14:22</p>
+<p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

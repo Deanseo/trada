@@ -5,79 +5,87 @@
 #+options: timestamp:nil
 
 * Table of Contents
-DRAFT
+.
 
-* What's Transaction Limitter?
-Transaction Limiter makes sure you don't accidentally send more orders than you're allowed to.
+* What's Transaction Limiter?
+A Transaction Limiter helps ensure you don't accidentally send more orders than you're allowed to.
 
-* Why do we need Transaction Limitter?
-For a fair trading environemt and to protect individual traders, Many global exchanges constraints a total count of order request a market participant can send in a fixed duration.
-Crypto exchanges tend to apply a more strict restriction.
+* Why do we need Transaction Limiter?
+To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
+Breaking this rule is never a good idea, because there will be consequences(punishment).
 
-A severe punishment can be followed if you break this rule.
-For example, you'll be probably prohibited from trading for a couple of hours, if it's the first time.
-If /the mistake/ continues, there's a risk that you'll get banned from the exchange for LONG (3 months, 6 months, or forever).
+For example, the first offense might result in a trading suspension for a few hours.
+If the behavior continues, you could face a longer ban - three months, six months, or even permanently.
 
-This is not good.
-It's probably a good decision to ban those because they aren't in control, obviously.
+Don't get me wrong. These rules are essential.
+It's a good idea to ban those who can't keep their trading system under control. This is for everyone and to maintain fairness in the market.
 
-//info box?
-In my opinion, it's an interesting project to implement a limiter class, not only in the trading industry but in general!
-The implementation can be generic such that you can control certain tasks to be executed in a fixed window.
-//info box end
+** Crypto Trading and Transaction Limiter
+Crypto exchanges often impose even stricter restrictions.
 
-#+begin_info
-*Info example* \\
-Did you know...
-#+end_info
+Since [[https://en.wikipedia.org/wiki/Bankruptcy_of_FTX][the fall of FTX]], which supported the [[https://en.wikipedia.org/wiki/Financial_Information_eXchange#Technical_specifications][FIX protocol]], most users trade, using the exchange's WebAPIs where the definition of the transaction limit is somewhat /vague/
+so that they're advised to make order requests in a more /conservative/ stance.
 
-#+begin_tip
-*Tip example* \\
-Try doing it this way...
-#+end_tip
-
-A note box is displayed as follows:
-
+* How to develop Transaction Limiter?
 #+begin_note
-*Note example* \\
-This is a useful note...
+In my opinion, creating a transaction limiter class is a fascinating project, not just for the trading industry but in general.
+You can design the implementation to be flexible enough to meet your own business requirements, such that you can control how many times certain tasks can be executed.
 #+end_note
 
+To keep things simple, we'll focus on the most essential requirements:
 
-A warning box is displayed as follows:
+- *Check* if we have capacity.
+- *Decrement* capacity by 1 if we do.
 
-#+begin_warning
-*Warning example* \\
-Be careful!  Check that you have...
-#+end_warning
+We'll define two interfaces, =check()= and =decrement()=.
+Although there can be various ways, I'll use a "circular buffer" in this article.
 
-#+begin_quote
-Let us change our traditional attitude to the construction of programs:
-Instead of imagining that our main task is to instruct a computer what to do,
-let us concentrate rather on explaining to human beings what we want a
-computer to do.
+Now, imagine a scenario where we must send orders regardless of the limiter, such as when we need to send cancellation orders due to a sudden price move or our hedging position becoming neutral.
+To handle this edge case, we'll also create an exclusive buffer which accepts orders even when we hit the transaction limit.
 
-The practitioner of literate programming can be regarded as an essayist, whose
-main concern is with exposition and excellence of style. Such an author, with
-thesaurus in hand, chooses the names of variables carefully and explains what
-each variable means. He or she strives for a program that is comprehensible
-because its concepts have been introduced in an order that is best for human
-understanding, using a mixture of formal and informal methods that reinforce
-each other.
+** Implement a base class
+A base class defines those two interfaces as well as the priority tag.
+Note that I made the base class let the priority tag optional, rather than enforcing the priority tag to be /always/ present but rather 
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  enum class priority_tag { Tag_ };
 
---- Donald Knuth
-#+end_quote
+  template <typename ImplType>
+  struct base_limitter {
+      auto *This() { return static_cast<ImplType *>(this); }
+      auto *This() const { return static_cast<const ImplType *>(this); }
+
+      [[nodiscard]] constexpr auto size() const noexcept { return This()->size(); }
+
+      bool check_capacity_and_add() { return This()->check_capacity_and_add(); }
+      bool check_capacity_and_add(priority_tag) {
+          if constexpr (requires(ImplType impl, priority_tag tag) {
+                            { impl.check_capacity_and_add(tag) } -> std::same_as<bool>;
+                        }) {
+              return This()->check_capacity_and_add(priority_tag{});
+          } else {
+              return This()->check_capacity_and_add();
+          }
+      }
+  };
+#+END_SRC
+
+** Implement a circular buffer
+A [[file:circular-buffer.org][circular buffer]] is an essential data structure Transaction Limiter needs to use.
+There are many solid implementations of circular buffer available, including [[https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html][boost::circular_buffer]].
+
+
+* Conclusion
+.
 
 
 
 
 
 
-* How to develop Transaction Limitter?
-#+begin_example
 
-#+end_exampleo
- 
+
+
+
 
 
 
