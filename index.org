@@ -22,13 +22,12 @@ Whether it's refining processes or pioneering new software innovations, my goal 
 You can reach me via *deaniac.seo@gmail.com* anytime!
 
 * Postings
-#+begin_tip
-Some of the content here was originally posted on my old blog, which was hosted on a local Korean platform. \\
+Some of the content here was originally posted on my old blog, which was hosted on a local Korean platform. 
 The hosting firm has faced criticism for multiple issues such as its malicious users exploiting Google AdSense and frequent
 changes of their user agreement changes, especially since they were acquired by Kakao Corp.
 
 Because of these issues, I've decided to revamp my articles and repost them here.
-#+end_tip
+
 
 ** Programming
 - [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
