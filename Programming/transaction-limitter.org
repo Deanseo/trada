@@ -1,7 +1,7 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE: Dean's Blog
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  <2024-05-25 토 14:22>
+#+DATE:  <2020-01-25 Sat 14:22>
 #+options: timestamp:nil
 
 * Table of Contents
@@ -12,8 +12,7 @@ A Transaction Limiter helps ensure you don't accidentally send more orders than 
 
 * Why do we need Transaction Limiter?
 To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
-Breaking this rule is never a good idea, because there will be consequences(punishment).
-
+It is never a good idea to break this rule, because there will be +punishment+ consequences.
 For example, the first offense might result in a trading suspension for a few hours.
 If the behavior continues, you could face a longer ban - three months, six months, or even permanently.
 
@@ -44,8 +43,12 @@ Now, imagine a scenario where we must send orders regardless of the limiter, suc
 To handle this edge case, we'll also create an exclusive buffer which accepts orders even when we hit the transaction limit.
 
 ** Implement a base class
-A base class defines those two interfaces as well as the priority tag.
-Note that I made the base class let the priority tag optional, rather than enforcing the priority tag to be /always/ present but rather 
+A base class defines those two interfaces as well as =priority_tag=.
+
+The *priority tag* covers the above-mentioned case where we must send cancel orders, which means we'll always have to keep a small room for urgent cancellations.
+
+Note that I made the base class have this "optional" priority tag so the users can decide if the order carries urgency in it.
+When an order is just a new FOK order, for example, probably there's no need to use the tagged overload.
 #+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   enum class priority_tag { Tag_ };
 
@@ -63,16 +66,19 @@ Note that I made the base class let the priority tag optional, rather than enfor
                         }) {
               return This()->check_capacity_and_add(priority_tag{});
           } else {
+              // The implementation doesn't support "prioritiness".
               return This()->check_capacity_and_add();
           }
       }
   };
 #+END_SRC
 
-** Implement a circular buffer
-A [[file:circular-buffer.org][circular buffer]] is an essential data structure Transaction Limiter needs to use.
-There are many solid implementations of circular buffer available, including [[https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html][boost::circular_buffer]].
+An limiter implementation inheriting from =base_limitter= might not support /prioritiness/.
+In that case, =priority_tag= will be ignored, and the regular overload will be chosen.
 
+** Implement a Circular Buffer
+A [[file:circular-buffer.org][circular buffer]] is probably a data structure candidate a *Transaction Limiter* needs to use. (/For obvious reasons, you shouldn't use my implementation in production/.)
+There are many solid implementations of circular buffer available, including [[https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html][boost::circular_buffer]].
 
 * Conclusion
 .
