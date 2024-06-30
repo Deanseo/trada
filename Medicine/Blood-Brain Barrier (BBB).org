@@ -2,7 +2,7 @@
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
 #+TITLE: BBB(Blood-Brain Barrier)
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  <2024-05-26 일 08:01>
+#+DATE:  <2019-05-26 Sun 08:01>
 #+options: timestamp:nil
 
 * Table of Contents

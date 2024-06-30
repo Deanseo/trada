@@ -1,7 +1,7 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE: SeqLock
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  <2024-01-31 수 14:55>
+#+DATE:  <2021-01-31 Sun 14:55>
 #+options: timestamp:nil
 
 * Table of Contents

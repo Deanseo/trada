@@ -1,7 +1,7 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE: Circular Buffer
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  <2024-01-08 월>
+#+DATE:  <2020-01-08 Wed>
 #+options: timestamp:nil
 
 * Table of Contents
@@ -10,7 +10,6 @@
     - [[#a-very-simple-circular-buffer-for-a-single-thread][A (very) simple Circular Buffer for a single thread]]
     - [[#spscsingle-producer-single-consumer-circular-buffer][SPSC(Single-Producer Single-Consumer) Circular Buffer]]
     - [[#mpmcmulti-producer-multi-consumer-circular-buffer][MPMC(Multi-Producer Multi-Consumer) Circular Buffer]]
-- [[#conclusion][Conclusion]]
 
 * Circular Buffer
 :PROPERTIES:
@@ -19,13 +18,13 @@
 *Circular Buffer* is one of the most often used data structure in /real world/.
 Most buy-side firms probably have one or two in-house implementations and it's often even used during the live coding assessment.
 
-This implementation can be also used in my previous post about [[file:transaction-limitter.org][Transaction Limitter]].
+This implementation can be also used in my previous post about [[file:transaction-limitter.org][Transaction Limitter]] where you limit the total number of orders submitted per second.
 
-Therefore, it's useful to know the basics of Circular Buffer.
-There are several ways to implement this, depending on the requirement such as:
+So yeah, Circular Buffer is useful with interesting traits.
+There are several ways to implement it, depending on how you define the requirements, as follows:
 
-- Is it thread-safe?
-- Are there multiple producers/consumers accessing the buffer?  
+- Does it have to be thread-safe?
+- How many producers consumers are accessing the buffer simultaneously?
 
 ** How does it work?
 :PROPERTIES:
@@ -335,16 +334,6 @@ This is for =get=, by the same compiler, as follows:
 
 No modification order is changed by the compiler.
 Note that =cmpxchg= is used with =lock= prefix. This is an alternative to =mfence= in x86 which is [[https://preshing.com/20120515/memory-reordering-caught-in-the-act/][more expensive as a full memory berrier]].
-
-* Conclusion
-:PROPERTIES:
-:CUSTOM_ID: conclusion
-:END:
-.
-
-
-
-
 
 
 
