@@ -15,6 +15,7 @@
   - [[#implementat-the-limiter][Implementat the limiter]]
 - [[#how-to-use-transaction-limiter][How to use Transaction Limiter]]
   - [[#another-way-to-implement-this-without-using-the-circular-buffer][Another way to implement this without using the circular buffer]]
+- [[#conclusion][Conclusion]]
 
 * What's a Transaction Limiter?
 :PROPERTIES:
@@ -283,7 +284,14 @@ Each method has differnet cons and pros although in my opinion Circular Buffer i
 
 Hopefully I can re-visit this and cover those parts someday.
 
+* Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
+In conclusion, by focusing on the essential functions of checking and managing capacity, we can implement a simple solution tailored to various business needs.
+Utilizing a circular buffer is one easy way to allow for efficient capacity management.
 
+Whether you're looking to enhance trading systems or apply these principles to other areas, a well-designed Transaction Limiter can help maintain control and ensure smooth operations.
 
 
 

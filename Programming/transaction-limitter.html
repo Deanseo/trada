@@ -23,7 +23,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org662ce86">1. Table of Contents</a></li>
+<li><a href="#org6aef252">1. Table of Contents</a></li>
 <li><a href="#whats-a-transaction-limiter">2. What's a Transaction Limiter?</a></li>
 <li><a href="#why-do-we-need-a-transaction-limiter">3. Why do we need a Transaction Limiter?</a>
 <ul>
@@ -42,12 +42,13 @@
 <li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">5.1. Another way to implement this without using the circular buffer</a></li>
 </ul>
 </li>
+<li><a href="#conclusion">6. Conclusion</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org662ce86" class="outline-2">
-<h2 id="org662ce86"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-org6aef252" class="outline-2">
+<h2 id="org6aef252"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li><a href="#whats-a-transaction-limiter">What's a Transaction Limiter?</a></li>
@@ -65,6 +66,7 @@
 <ul class="org-ul">
 <li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</a></li>
 </ul></li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </div>
@@ -112,7 +114,7 @@ so that market partipants are advised to make order requests in a more <i>conser
 <div id="outline-container-how-to-develop-a-transaction-limiter" class="outline-2">
 <h2 id="how-to-develop-a-transaction-limiter"><span class="section-number-2">4.</span> How to develop a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-how-to-develop-a-transaction-limiter">
-<div class="tip" id="org1852b53">
+<div class="tip" id="orgacc1fc1">
 <p>
 In my opinion, creating a transaction limiter class is a fascinating project, not just for the trading industry but in general.
 You can design the implementation to be flexible enough to meet your own business requirements, such that you can control how many times certain tasks can be executed.
@@ -196,7 +198,7 @@ In that case, <code>priority_tag</code> will be ignored, and the regular overloa
 as mentioned, For this article, I will use <a href="circular-buffer.html">Circular Buffer</a> for its inner data structure.
 </p>
 
-<div class="warning" id="orgb442879">
+<div class="warning" id="org8d63c54">
 <p>
 <i>For obvious reasons, you shouldn't use my implementation in production</i>. <br />
 There are many solid (and better) implementations of circular buffer available, including <a href="https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html">Boost's Circular Buffer</a>
@@ -352,7 +354,7 @@ The usage is quite straight-forward; it immediately returns with the result indi
 It capsulizes the inner implementation so the order sender part may focus on its business logic.
 The big-picture sequencial diagram would be:
 </p>
-<pre class="example" id="org35c2045">
+<pre class="example" id="org49b6431">
 +---------------------------+
 |          Client           |
 +---------------------------+
@@ -390,7 +392,7 @@ The big-picture sequencial diagram would be:
 For cancellation, that special added buffer is looked up instead.
 This allows users to cancel their working orders in the book without having to worry about overlapping the buffer for new orders.
 </p>
-<div class="note" id="orgf10d157">
+<div class="note" id="orgde07249">
 <p>
 <b>What if there are just too many orders to cancel at once?</b> <br />
 <br />
@@ -415,6 +417,20 @@ Each method has differnet cons and pros although in my opinion Circular Buffer i
 Hopefully I can re-visit this and cover those parts someday.
 </p>
 </div>
+</div>
+</div>
+
+<div id="outline-container-conclusion" class="outline-2">
+<h2 id="conclusion"><span class="section-number-2">6.</span> Conclusion</h2>
+<div class="outline-text-2" id="text-conclusion">
+<p>
+In conclusion, by focusing on the essential functions of checking and managing capacity, we can implement a simple solution tailored to various business needs.
+Utilizing a circular buffer is one easy way to allow for efficient capacity management.
+</p>
+
+<p>
+Whether you're looking to enhance trading systems or apply these principles to other areas, a well-designed Transaction Limiter can help maintain control and ensure smooth operations.
+</p>
 </div>
 </div>
 </div>
