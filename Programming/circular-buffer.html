@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Circular Buffer</title>
+<meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Circular Buffer</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org5906a5f">1. Table of Contents</a></li>
+<li><a href="#circular-buffer">2. Circular Buffer</a>
+<ul>
+<li><a href="#how-does-it-work">2.1. How does it work?</a>
+<ul>
+<li><a href="#a-very-simple-circular-buffer-for-a-single-thread">2.1.1. A (very) simple Circular Buffer for a single thread</a></li>
+<li><a href="#spscsingle-producer-single-consumer-circular-buffer">2.1.2. SPSC(Single-Producer Single-Consumer) Circular Buffer</a></li>
+<li><a href="#mpmcmulti-producer-multi-consumer-circular-buffer">2.1.3. MPMC(Multi-Producer Multi-Consumer) Circular Buffer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5906a5f" class="outline-2">
+<h2 id="org5906a5f"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li><a href="#circular-buffer">Circular Buffer</a>
+<ul class="org-ul">
+<li><a href="#how-does-it-work">How does it work?</a>
+<ul class="org-ul">
+<li><a href="#a-very-simple-circular-buffer-for-a-single-thread">A (very) simple Circular Buffer for a single thread</a></li>
+<li><a href="#spscsingle-producer-single-consumer-circular-buffer">SPSC(Single-Producer Single-Consumer) Circular Buffer</a></li>
+<li><a href="#mpmcmulti-producer-multi-consumer-circular-buffer">MPMC(Multi-Producer Multi-Consumer) Circular Buffer</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-circular-buffer" class="outline-2">
+<h2 id="circular-buffer"><span class="section-number-2">2.</span> Circular Buffer</h2>
+<div class="outline-text-2" id="text-circular-buffer">
+<p>
+<b>Circular Buffer</b> is one of the most often used data structure in <i>real world</i>.
+Most buy-side firms probably have one or two in-house implementations and it's often even used during the live coding assessment.
+</p>
+
+<p>
+This implementation can be also used in my previous post about <a href="transaction-limitter.html">Transaction Limitter</a> where you limit the total number of orders submitted per second.
+</p>
+
+<p>
+So yeah, Circular Buffer is useful with interesting traits.
+There are several ways to implement it, depending on how you define the requirements, as follows:
+</p>
+
+<ul class="org-ul">
+<li>Does it have to be thread-safe?</li>
+<li>How many producers consumers are accessing the buffer simultaneously?</li>
+</ul>
+</div>
+
+<div id="outline-container-how-does-it-work" class="outline-3">
+<h3 id="how-does-it-work"><span class="section-number-3">2.1.</span> How does it work?</h3>
+<div class="outline-text-3" id="text-how-does-it-work">
+<p>
+Circular Buffer has two important trait that:
+</p>
+<ol class="org-ol">
+<li>The buffer has a fixed total size</li>
+<li>The next node of the last node in the buffer points to the very first node</li>
+</ol>
+
+<p>
+This design takes away the burden of taking care of the index where we can simply keep incrementing when a new node is stored.
+We need two variables representing <code>head</code> and <code>tail.</code>
+</p>
+
+<p>
+Every new node stored, there's one increment on <code>head</code>.
+Likewise, every new node loaded, there's one icrement on <code>tail</code>.
+</p>
+
+<p>
+Let's have a look at one of the simplest possible implementation:
+</p>
+</div>
+<div id="outline-container-a-very-simple-circular-buffer-for-a-single-thread" class="outline-4">
+<h4 id="a-very-simple-circular-buffer-for-a-single-thread"><span class="section-number-4">2.1.1.</span> A (very) simple Circular Buffer for a single thread</h4>
+<div class="outline-text-4" id="text-a-very-simple-circular-buffer-for-a-single-thread">
+<p>
+This offers the two minimal functionalities of circular buffer:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
+<span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">public</span>:
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>head_ + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_ == tail_<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is full, cannot add new item</span>
+            <span class="org-keyword">return</span> <span class="org-constant">false</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+        buf_<span class="org-rainbow-delimiters-depth-3">[</span>head_<span class="org-rainbow-delimiters-depth-3">]</span> = item;
+        head_ = <span class="org-rainbow-delimiters-depth-3">(</span>head_ + 1<span class="org-rainbow-delimiters-depth-3">)</span> % max_size_;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>tail_ == head_<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is empty, no items to retrieve</span>
+            <span class="org-keyword">return</span> <span class="org-constant">false</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+        item = buf_<span class="org-rainbow-delimiters-depth-3">[</span>tail_<span class="org-rainbow-delimiters-depth-3">]</span>;
+        tail_ = <span class="org-rainbow-delimiters-depth-3">(</span>tail_ + 1<span class="org-rainbow-delimiters-depth-3">)</span> % max_size_;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+<span class="org-keyword">private</span>:
+    <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;    <span class="org-comment-delimiter">// </span><span class="org-comment">Storage buffer</span>
+    <span class="org-type">size_t</span> <span class="org-variable-name">head_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next write position</span>
+    <span class="org-type">size_t</span> <span class="org-variable-name">tail_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next read position</span>
+    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;       <span class="org-comment-delimiter">// </span><span class="org-comment">Maximum capacity of the buffer</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+</pre>
+</div>
+
+<p>
+Let's say you're calling <code>push</code> and <code>get</code> as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-type">circular_buffer</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">int</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">cb</span><span class="org-rainbow-delimiters-depth-1">(</span>3<span class="org-rainbow-delimiters-depth-1">)</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">Create a circular buffer with capacity 3</span>
+
+cb.put<span class="org-rainbow-delimiters-depth-1">(</span>1<span class="org-rainbow-delimiters-depth-1">)</span>;
+cb.put<span class="org-rainbow-delimiters-depth-1">(</span>2<span class="org-rainbow-delimiters-depth-1">)</span>;
+cb.put<span class="org-rainbow-delimiters-depth-1">(</span>3<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-type">int</span> <span class="org-variable-name">element_1</span>, <span class="org-variable-name">element_2</span>, <span class="org-variable-name">element_3</span>;
+
+cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_1<span class="org-rainbow-delimiters-depth-1">)</span>;
+cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_2<span class="org-rainbow-delimiters-depth-1">)</span>;
+cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_3<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+This is a conceptual diagram:
+</p>
+<pre class="example" id="org104ce5e">
++--------+                        +----------------+                        +-------+
+| Client |                        | CircularBuffer |                        | Vector |
++--------+                        +----------------+                        +-------+
+     |                                     |                                     |
+     |---------new CircularBuffer(3)------&gt;|                                     |
+     |&lt;------------------------------------|                                     |
+     |                                     |--------Initialize Vector[3]--------&gt;|
+     |                                     |&lt;------------------------------------|
+     |                                     |                                     |
+     |---put(1)---------------------------&gt;|                                     |
+     |                                     |-Check if buffer is not full         |
+     |                                     |-Store 1 at index 0                  |
+     |                                     |----Update head---------------------&gt;|
+     |                                     |                                     |
+     |---put(2)---------------------------&gt;|                                     |
+     |                                     |-Check if buffer is not full         |
+     |                                     |-Store 2 at index 1                  |
+     |                                     |----Update head---------------------&gt;|
+     |                                     |                                     |
+     |---get(item)------------------------&gt;|                                     |
+     |                                     |-Check if buffer is not empty        |
+     |                                     |&lt;---Retrieve item from index 0-------|
+     |                                     |----Update tail---------------------&gt;|
+     |&lt;---return item (1)------------------|                                     |
+     |                                     |                                     |
+     |---get(item)------------------------&gt;|                                     |
+     |                                     |-Check if buffer is not empty        |
+     |                                     |&lt;---Retrieve item from index 1-------|
+     |                                     |----Update tail---------------------&gt;|
+     |&lt;---return item (2)------------------|                                     |
+     |                                     |                                     |
+     -----------------------------------------------------------------------------
+</pre>
+
+<p>
+This implementation does what it does, but one pitfall is that it's <span class="underline">NOT</span> thread-safe.
+For multi-threaded applications, we need either of the followings:
+</p>
+<ul class="org-ul">
+<li>SPSC(Single-Producer Single-Consumer) Circular Buffer</li>
+<li>MPMC(Multi-Producer Multi-Consumer) circular Buffer</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-spscsingle-producer-single-consumer-circular-buffer" class="outline-4">
+<h4 id="spscsingle-producer-single-consumer-circular-buffer"><span class="section-number-4">2.1.2.</span> SPSC(Single-Producer Single-Consumer) Circular Buffer</h4>
+<div class="outline-text-4" id="text-spscsingle-producer-single-consumer-circular-buffer">
+<p>
+To make it thread-safe, it's important to define how many writers and readers are simultaneously accessing the circular buffer.
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
+<span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">public</span>:
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
+        : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span>, head_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span>, tail_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-type">size_t</span> <span class="org-variable-name">head</span> = head_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-type">size_t</span> <span class="org-variable-name">next_head</span> = <span class="org-rainbow-delimiters-depth-3">(</span>head + 1<span class="org-rainbow-delimiters-depth-3">)</span> % max_size_;
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>next_head == tail_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">return</span> <span class="org-constant">false</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is full</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+        buf_<span class="org-rainbow-delimiters-depth-3">[</span>head<span class="org-rainbow-delimiters-depth-3">]</span> = item;
+        head_.store<span class="org-rainbow-delimiters-depth-3">(</span>next_head, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-type">size_t</span> <span class="org-variable-name">tail</span> = tail_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>tail == head_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">return</span> <span class="org-constant">false</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is empty</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+        item = buf_<span class="org-rainbow-delimiters-depth-3">[</span>tail<span class="org-rainbow-delimiters-depth-3">]</span>;
+        tail_.store<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>tail + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+<span class="org-keyword">private</span>:
+    <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;
+    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+</pre>
+</div>
+
+<p>
+Given that it's running on x86, with a single thread at each producer and consumer,
+our primary <i>logical</i> challenge is to make sure the compiler from reordering.
+</p>
+
+<p>
+Using <b>GCC 13.2</b>, let's see whether the modification order remains untouched.
+</p>
+
+<p>
+For <code>put</code> function, it looks good, as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-comment-delimiter">/* </span><span class="org-comment">bool put(const T&amp; item)</span><span class="org-comment-delimiter"> */</span>
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">size_t head = head_.load(std::memory_order_relaxed);</span>
+    <span class="org-type">mov</span>     <span class="org-variable-name">rcx</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">size_t next_head = (head + 1) % max_size_;</span>
+    lea     rax, <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-constant">rcx</span>+1<span class="org-rainbow-delimiters-depth-1">]</span>
+    div     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">if (next_head == tail_.load(std::memory_order_acquire))</span>
+    mov     rax, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>
+    cmp     rdx, <span class="org-type">rax</span>
+    <span class="org-variable-name">je</span>      .L2 
+<span class="org-comment-delimiter">// </span><span class="org-comment">buf_[head] = item;</span>
+    mov     rax, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp<span class="org-rainbow-delimiters-depth-1">]</span>
+    mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax+rcx*4<span class="org-rainbow-delimiters-depth-1">]</span>, ebx
+<span class="org-comment-delimiter">// </span><span class="org-comment">head_.store(next_head, std::memory_order_release);</span>
+    <span class="org-type">mov</span>     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>, rdx
+</pre>
+</div>
+
+<p>
+For <code>get</code> function, it looks as good, as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-comment-delimiter">/* </span><span class="org-comment">bool get(T&amp; item)</span><span class="org-comment-delimiter"> */</span>
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">size_t tail = tail_.load(std::memory_order_relaxed);</span>
+    <span class="org-type">mov</span>     <span class="org-variable-name">rax</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">if (tail == head_.load(std::memory_order_acquire))</span>
+    mov     rdx, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+    cmp     rax, <span class="org-variable-name">rdx</span>
+    je      .L2 <span class="org-comment-delimiter">// </span><span class="org-comment">Nope, return false</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">(tail + 1) % max_size_</span>
+    add     rax, 1
+    <span class="org-keyword">xor</span>     edx, edx <span class="org-comment-delimiter">// </span><span class="org-comment">'div' preparation</span>
+    div     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">tail_.store(result);</span>
+    mov     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>, rdx
+</pre>
+</div>
+
+<p>
+I will skip the <code>main</code> function part as it should be straight-forward like the <a href="#a-very-simple-circular-buffer-for-a-single-thread">simple</a> version above.
+</p>
+</div>
+</div>
+
+<div id="outline-container-mpmcmulti-producer-multi-consumer-circular-buffer" class="outline-4">
+<h4 id="mpmcmulti-producer-multi-consumer-circular-buffer"><span class="section-number-4">2.1.3.</span> MPMC(Multi-Producer Multi-Consumer) Circular Buffer</h4>
+<div class="outline-text-4" id="text-mpmcmulti-producer-multi-consumer-circular-buffer">
+<div class="note" id="org99640e8">
+<p>
+<b>Disclaimer</b>
+</p>
+
+<p>
+I didn't take it into consideration making it <i>portable</i>, at least for now.
+It takes a whole lot of different efforts with additional difficulties beyond the very subject here.
+</p>
+
+<p>
+In my opinion, I'm not quite sure whether the current C++ memory model guarantees to cover all cases in different platforms.
+Even if it does, I don't think it can be done in an intuitive manner.
+</p>
+
+</div>
+
+<p>
+Note that <a href="https://youtu.be/ZQFzMfHIxng?si=50MKH9QjIqL0vBAr&amp;t=2108">x86 does a straight, brute-force for exclusive reads</a> until it returns a CAS loop.
+Therefore, a simple 'weak' CAS can do the job.
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
+<span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">public</span>:
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
+        : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span>, head_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span>, tail_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-type">size_t</span> <span class="org-variable-name">head</span>, <span class="org-variable-name">next_head</span>;
+        <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            head = head_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>;
+            next_head = <span class="org-rainbow-delimiters-depth-4">(</span>head + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_;
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>next_head == tail_.load<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is full</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span>
+
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Attempt to update head</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span> <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-negation-char">!</span>head_.compare_exchange_weak<span class="org-rainbow-delimiters-depth-4">(</span>head, next_head, 
+                                              <span class="org-constant">std</span>::memory_order_release,
+                                              <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        buf_<span class="org-rainbow-delimiters-depth-3">[</span>head<span class="org-rainbow-delimiters-depth-3">]</span> = item;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-type">size_t</span> <span class="org-variable-name">tail</span>, <span class="org-variable-name">next_tail</span>;
+        <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            tail = tail_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>;
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>tail == head_.load<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is empty</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span>
+            next_tail = <span class="org-rainbow-delimiters-depth-4">(</span>tail + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_;
+
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Attempt to update tail</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span> <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-negation-char">!</span>tail_.compare_exchange_weak<span class="org-rainbow-delimiters-depth-4">(</span>tail, next_tail, 
+                                              <span class="org-constant">std</span>::memory_order_release,
+                                              <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        item = buf_<span class="org-rainbow-delimiters-depth-3">[</span>tail<span class="org-rainbow-delimiters-depth-3">]</span>;
+        <span class="org-keyword">return</span> <span class="org-constant">true</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+<span class="org-keyword">private</span>:
+    <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;
+    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+</pre>
+</div>
+
+<p>
+Likewise, I am skipping the <code>main</code> function part. <br />
+Using GCC 13.2, this is x86 assembly for <code>put</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">head = head_.load(std::memory_order_relaxed);</span>
+   <span class="org-type">mov</span>     <span class="org-variable-name">rcx</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">next_head = (head + 1) % max_size_;</span>
+   <span class="org-keyword">xor</span>     edx, <span class="org-variable-name">edx</span> <span class="org-comment-delimiter">// </span><span class="org-comment">'div' preparation</span>
+   lea     rax, <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-constant">rcx</span>+1<span class="org-rainbow-delimiters-depth-1">]</span>
+   div     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span> 
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">tail_.load(std::memory_order_acquire)</span>
+   mov     rax, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span> 
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">if (next_head == tail_) {</span>
+   cmp     rdx, <span class="org-type">rax</span>
+   <span class="org-variable-name">je</span>      .L13 <span class="org-comment-delimiter">// </span><span class="org-comment">Return false</span>
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">while (!head_.compare_exchange_weak(head, next_head, memory_order_release, memory_order_relaxed)</span>
+   mov     rax, rcx
+   lock cmpxchg    <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-type">rdx</span>
+   <span class="org-variable-name">jne</span>     .L4  
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">buf_[head] = item;</span>
+   mov     rdi, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp<span class="org-rainbow-delimiters-depth-1">]</span>
+   mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rdi+rax*4<span class="org-rainbow-delimiters-depth-1">]</span>, 1
+</pre>
+</div>
+
+<p>
+This is for <code>get</code>, by the same compiler, as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">tail = tail_.load(std::memory_order_relaxed);</span>
+   <span class="org-type">mov</span>     <span class="org-variable-name">rcx</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">head_.load(std::memory_order_acquire)</span>
+   mov     rax, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">if (tail == head_.load(std::memory_order_acquire)) {</span>
+   cmp     rcx, <span class="org-variable-name">rax</span>
+   je      .L4
+<span class="org-comment-delimiter">// </span><span class="org-comment">next_tail = (tail + 1) % max_size_;</span>
+   lea     rax, <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-constant">rcx</span>+1<span class="org-rainbow-delimiters-depth-1">]</span>
+   <span class="org-keyword">xor</span>     edx, edx
+   div     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">while (!tail_.compare_exchange_weak(tail, next_tail, memory_order_release, memory_order_relaxed)</span>
+   mov     rax, rcx  # _25, _25
+   lock cmpxchg    <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-type">rdx</span>
+   <span class="org-variable-name">jne</span>     .L5
+</pre>
+</div>
+
+<p>
+No modification order is changed by the compiler.
+Note that <code>cmpxchg</code> is used with <code>lock</code> prefix. This is an alternative to <code>mfence</code> in x86 which is <a href="https://preshing.com/20120515/memory-reordering-caught-in-the-act/">more expensive as a full memory berrier</a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2020-01-11 토</p>
+<p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

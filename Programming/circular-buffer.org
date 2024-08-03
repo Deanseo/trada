@@ -1,0 +1,354 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE: Circular Buffer
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2020-01-11 토]
+#+options: timestamp:nil
+
+* Table of Contents
+- [[#circular-buffer][Circular Buffer]]
+  - [[#how-does-it-work][How does it work?]]
+    - [[#a-very-simple-circular-buffer-for-a-single-thread][A (very) simple Circular Buffer for a single thread]]
+    - [[#spscsingle-producer-single-consumer-circular-buffer][SPSC(Single-Producer Single-Consumer) Circular Buffer]]
+    - [[#mpmcmulti-producer-multi-consumer-circular-buffer][MPMC(Multi-Producer Multi-Consumer) Circular Buffer]]
+
+* Circular Buffer
+:PROPERTIES:
+:CUSTOM_ID: circular-buffer
+:END:
+*Circular Buffer* is one of the most often used data structure in /real world/.
+Most buy-side firms probably have one or two in-house implementations and it's often even used during the live coding assessment.
+
+This implementation can be also used in my previous post about [[file:transaction-limitter.org][Transaction Limitter]] where you limit the total number of orders submitted per second.
+
+So yeah, Circular Buffer is useful with interesting traits.
+There are several ways to implement it, depending on how you define the requirements, as follows:
+
+- Does it have to be thread-safe?
+- How many producers consumers are accessing the buffer simultaneously?
+
+** How does it work?
+:PROPERTIES:
+:CUSTOM_ID: how-does-it-work
+:END:
+Circular Buffer has two important trait that:
+1) The buffer has a fixed total size
+2) The next node of the last node in the buffer points to the very first node
+
+This design takes away the burden of taking care of the index where we can simply keep incrementing when a new node is stored.
+We need two variables representing =head= and =tail.=
+
+Every new node stored, there's one increment on =head=.
+Likewise, every new node loaded, there's one icrement on =tail=.
+
+Let's have a look at one of the simplest possible implementation:
+*** A (very) simple Circular Buffer for a single thread
+:PROPERTIES:
+:CUSTOM_ID: a-very-simple-circular-buffer-for-a-single-thread
+:END:
+This offers the two minimal functionalities of circular buffer:
+#+BEGIN_SRC C++ :includes <iostream> <vector> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  template <typename T>
+  class circular_buffer {
+  public:
+      circular_buffer(size_t size) : buf_(std::vector<T>(size)), max_size_(size) {}
+
+      bool put(const T& item) {
+          if ((head_ + 1) % max_size_ == tail_) {
+              // Buffer is full, cannot add new item
+              return false;
+          }
+          buf_[head_] = item;
+          head_ = (head_ + 1) % max_size_;
+          return true;
+      }
+
+      bool get(T& item) {
+          if (tail_ == head_) {
+              // Buffer is empty, no items to retrieve
+              return false;
+          }
+          item = buf_[tail_];
+          tail_ = (tail_ + 1) % max_size_;
+          return true;
+      }
+
+  private:
+      std::vector<T> buf_;    // Storage buffer
+      size_t head_ = 0;       // Index of the next write position
+      size_t tail_ = 0;       // Index of the next read position
+      size_t max_size_;       // Maximum capacity of the buffer
+  };
+#+END_SRC
+
+Let's say you're calling =push= and =get= as follows:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  circular_buffer<int> cb(3); // Create a circular buffer with capacity 3
+
+  cb.put(1);
+  cb.put(2);
+  cb.put(3);
+
+  int element_1, element_2, element_3;
+
+  cb.get(element_1);
+  cb.get(element_2);
+  cb.get(element_3);
+#+END_SRC
+
+This is a conceptual diagram:
+#+begin_example
+  +--------+                        +----------------+                        +-------+
+  | Client |                        | CircularBuffer |                        | Vector |
+  +--------+                        +----------------+                        +-------+
+       |                                     |                                     |
+       |---------new CircularBuffer(3)------>|                                     |
+       |<------------------------------------|                                     |
+       |                                     |--------Initialize Vector[3]-------->|
+       |                                     |<------------------------------------|
+       |                                     |                                     |
+       |---put(1)--------------------------->|                                     |
+       |                                     |-Check if buffer is not full         |
+       |                                     |-Store 1 at index 0                  |
+       |                                     |----Update head--------------------->|
+       |                                     |                                     |
+       |---put(2)--------------------------->|                                     |
+       |                                     |-Check if buffer is not full         |
+       |                                     |-Store 2 at index 1                  |
+       |                                     |----Update head--------------------->|
+       |                                     |                                     |
+       |---get(item)------------------------>|                                     |
+       |                                     |-Check if buffer is not empty        |
+       |                                     |<---Retrieve item from index 0-------|
+       |                                     |----Update tail--------------------->|
+       |<---return item (1)------------------|                                     |
+       |                                     |                                     |
+       |---get(item)------------------------>|                                     |
+       |                                     |-Check if buffer is not empty        |
+       |                                     |<---Retrieve item from index 1-------|
+       |                                     |----Update tail--------------------->|
+       |<---return item (2)------------------|                                     |
+       |                                     |                                     |
+       -----------------------------------------------------------------------------
+#+end_example
+
+This implementation does what it does, but one pitfall is that it's _NOT_ thread-safe.
+For multi-threaded applications, we need either of the followings:
+- SPSC(Single-Producer Single-Consumer) Circular Buffer
+- MPMC(Multi-Producer Multi-Consumer) circular Buffer
+
+*** SPSC(Single-Producer Single-Consumer) Circular Buffer
+:PROPERTIES:
+:CUSTOM_ID: spscsingle-producer-single-consumer-circular-buffer
+:END:
+To make it thread-safe, it's important to define how many writers and readers are simultaneously accessing the circular buffer.
+#+BEGIN_SRC C++ :includes <iostream> <atomic> <vector>:flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  template <typename T>
+  class circular_buffer {
+  public:
+      circular_buffer(size_t size) 
+          : buf_(std::vector<T>(size)), max_size_(size), head_(0), tail_(0) {}
+
+      bool put(const T& item) {
+          size_t head = head_.load(std::memory_order_relaxed);
+          size_t next_head = (head + 1) % max_size_;
+          if (next_head == tail_.load(std::memory_order_acquire)) {
+              return false;  // Buffer is full
+          }
+          buf_[head] = item;
+          head_.store(next_head, std::memory_order_release);
+          return true;
+      }
+
+      bool get(T& item) {
+          size_t tail = tail_.load(std::memory_order_relaxed);
+          if (tail == head_.load(std::memory_order_acquire)) {
+              return false;  // Buffer is empty
+          }
+          item = buf_[tail];
+          tail_.store((tail + 1) % max_size_, std::memory_order_release);
+          return true;
+      }
+
+  private:
+      std::vector<T> buf_;
+      size_t max_size_;
+      std::atomic<size_t> head_, tail_;
+  };
+#+END_SRC
+
+Given that it's running on x86, with a single thread at each producer and consumer,
+our primary /logical/ challenge is to make sure the compiler from reordering.
+
+Using *GCC 13.2*, let's see whether the modification order remains untouched.
+
+For =put= function, it looks good, as follows:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  /* bool put(const T& item) */
+
+  // size_t head = head_.load(std::memory_order_relaxed);
+      mov     rcx, QWORD PTR [rsp+32]
+  // size_t next_head = (head + 1) % max_size_;
+      lea     rax, [rcx+1]
+      div     QWORD PTR [rsp+24]
+  // if (next_head == tail_.load(std::memory_order_acquire))
+      mov     rax, QWORD PTR [rsp+40]
+      cmp     rdx, rax
+      je      .L2 
+  // buf_[head] = item;
+      mov     rax, QWORD PTR [rsp]
+      mov     DWORD PTR [rax+rcx*4], ebx
+  // head_.store(next_head, std::memory_order_release);
+      mov     QWORD PTR [rsp+32], rdx
+#+END_SRC
+
+For =get= function, it looks as good, as follows:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  /* bool get(T& item) */
+
+  // size_t tail = tail_.load(std::memory_order_relaxed);
+      mov     rax, QWORD PTR [rsp+40]
+  // if (tail == head_.load(std::memory_order_acquire))
+      mov     rdx, QWORD PTR [rsp+32]
+      cmp     rax, rdx
+      je      .L2 // Nope, return false
+  // (tail + 1) % max_size_
+      add     rax, 1
+      xor     edx, edx // 'div' preparation
+      div     QWORD PTR [rsp+24]
+  // tail_.store(result);
+      mov     QWORD PTR [rsp+40], rdx
+#+END_SRC
+
+I will skip the =main= function part as it should be straight-forward like the [[#a-very-simple-circular-buffer-for-a-single-thread][simple]] version above.
+
+*** MPMC(Multi-Producer Multi-Consumer) Circular Buffer
+:PROPERTIES:
+:CUSTOM_ID: mpmcmulti-producer-multi-consumer-circular-buffer
+:END:
+#+begin_note
+*Disclaimer*
+
+I didn't take it into consideration making it /portable/, at least for now.
+It takes a whole lot of different efforts with additional difficulties beyond the very subject here.
+
+In my opinion, I'm not quite sure whether the current C++ memory model guarantees to cover all cases in different platforms.
+Even if it does, I don't think it can be done in an intuitive manner.
+#+end_note
+
+Note that [[https://youtu.be/ZQFzMfHIxng?si=50MKH9QjIqL0vBAr&t=2108][x86 does a straight, brute-force for exclusive reads]] until it returns a CAS loop.
+Therefore, a simple 'weak' CAS can do the job.
+#+BEGIN_SRC C++ :includes <iostream> <atomic> <vector>:flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  template <typename T>
+  class circular_buffer {
+  public:
+      circular_buffer(size_t size) 
+          : buf_(std::vector<T>(size)), max_size_(size), head_(0), tail_(0) {}
+
+      bool put(const T& item) {
+          size_t head, next_head;
+          do {
+              head = head_.load(std::memory_order_relaxed);
+              next_head = (head + 1) % max_size_;
+              if (next_head == tail_.load(std::memory_order_acquire)) {
+                  return false; // Buffer is full
+              }
+
+              // Attempt to update head
+          } while (!head_.compare_exchange_weak(head, next_head, 
+                                                std::memory_order_release,
+                                                std::memory_order_relaxed));
+          buf_[head] = item;
+          return true;
+      }
+
+      bool get(T& item) {
+          size_t tail, next_tail;
+          do {
+              tail = tail_.load(std::memory_order_relaxed);
+              if (tail == head_.load(std::memory_order_acquire)) {
+                  return false; // Buffer is empty
+              }
+              next_tail = (tail + 1) % max_size_;
+
+              // Attempt to update tail
+          } while (!tail_.compare_exchange_weak(tail, next_tail, 
+                                                std::memory_order_release,
+                                                std::memory_order_relaxed));
+          item = buf_[tail];
+          return true;
+      }
+
+  private:
+      std::vector<T> buf_;
+      size_t max_size_;
+      std::atomic<size_t> head_, tail_;
+  };
+#+END_SRC
+
+Likewise, I am skipping the =main= function part. \\
+Using GCC 13.2, this is x86 assembly for =put=:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  // head = head_.load(std::memory_order_relaxed);
+     mov     rcx, QWORD PTR [rsp+32]
+
+  // next_head = (head + 1) % max_size_;
+     xor     edx, edx // 'div' preparation
+     lea     rax, [rcx+1]
+     div     QWORD PTR [rsp+24] 
+
+  // tail_.load(std::memory_order_acquire)
+     mov     rax, QWORD PTR [rsp+40] 
+
+  // if (next_head == tail_) {
+     cmp     rdx, rax
+     je      .L13 // Return false
+
+  // while (!head_.compare_exchange_weak(head, next_head, memory_order_release, memory_order_relaxed)
+     mov     rax, rcx
+     lock cmpxchg    QWORD PTR [rsp+32], rdx
+     jne     .L4  
+
+  // buf_[head] = item;
+     mov     rdi, QWORD PTR [rsp]
+     mov     DWORD PTR [rdi+rax*4], 1
+#+END_SRC
+
+This is for =get=, by the same compiler, as follows:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  // tail = tail_.load(std::memory_order_relaxed);
+     mov     rcx, QWORD PTR [rsp+40]
+  // head_.load(std::memory_order_acquire)
+     mov     rax, QWORD PTR [rsp+32]
+  // if (tail == head_.load(std::memory_order_acquire)) {
+     cmp     rcx, rax
+     je      .L4
+  // next_tail = (tail + 1) % max_size_;
+     lea     rax, [rcx+1]
+     xor     edx, edx
+     div     QWORD PTR [rsp+24]
+  // while (!tail_.compare_exchange_weak(tail, next_tail, memory_order_release, memory_order_relaxed)
+     mov     rax, rcx  # _25, _25
+     lock cmpxchg    QWORD PTR [rsp+40], rdx
+     jne     .L5
+#+END_SRC
+
+No modification order is changed by the compiler.
+Note that =cmpxchg= is used with =lock= prefix. This is an alternative to =mfence= in x86 which is [[https://preshing.com/20120515/memory-reordering-caught-in-the-act/][more expensive as a full memory berrier]].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

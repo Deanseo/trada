@@ -1,0 +1,302 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE: Transaction Limiter
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2020-01-25 토]
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+options: timestamp:nil
+
+* Table of Contents
+- [[#whats-a-transaction-limiter][What's a Transaction Limiter?]]
+- [[#why-do-we-need-a-transaction-limiter][Why do we need a Transaction Limiter?]]
+  - [[#crypto-trading-and-transaction-limiter][Crypto Trading and Transaction Limiter]]
+- [[#how-to-develop-a-transaction-limiter][How to develop a Transaction Limiter?]]
+  - [[#implement-a-base-class][Implement a base class]]
+  - [[#implement-a-circular-buffer][Implement a Circular Buffer]]
+  - [[#implementat-the-limiter][Implementat the limiter]]
+- [[#how-to-use-transaction-limiter][How to use Transaction Limiter]]
+  - [[#another-way-to-implement-this-without-using-the-circular-buffer][Another way to implement this without using the circular buffer]]
+
+* What's a Transaction Limiter?
+:PROPERTIES:
+:CUSTOM_ID: whats-a-transaction-limiter
+:END:
+A Transaction Limiter helps ensure you don't accidentally send more orders than you're allowed to.
+
+* Why do we need a Transaction Limiter?
+:PROPERTIES:
+:CUSTOM_ID: why-do-we-need-a-transaction-limiter
+:END:
+To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
+It is never a good idea to break this rule, because there will be +punishment+ consequences. \\
+For example, the first-time offense might result in a trading suspension for a few hours.
+If the violation continues, you could face a longer ban - three months, six months, or even permanently.
+
+Don't get me wrong. These rules are essential.
+It's a good idea to ban those who can't keep their trading system under control. This is for everyone and to maintain fairness in the market.
+
+** Crypto Trading and Transaction Limiter
+:PROPERTIES:
+:CUSTOM_ID: crypto-trading-and-transaction-limiter
+:END:
+Crypto exchanges often impose even stricter restrictions - a narrower window of TPS(Transactions Per Second).
+
+Since [[https://en.wikipedia.org/wiki/Bankruptcy_of_FTX][the fall of FTX]], which supported the [[https://en.wikipedia.org/wiki/Financial_Information_eXchange#Technical_specifications][FIX protocol]], most users trade, using the exchange's WebAPIs where the definition of the transaction limit is somewhat /vague/
+so that market partipants are advised to make order requests in a more /conservative/ stance.
+
+* How to develop a Transaction Limiter?
+:PROPERTIES:
+:CUSTOM_ID: how-to-develop-a-transaction-limiter
+:END:
+#+begin_tip
+In my opinion, creating a transaction limiter class is a fascinating project, not just for the trading industry but in general.
+You can design the implementation to be flexible enough to meet your own business requirements, such that you can control how many times certain tasks can be executed.
+#+end_tip
+
+To keep things simple, we'll focus on the most essential requirements, =acquire_order_slot,= which does:
+
+- *Check* if we have capacity.
+- *Decrement* capacity by 1 if we do.
+
+Although there can be various ways to check how many orders have stacked up, I'll use my [[file:circular-buffer.org][Circular Buffer]] in this article
+for the sake of simplicity.
+
+Now, imagine a scenario where we must send orders regardless of the limiter, such as when we need to send cancellation
+orders due to a sudden price move or our hedging position becoming neutral. \\
+To handle this edge case, we'll also create an /exclusive buffer/ which accepts orders even when we hit the transaction limit.
+
+** Implement a base class
+:PROPERTIES:
+:CUSTOM_ID: implement-a-base-class
+:END:
+A base class defines those two interfaces as well as =priority_tag=.
+
+The *priority tag* covers the above-mentioned case where we must send cancel orders, which means we'll always have to keep a small room for urgent cancellations.
+Of course, you can set =PriorityCapacity= to 0 to avoid wasting the capacity in a case urgent cancellations are never a requirement.
+For example, you might be working with a strategy carrier which sends FAK or FOK orders only.
+
+As such, I made the base class have the priority tag /optional/ so the users can determine if the order carries urgency in it.
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  enum class priority_tag { Tag_ };
+
+  template <typename ImplType>
+  struct base_limitter {
+      auto *This() { return static_cast<ImplType *>(this); }
+      auto *This() const { return static_cast<const ImplType *>(this); }
+
+      [[nodiscard]] constexpr auto size() const noexcept { return This()->size(); }
+
+      bool acquire_order_slot() { return This()->acquire_order_slot(); }
+      bool acquire_order_slot(priority_tag) {
+          if constexpr (requires(ImplType impl, priority_tag tag) {
+                            { impl.acquire_order_slot(tag) } -> std::same_as<bool>;
+                        }) {
+              return This()->acquire_order_slot(priority_tag{});
+          } else {
+              // The implementation doesn't support "prioritiness".
+              return This()->acquire_order_slot();
+          }
+      }
+  };
+#+END_SRC
+
+Note that a limiter implementation inheriting from =base_limitter= might not support "/prioritines/".
+In that case, =priority_tag= will be ignored, and the regular overload will be chosen.
+
+** Implement a Circular Buffer
+:PROPERTIES:
+:CUSTOM_ID: implement-a-circular-buffer
+:END:
+as mentioned, For this article, I will use [[File:circular-buffer.org][Circular Buffer]] for its inner data structure.
+
+#+begin_warning
+/For obvious reasons, you shouldn't use my implementation in production/. \\
+There are many solid (and better) implementations of circular buffer available, including [[https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html][Boost's Circular Buffer]]
+#+end_warning
+
+** Implementat the limiter
+:PROPERTIES:
+:CUSTOM_ID: implementat-the-limiter
+:END:
+The actual implementation can be as follows:
+#+BEGIN_SRC C++ flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  template <std::size_t Size, std::size_t PriorityCapacity = 0>
+  class limitter : public base_limitter<limitter<Size, PriorityCapacity>> {
+  public:
+      static_assert(PriorityCapacity < Size);
+
+      constexpr limitter(const std::chrono::microseconds interval) : interval_(interval.count()) {
+          window_.set_capacity(Size - PriorityCapacity);
+
+          for (auto idx = 0; idx < window_.capacity(); idx++) {
+              window_.push_back(0);
+          }
+
+          if constexpr (PriorityCapacity > 0) {
+              priority_window_ = std::make_optional<CircularBufferType<std::uint64_t>>(PriorityCapacity);
+              priority_window_->set_capacity(PriorityCapacity);
+
+              for (auto idx = 0; idx < priority_window_->capacity(); idx++) {
+                  priority_window_->push_back(0);
+              }
+          }
+      }
+
+      [[nodiscard]] constexpr auto size() const noexcept { return Size; }
+
+      bool acquire_order_slot(); // See below 
+      bool acquire_order_slot(priority_tag); // See below
+
+  private:
+      std::uint64_t interval_;
+
+      CircularBufferType<std::uint64_t> window_;
+      [[maybe_unused]] std::optional<CircularBufferType<std::uint64_t>> priority_window_ = std::nullopt;
+  };
+#+END_SRC
+
+See that if =PriorityCapacity= is greater than 0, we're initializing =priority_window_= which will serve as a barrier on the regular window
+such that users can use that buffer to submit /urgent/ cancellation orders.
+
+=acquire_order_slot= is the main dish where it is to insert element into the inner circular buffer:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  bool limitter::acquire_order_slot() {
+      if (const auto [is_available, now] = is_available_now(window_); is_available) [[likely]] {
+          window_.push_back(now.count());
+          return true;
+      }
+
+      return false;
+  }
+#+END_SRC
+
+Another overload is equally intuitive, as follows:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  bool limitter::acquire_order_slot(priority_tag) {
+      static_assert(PriorityCapacity > 0);
+
+      if (const auto [is_available, now] = is_available_now(priority_window_.value()); is_available) [[likely]] {
+          priority_window_->push_back(now.count());
+          return true;
+      }
+
+      return false;
+  }
+#+END_SRC
+
+=is_available_now= is a simple checker returning a /timepoint/ to insert into the buffer later.
+This can be doen with =std::chrono=, as follows:
+#+BEGIN_SRC C++ :includes <chrono> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  auto is_available_now(CircularBufferType auto const & buffer) {
+      const auto now = std::chrono::steady_clock::now();
+      const auto is_available = buffer.empty() or (now.count() - buffer.front()) > interval_;
+
+      return std::make_pair(is_available, now);
+  }
+#+END_SRC
+
+Regarding =now=, any numerical timepoint would be accepted, not necessarily having to stick to =std::chrono=,
+as long as [[https://en.cppreference.com/w/cpp/chrono/steady_clock][the clock doesn't move backwards]], as follows:
+#+begin_quote
+... Class =std::chrono::steady_clock= represents a monotonic clock. \\
+The time points of this clock cannot decrease as physical time moves forward and the time between ticks of this clock is constant
+#+end_quote
+
+Since the C++ standard provides that guarantee through =std::chrono::steady_clock=, we can just rely on that.
+
+Overall, The implementation of the function is simple, as I outsource a large part of the actual work to its inner data structure.
+
+This is why it's important to choose the right data structures for the needs.
+Once you have that, it lets you focus sorely on the /business/ logic - the data structure will do the rest of the complicated work for you.
+
+* How to use Transaction Limiter
+:PROPERTIES:
+:CUSTOM_ID: how-to-use-transaction-limiter
+:END:
+The usage is quite straight-forward; it immediately returns with the result indicating if an order can be submitted, as follows:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  auto send_cancel_order() {
+      if (acquire_order_slot(priority_tag{})) [[likely]] {
+          send_cancel_order();
+      }
+  }
+
+  auto send_new_order() {
+      if (acquire_order_slot()) [[likely]] {
+          send_new_order();
+      }
+  }
+#+END_SRC
+
+It capsulizes the inner implementation so the order sender part may focus on its business logic.
+The big-picture sequencial diagram would be:
+#+begin_example
+  +---------------------------+
+  |          Client           |
+  +---------------------------+
+               |
+               | 1. Call acquire_order_slot(priority_tag -> optional)
+               |
+               v
+  +---------------------------+
+  |         limitter          |
+  +---------------------------+
+               |
+               | 2. Call is_available_now()
+               |
+               v
+  +-------------------------------------------+
+  |         is_available_now(window_)         |
+  +-------------------------------------------+
+               |
+               | 3. True, if buffer is empty or interval has passed
+               |
+               v
+  +---------------------------+
+  |         limitter          |
+  +---------------------------+
+               |
+               | 4. If available, push the new timepoint and return true.
+               |    Otherwise, return false
+               v
+  +---------------------------+
+  |          Client           |
+  +---------------------------+
+#+end_example
+
+For cancellation, that special added buffer is looked up instead.
+This allows users to cancel their working orders in the book without having to worry about overlapping the buffer for new orders.
+#+begin_note
+*What if there are just too many orders to cancel at once?* \\
+\\
+This article is merely revolving around simplified technical aspect perceived by a software developer. \\
+Just like any other order types, cancel orders are in general subject to TPS as well. \\ 
+\\
+For market making account holders or those staggering orders for hits may want to cancel the unwanted orders quickly. Transaction Limiter isn't for THAT - they're gonna have to trigger a mass cancellation instead.
+#+end_note
+
+** Another way to implement this without using the circular buffer
+:PROPERTIES:
+:CUSTOM_ID: another-way-to-implement-this-without-using-the-circular-buffer
+:END:
+As mentioned earlier there are a few different ways to make your own transaction limitter.
+Each method has differnet cons and pros although in my opinion Circular Buffer is one of the most intuitive ways.
+
+Hopefully I can re-visit this and cover those parts someday.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

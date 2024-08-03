@@ -1,0 +1,171 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE: SeqLock
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2021-02-06 토]
+#+options: timestamp:nil
+
+* Table of Contents
+- [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
+  - [[#actual-code][Actual code]]
+  - [[#how-it-works][How it works]]
+  - [[#caveats][Caveats]]
+    - [[#single-writer-only][Single Writer Only]]
+    - [[#relaxed-operation-might-be-sufficient-in-x86][Relaxed operation might be sufficient in x86]]
+    - [[#what-prevents-the-store-on-value_-from-being-reordered-with-start_seq][What prevents the store on value_ from being reordered with start_seq?]]
+- [[#conclusion][Conclusion]]
+
+* What is SeqLock and how it works
+:PROPERTIES:
+:CUSTOM_ID: what-is-seqlock-and-how-it-works
+:END:
+Before I begin, I must say *SeqLock* is one of my favorite lock-free algorithms.
+Why? Because it works in a really clever and simple way!
+
+Just like any other lock mechanisms, *SeqLock* is to provide the concurrency of multiple writes and reads without [[https://stackoverflow.com/q/14011849/921070][having to lock]] any thread.
+Furthermore, it also gives us good materials to think about, such as [[https://en.cppreference.com/w/cpp/atomic/memory_order][Memory Order]] in C++, for educational purposes.
+
+Let's look at the actual code first. Then we will break it down.
+** Actual code
+:PROPERTIES:
+:CUSTOM_ID: actual-code
+:END:
+#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+template <class T>                                  
+struct alignas(std::hardware_destructive_interference_size) seq_lock {
+    [[nodiscard]] bool load(T & required) const noexcept {
+        const auto s0 = seq_.load(std::memory_order_acquire);
+        if (s0 & 1) { return false; }
+        required = value_;
+        return s0 == seq_.load(std::memory_order_acquire);
+    }
+
+    void store(const T value) noexcept {
+        const auto start_seq = seq_.load(std::memory_order_relaxed);
+        seq_.store(start_seq + 1, std::memory_order_release);
+        value_ = value;
+        seq_.store(start_seq + 2, std::memory_order_release);
+    }
+    
+private:
+    std::atomic<std::uint64_t> seq_ = 0;
+    T value_;
+};
+#+END_SRC
+
+** How it works
+:PROPERTIES:
+:CUSTOM_ID: how-it-works
+:END:
+SeqLock, short for Sequence Lock, is a synchronization mechanism that operates using a sequence counter that monitors updates to the data:
+#+begin_example
+  Sequence Counter: 0 (even - no write in progress)
+        |
+        v
+  +-----+-----+
+  | Writer    |---(1)--> Increments counter to 1 (odd - write in progress)
+  +-----------+                |
+                               v
+                           (2) Writes data
+                               |
+                               v
+                      Increments counter to 2 (even - write complete)
+                               |
+        +----------------------+
+        |
+        v
+  +-----+-----------------+
+  | Readers               |-----> (3) Checks counter (even, proceed to read)
+  +-----------------------+      |
+  | - Reader 1 reads data |<-----+
+  | - Reader 2 reads data |      |---(4) If counter changed or odd during read, retry.
+  | - Reader 3 reads data |<-----+
+  +-----------------------+
+#+end_example
+
+When a writer wishes to update the shared data, it first increments the counter to an odd value, signaling that a write operation is in progress. 
+After the write is completed, the counter is incremented again to an even number, indicating that the data is stable and valid for reading. 
+
+Readers, on the other hand, check the counter before and after they access the data. If the counter value is odd or changes between their two checks, 
+it suggests the shared data is corrupted due to a concurrent write.
+
+The benefits of this mechanism is that it minimizes the locking overhead for writers.
+
+** Caveats
+:PROPERTIES:
+:CUSTOM_ID: caveats
+:END:
+*** Single Writer Only
+:PROPERTIES:
+:CUSTOM_ID: single-writer-only
+:END:
+The implementation above only supports a single writer because =store= doesn't verify its read,
+presuming that there's only one writer (itself) incrementing the sequence.
+
+=store= doesn't use a RMW(read-modify-write) operation so there's no lock emitted in instructuion level.
+The current implementation only takes care of memory orders and atomicity on =seq_=.
+
+That being said, if there are more than one writer thread running, it's advisible to look for a different lock-free structure, which I can hopefully post about in future.
+*** Relaxed operation might be sufficient in x86
+:PROPERTIES:
+:CUSTOM_ID: relaxed-operation-might-be-sufficient-in-x86
+:END:
+In x86, every store is a release store and every load is a release load.
+The legacy =MOV= instruction is guaranteed to be atomic.
+
+In other words, we only need to worry about reordering done by the compiler so using a relaxed operation on =seq_= (or a naive `int` type) with compiler barriers is probably sufficient if we don't care about keeping it portable.
+
+*** What prevents the store on =value_= from being reordered with =start_seq=?
+:PROPERTIES:
+:CUSTOM_ID: what-prevents-the-store-on-value_-from-being-reordered-with-start_seq
+:END:
+One could wonder how =value_= in =store= isn't reordered with the upper store such that:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  // ...
+  seq_.store(start_seq + 1, std::memory_order_release);
+  value_ = value; // ↑ : reordered with the preceding store
+  // ...
+#+END_SRC
+
+This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
+#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+    mov     QWORD PTR [rax], rsi
+    mov     DWORD PTR [rax+8], ecx
+    mov     QWORD PTR [rax], rdx
+#+END_SRC
+
+My presumtion is that a store barrier in the modern system including X86 generally has a by-default [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][trait of a release store]] where _subsequent stores are sequential_ so there's no /accidential/ reorder that can be caught.
+
+The same presumption can be applied for the case of =load=.
+Plus, in contrast to =store=, the condition is acting as a control dependency so the reorder should be certainly prevented.
+
+* Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
+*SeqLock* is a simple and fast locking mechanism that doesn't block the writer.
+That trait is especially useful when a thread has to constantly feeds tick data into other algo carriers.
+
+Not only that, but also it's often used to solve many /real-world/ problems and in fact part of the kernel in Linux as well.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

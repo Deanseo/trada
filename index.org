@@ -1,0 +1,49 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="center.css"/>
+#+TITLE: Dean's Blog
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2024-07-28 Sun]
+#+options: timestamp:nil
+
+* Introduction
+:PROPERTIES:
+:CUSTOM_ID: blog_main_page
+:END:
+Hello, my name is Dean Seo.
+
+#+ATTR_HTML: :width 200px :class center
+[[file:Images/profile_pic.jpg]]
+
+I am a seasoned C++ developer specializing in the creation of low-latency, high-performance applications.
+With a deep understanding of modern C++ techniques, I am dedicated to optimizing software to operate at the peak of efficiency.
+
+My passion lies in tackling complex coding challenges and transforming them into elegantly engineered solutions that push the boundaries of technological capabilities.
+Over the years, I have honed my skills in system architecture and performance engineering, focusing on delivering robust solutions in fast-paced environments.
+
+Whether it's refining processes or pioneering new software innovations, my goal is to enhance user experience through exceptional speed and reliability, ensuring that every line of code not only meets but exceeds the rigorous demands of today's tech landscape.
+
+You can reach me via *deaniac.seo@gmail.com* anytime - /don't worry, a coffee is on me/.
+
+* Postings
+Some of the content here was originally posted on my old, now-closed blog.
+That Korean hosting firm has faced criticism for multiple issues such as its malicious users exploiting Google AdSense and frequent
+changes of their user agreement, I decided to revamp my articles and repost some of them somewhere else.
+
+It took me some time until I made some progress finally.
+
+** Programming
+- [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
+- [[file:Programming/circular-buffer.org][Implement thread-safe Circular Buffers]]
+- [[file:Programming/transaction-limitter.org][Implement Transaction Limiter]]
+  
+** Thoughts
+- [[file:Medicine/Blood-Brain Barrier (BBB).org][Medicine: What's BBB(Blood-Brain Barrier) and how it's relevant to drug usages]]
+
+** Hobbies
+- [[file:Hobbies/boxing.org][Practicing Boxing]]
+
+* Resume
+In case you want my CV, click [[file:docs/Dean Seo CV.pdf][this link]] to download one.
+
+
+

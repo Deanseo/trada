@@ -1,0 +1,32 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE: Painkillers and NSAIDs
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2019-09-28 토]
+#+options: timestamp:nil
+
+* Table of Contents
+.
+
+* Painkillers and NSAIDs
+Are Painkiller bad? I grew up hearing painkilers are bad because it merely /tricks/ my brain into thinking there's no pain
+but without healing the cause of the pain.
+
+So, is that really true?
+
+To answer that question, we need to define what really a painkiller is.
+
+Painkillers are misleading terms, maybe.
+
+** What are painkillers?
+.
+
+** NSAIDs
+.
+
+*** 타이레놀은?
+.
+
+* Conclusion
+.
+
+
