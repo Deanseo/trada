@@ -80,7 +80,7 @@ As such, I made the base class have the priority tag /optional/ so the users can
   enum class priority_tag { Tag_ };
 
   template <typename ImplType>
-  struct base_limitter {
+  struct base_limiter {
       auto *This() { return static_cast<ImplType *>(this); }
       auto *This() const { return static_cast<const ImplType *>(this); }
 
@@ -100,7 +100,7 @@ As such, I made the base class have the priority tag /optional/ so the users can
   };
 #+END_SRC
 
-Note that a limiter implementation inheriting from =base_limitter= might not support "/prioritines/".
+Note that a limiter implementation inheriting from =base_limiter= might not support "/prioritines/".
 In that case, =priority_tag= will be ignored, and the regular overload will be chosen.
 
 ** Implement a Circular Buffer
@@ -121,11 +121,11 @@ There are many solid (and better) implementations of circular buffer available, 
 The actual implementation can be as follows:
 #+BEGIN_SRC C++ flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   template <std::size_t Size, std::size_t PriorityCapacity = 0>
-  class limitter : public base_limitter<limitter<Size, PriorityCapacity>> {
+  class limiter : public base_limiter<limiter<Size, PriorityCapacity>> {
   public:
       static_assert(PriorityCapacity < Size);
 
-      constexpr limitter(const std::chrono::microseconds interval) : interval_(interval.count()) {
+      constexpr limiter(const std::chrono::microseconds interval) : interval_(interval.count()) {
           window_.set_capacity(Size - PriorityCapacity);
 
           for (auto idx = 0; idx < window_.capacity(); idx++) {
@@ -160,7 +160,7 @@ such that users can use that buffer to submit /urgent/ cancellation orders.
 
 =acquire_order_slot= is the main dish where it is to insert element into the inner circular buffer:
 #+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-  bool limitter::acquire_order_slot() {
+  bool limiter::acquire_order_slot() {
       if (const auto [is_available, now] = is_available_now(window_); is_available) [[likely]] {
           window_.push_back(now.count());
           return true;
@@ -172,7 +172,7 @@ such that users can use that buffer to submit /urgent/ cancellation orders.
 
 Another overload is equally intuitive, as follows:
 #+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-  bool limitter::acquire_order_slot(priority_tag) {
+  bool limiter::acquire_order_slot(priority_tag) {
       static_assert(PriorityCapacity > 0);
 
       if (const auto [is_available, now] = is_available_now(priority_window_.value()); is_available) [[likely]] {
@@ -231,37 +231,37 @@ The usage is quite straight-forward; it immediately returns with the result indi
 It capsulizes the inner implementation so the order sender part may focus on its business logic.
 The big-picture sequencial diagram would be:
 #+begin_example
-  +---------------------------+
-  |          Client           |
-  +---------------------------+
+  +--------------------------+
+  |          Client          |
+  +--------------------------+
                |
                | 1. Call acquire_order_slot(priority_tag -> optional)
                |
                v
-  +---------------------------+
-  |         limitter          |
-  +---------------------------+
+  +--------------------------+
+  |         limiter          |
+  +--------------------------+
                |
                | 2. Call is_available_now()
                |
                v
-  +-------------------------------------------+
-  |         is_available_now(window_)         |
-  +-------------------------------------------+
+  +-------------------------------+
+  |   is_available_now(window_)   |
+  +-------------------------------+
                |
                | 3. True, if buffer is empty or interval has passed
                |
                v
-  +---------------------------+
-  |         limitter          |
-  +---------------------------+
+  +--------------------------+
+  |         limiter          |
+  +--------------------------+
                |
                | 4. If available, push the new timepoint and return true.
                |    Otherwise, return false
                v
-  +---------------------------+
-  |          Client           |
-  +---------------------------+
+  +--------------------------+
+  |          Client          |
+  +--------------------------+
 #+end_example
 
 For cancellation, that special added buffer is looked up instead.
@@ -279,7 +279,7 @@ For market making account holders or those staggering orders for hits may want t
 :PROPERTIES:
 :CUSTOM_ID: another-way-to-implement-this-without-using-the-circular-buffer
 :END:
-As mentioned earlier there are a few different ways to make your own transaction limitter.
+As mentioned earlier there are a few different ways to make your own transaction limiter.
 Each method has differnet cons and pros although in my opinion Circular Buffer is one of the most intuitive ways.
 
 Hopefully I can re-visit this and cover those parts someday.
