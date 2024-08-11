@@ -8,14 +8,27 @@
 .
 
 * Painkillers and NSAIDs
-Are Painkiller bad? I grew up hearing painkilers are bad because it merely /tricks/ my brain into thinking there's no pain
-but without healing the cause of the pain.
+Are Painkiller /bad/? I grew up hearing painkilers merely /tricks/ my brain to delusionally believe you aren't hurt.
+According to them, it doesn't heal the pain, but just /hides/ it.
 
-So, is that really true?
+I still see people inclined to avoid taking the painkillers because of the very reason, ending up visiting those alternative doctors with a hope
+that they might have a 'proper' method to ease their pain.
+
+Back in Korea those TCM doctors (though they don't like to call them that - we pioneered a new term "*Doctors of Korean Medicine*") knowingly
+pulled the wool over the eyes.
+
+I guess, regardless of whether it's true, this sounds convincing enough indeed.
+
+But really, is that really true?
+We have so many different kinds of medicines labeled a painkiller.
+
+- Is every single one of them designed that way?
+- Is the family doctor in your neighbor just prescribing a blue pill?
 
 To answer that question, we need to define what really a painkiller is.
 
-Painkillers are misleading terms, maybe.
+
+
 
 ** What are painkillers?
 .
@@ -27,6 +40,7 @@ Painkillers are misleading terms, maybe.
 .
 
 * Conclusion
-.
+TL;DR, most painkilers actually do help you heal the root cause of your pain so it's probably a wrong judgement to avoid taking them when prescribed by a doctor,
+although there are some kinds that are designed to only reduce the level of pain by faking your brain.
 
 
