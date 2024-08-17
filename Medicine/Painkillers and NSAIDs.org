@@ -23,8 +23,15 @@ Painkillers are misleading terms, maybe.
 ** NSAIDs
 .
 
-*** 타이레놀은?
-.
+** Antipyretic analgesic 
+
+*** 타이레놀은? 
+아세트아미노펜
+COX1, COX2 억제력은 매우 낮은편.
+따라서 nSAIDs 로 분류하지는 않는다.
+
+코로나 당시 이부프로펜 문제로 WHO 에서 아세트아미노펜 쓰라고 권고함.
+
 
 * Conclusion
 .
