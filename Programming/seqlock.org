@@ -135,12 +135,9 @@ One could wonder how =value_= in =store= isn't reordered with the upper store su
 
 This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
 #+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-  // seq_.store(start_seq + 1, std::memory_order_release);
-  mov     QWORD PTR [rax], rsi
-  // value_ = value
-  mov     DWORD PTR [rax+8], ecx
-  // seq_.store(start_seq + 2, std::memory_order_release);
-  mov     QWORD PTR [rax], rdx
+  mov     QWORD PTR [rax], rsi // seq_.store(start_seq + 1, std::memory_order_release);
+  mov     DWORD PTR [rax+8], ecx // value_ = value
+  mov     QWORD PTR [rax], rdx // seq_.store(start_seq + 2, std::memory_order_release);
 #+END_SRC
 
 My presumtion is that a store barrier in the modern system including X86 generally has a by-default [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][trait of a release store]] where _subsequent stores are sequential_ so there's no /accidential/ reorder that can be caught.
@@ -150,19 +147,17 @@ Of course, the minimal prerequisites are that the /subsequent stores/ must be of
 
 The same presumption can be applied for the case of =load=, as follows:
 #+BEGIN_SRC C++ :includes <atomic> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-  // s0 = seq_.load(std::memory_order_acquire);
   // rax == s0
-  mov     rax, QWORD PTR [rsp+128]  # _58,
+  mov     rax, QWORD PTR [rsp+128] // s0 = seq_.load(std::memory_order_acquire)
   // if (s0 & 1)
-  test    al, 1   # _58,
-  jne     .L27      #,
-  // value_.load(std::memory_order_relaxed)
-  mov     edx, DWORD PTR [rsp+136]  # _61,
-  // ref.store(..., std::memory_order_relaxed)
-  mov     DWORD PTR [rsp+120], edx  #,, _61
+  test    al, 1 
+  jne     .L27  // inlined, in this case
+  mov     edx, DWORD PTR [rsp+136] // value_.load(std::memory_order_relaxed)
+  mov     DWORD PTR [rsp+120], edx // ref.store(..., std::memory_order_relaxed)
+
   // if inlined, rax and rdx registers can be used to check if the load is valid directly such that:
   // cmp rax rdx
-  mov     rdx, QWORD PTR [rsp+128]  # _62,
+  mov     rdx, QWORD PTR [rsp+128] // another seq_.load(std::memory_order_acquire)
 #+END_SRC
 
 Plus, in contrast to =store=, the condition is acting as a /control dependency/ so the reorder should be certainly prevented.
