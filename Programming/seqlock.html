@@ -22,7 +22,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org3882d0a">1. Table of Contents</a></li>
+<li><a href="#org4825dd0">1. Table of Contents</a></li>
 <li><a href="#what-is-seqlock-and-how-it-works">2. What is SeqLock and how it works</a>
 <ul>
 <li><a href="#actual-code">2.1. Actual code</a></li>
@@ -41,8 +41,8 @@
 </div>
 </div>
 
-<div id="outline-container-org3882d0a" class="outline-2">
-<h2 id="org3882d0a"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-org4825dd0" class="outline-2">
+<h2 id="org4825dd0"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li><a href="#what-is-seqlock-and-how-it-works">What is SeqLock and how it works</a>
@@ -84,23 +84,28 @@ Let's look at the actual code first. Then we will break it down.
 <div class="org-src-container">
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">class</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>                                  
 <span class="org-keyword">struct</span> <span class="org-type">alignas</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-constant">std</span>::hardware_destructive_interference_size<span class="org-rainbow-delimiters-depth-1">)</span> seq_lock <span class="org-rainbow-delimiters-depth-1">{</span>
-    <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">[</span>nodiscard<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-type">bool</span> <span class="org-function-name">load</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span> &amp; <span class="org-variable-name">required</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">const</span> <span class="org-keyword">noexcept</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">s0</span> = seq_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-3">)</span>;
-        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>s0 &amp; 1<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span> <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-rainbow-delimiters-depth-3">}</span>
-        required = value_;
-        <span class="org-keyword">return</span> s0 == seq_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-3">)</span>;
+    <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">[</span>nodiscard<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-keyword">auto</span> <span class="org-function-name">load</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">required</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">const</span> <span class="org-keyword">noexcept</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">true</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">s0</span> = seq_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span>;
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>s0 &amp; 1<span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span> <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-rainbow-delimiters-depth-4">}</span>
+
+            <span class="org-constant">std</span>::<span class="org-type">atomic_ref</span><span class="org-rainbow-delimiters-depth-4">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-4">&gt;</span> <span class="org-variable-name">ref</span> <span class="org-rainbow-delimiters-depth-4">{</span> required <span class="org-rainbow-delimiters-depth-4">}</span>;
+            ref.store<span class="org-rainbow-delimiters-depth-4">(</span>value_.load<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-5">)</span>, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>;
+
+            <span class="org-keyword">return</span> s0 == seq_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
     <span class="org-type">void</span> <span class="org-function-name">store</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span> <span class="org-variable-name">value</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">noexcept</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         <span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">start_seq</span> = seq_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
         seq_.store<span class="org-rainbow-delimiters-depth-3">(</span>start_seq + 1, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-3">)</span>;
-        value_ = value;
+        value_.store<span class="org-rainbow-delimiters-depth-3">(</span>value, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
         seq_.store<span class="org-rainbow-delimiters-depth-3">(</span>start_seq + 2, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-3">)</span>;
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
 <span class="org-keyword">private</span>:
     <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-constant">std</span>::uint64_t<span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">seq_</span> = 0;
-    <span class="org-type">T</span> <span class="org-variable-name">value_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">value_</span>;
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 </pre>
 </div>
@@ -113,7 +118,7 @@ Let's look at the actual code first. Then we will break it down.
 <p>
 SeqLock, short for Sequence Lock, is a synchronization mechanism that operates using a sequence counter that monitors updates to the data:
 </p>
-<pre class="example" id="orgf64b7e7">
+<pre class="example" id="org7060106">
 Sequence Counter: 0 (even - no write in progress)
       |
       v
@@ -169,6 +174,7 @@ presuming that there's only one writer (itself) incrementing the sequence.
 <p>
 <code>store</code> doesn't use a RMW(read-modify-write) operation so there's no lock emitted in instructuion level.
 The current implementation only takes care of memory orders and atomicity on <code>seq_</code>.
+As long as these conditions are met, there's no lock instruction or full memmory fence emitted.
 </p>
 
 <p>
@@ -176,6 +182,7 @@ That being said, if there are more than one writer thread running, it's advisibl
 </p>
 </div>
 </div>
+
 <div id="outline-container-relaxed-operation-might-be-sufficient-in-x86" class="outline-4">
 <h4 id="relaxed-operation-might-be-sufficient-in-x86"><span class="section-number-4">2.3.2.</span> Relaxed operation might be sufficient in x86</h4>
 <div class="outline-text-4" id="text-relaxed-operation-might-be-sufficient-in-x86">
@@ -199,7 +206,7 @@ One could wonder how <code>value_</code> in <code>store</code> isn't reordered w
 <div class="org-src-container">
 <pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">...</span>
 seq_.store<span class="org-rainbow-delimiters-depth-1">(</span>start_seq + 1, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-1">)</span>;
-value_ = value; <span class="org-comment-delimiter">// </span><span class="org-comment">&#8593; : reordered with the preceding store</span>
+value_.store<span class="org-rainbow-delimiters-depth-1">(</span>value, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-1">)</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">&#8593; : reordered with the preceding store</span>
 <span class="org-comment-delimiter">// </span><span class="org-comment">...</span>
 </pre>
 </div>
@@ -208,8 +215,11 @@ value_ = value; <span class="org-comment-delimiter">// </span><span class="org-c
 This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">mov     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rax<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">rsi</span>
+<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 1, std::memory_order_release);</span>
+mov     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rax<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">rsi</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">value_ = value</span>
 mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax+8<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">ecx</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 2, std::memory_order_release);</span>
 mov     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">rdx</span>
 </pre>
 </div>
@@ -217,10 +227,35 @@ mov     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax<span 
 <p>
 My presumtion is that a store barrier in the modern system including X86 generally has a by-default <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">trait of a release store</a> where <span class="underline">subsequent stores are sequential</span> so there's no <i>accidential</i> reorder that can be caught.
 </p>
+<div class="note" id="orgc20d8fd">
+<p>
+Of course, the minimal prerequisites are that the <i>subsequent stores</i> must be of a atomic type, always.
+</p>
+
+</div>
 
 <p>
-The same presumption can be applied for the case of <code>load</code>.
-Plus, in contrast to <code>store</code>, the condition is acting as a control dependency so the reorder should be certainly prevented.
+The same presumption can be applied for the case of <code>load</code>, as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">s0 = seq_.load(std::memory_order_acquire);</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">rax == s0</span>
+<span class="org-type">mov</span>     <span class="org-variable-name">rax</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+128<span class="org-rainbow-delimiters-depth-1">]</span>  # _58,
+<span class="org-comment-delimiter">// </span><span class="org-comment">if (s0 &amp; 1)</span>
+<span class="org-variable-name">test</span>    al, 1   # _58,
+jne     .L27      #,
+<span class="org-comment-delimiter">// </span><span class="org-comment">value_.load(std::memory_order_relaxed)</span>
+<span class="org-type">mov</span>     <span class="org-variable-name">edx</span>, <span class="org-type">DWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+136<span class="org-rainbow-delimiters-depth-1">]</span>  # _61,
+<span class="org-comment-delimiter">// </span><span class="org-comment">ref.store(..., std::memory_order_relaxed)</span>
+<span class="org-type">mov</span>     <span class="org-type">DWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+120<span class="org-rainbow-delimiters-depth-1">]</span>, edx  #,, _61
+<span class="org-comment-delimiter">// </span><span class="org-comment">if inlined, rax and rdx registers can be used to check if the load is valid directly such that:</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">cmp rax rdx</span>
+<span class="org-type">mov</span>     <span class="org-variable-name">rdx</span>, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+128<span class="org-rainbow-delimiters-depth-1">]</span>  # _62,
+</pre>
+</div>
+
+<p>
+Plus, in contrast to <code>store</code>, the condition is acting as a <i>control dependency</i> so the reorder should be certainly prevented.
 </p>
 </div>
 </div>
