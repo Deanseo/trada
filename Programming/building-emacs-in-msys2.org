@@ -7,6 +7,7 @@
 
 * Table of Contents
 
+
 * Emacs in Windows
 In general, Windows isn't the best platform to run Emacs.
 You'd have to /redo/ your own configurations just for Windows.
@@ -39,8 +40,8 @@ The problem is that you'll have to stick to the GUI mode because it won't work i
 You'd have to either run it as a GUI application or use it with an alternative tool such [[https://github.com/rprichard/winpty][winpty]].
 
 The reason *Emacs 27.2* works in terminal whilst *Eamcs 29* doesn't, I speculate, is that the latter one was built
-using the [[https://mirrors.kernel.org/gnu/emacs/windows/][Windows source tarball]] instead of [[https://mirror.us-midwest-1.nexcess.net/gnu/emacs/][GNU Emacs]]. \\
-To use Emacs 29 in terminal on Windows, unfortunately, we have to build Emacs on MSys2 from scratch.
+using the [[https://mirrors.kernel.org/gnu/emacs/windows/][Windows source tarball]] instead of [[https://mirror.us-midwest-1.nexcess.net/gnu/emacs/][GNU Emacs]] \\
+I don't think we can find the prebuilt package of that in Windows. To use Emacs 29 in terminal on Windows, unfortunately, we have to build Emacs on MSys2 from scratch.
 #+begin_tip
 This post is explicitly about the usage _within MSys2_.
 
@@ -53,7 +54,10 @@ I have never used Windows Terminal so I will put that approach aside here.
 
 
 * Building Emacs in MSys2 on Windows
+There's the official manual in *nt/INSTALL.W64* to build Emacs in Windows.
+We also have [[https://gist.github.com/nauhygon/f3b44f51b34e89bc54f8][this fantastic user manual]] to introduce the how.
 
+That's it. Just don't forget to use the GNU Emacs to build from.
 
 
 
