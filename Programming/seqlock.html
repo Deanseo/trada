@@ -22,7 +22,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgb66ce59">1. Table of Contents</a></li>
+<li><a href="#orgb4c5486">1. Table of Contents</a></li>
 <li><a href="#what-is-seqlock-and-how-it-works">2. What is SeqLock and how it works</a>
 <ul>
 <li><a href="#actual-code">2.1. Actual code</a></li>
@@ -41,8 +41,8 @@
 </div>
 </div>
 
-<div id="outline-container-orgb66ce59" class="outline-2">
-<h2 id="orgb66ce59"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-orgb4c5486" class="outline-2">
+<h2 id="orgb4c5486"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li><a href="#what-is-seqlock-and-how-it-works">What is SeqLock and how it works</a>
@@ -118,7 +118,7 @@ Let's look at the actual code first. Then we will break it down.
 <p>
 SeqLock, short for Sequence Lock, is a synchronization mechanism that operates using a sequence counter that monitors updates to the data:
 </p>
-<pre class="example" id="orgf56ae52">
+<pre class="example" id="org1075de7">
 Sequence Counter: 0 (even - no write in progress)
       |
       v
@@ -215,16 +215,16 @@ value_.store<span class="org-rainbow-delimiters-depth-1">(</span>value, <span cl
 This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">mov     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rax<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">rsi</span> <span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 1, std::memory_order_release);</span>
-mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax+8<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">ecx</span> <span class="org-comment-delimiter">// </span><span class="org-comment">value_ = value</span>
-mov     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rax<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-variable-name">rdx</span> <span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 2, std::memory_order_release);</span>
+<pre class="src src-asm"><span class="org-function-name">mov</span>     <span class="org-keyword">QWORD</span> PTR [rax], rsi <span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 1, std::memory_order_release);</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">DWORD</span> PTR [rax+8], ecx <span class="org-comment-delimiter">// </span><span class="org-comment">value_ = value</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">QWORD</span> PTR [rax], rdx <span class="org-comment-delimiter">// </span><span class="org-comment">seq_.store(start_seq + 2, std::memory_order_release);</span>
 </pre>
 </div>
 
 <p>
 My presumtion is that a store barrier in the modern system including X86 generally has a by-default <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">trait of a release store</a> where <span class="underline">subsequent stores are sequential</span> so there's no <i>accidential</i> reorder that can be caught.
 </p>
-<div class="note" id="orgf6adee3">
+<div class="note" id="orgab3aec7">
 <p>
 Of course, the minimal prerequisites are that the <i>subsequent stores</i> must be of a atomic type, always.
 </p>
@@ -235,17 +235,17 @@ Of course, the minimal prerequisites are that the <i>subsequent stores</i> must 
 The same presumption can be applied for the case of <code>load</code>, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">rax == s0</span>
-<span class="org-type">mov</span>     <span class="org-variable-name">rax</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+128<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-comment-delimiter">// </span><span class="org-comment">s0 = seq_.load(std::memory_order_acquire)</span>
+<pre class="src src-asm"><span class="org-comment-delimiter">// </span><span class="org-comment">rax == s0</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">rax</span>, QWORD PTR [rsp+128] <span class="org-comment-delimiter">// </span><span class="org-comment">s0 = seq_.load(std::memory_order_acquire)</span>
 <span class="org-comment-delimiter">// </span><span class="org-comment">if (s0 &amp; 1)</span>
-test    al, 1 
-jne     .L27  <span class="org-comment-delimiter">// </span><span class="org-comment">inlined, in this case</span>
-mov     edx, <span class="org-type">DWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+136<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-comment-delimiter">// </span><span class="org-comment">value_.load(std::memory_order_relaxed)</span>
-mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+120<span class="org-rainbow-delimiters-depth-1">]</span>, edx <span class="org-comment-delimiter">// </span><span class="org-comment">ref.store(..., std::memory_order_relaxed)</span>
+<span class="org-function-name">test</span>    <span class="org-keyword">al</span>, 1 
+<span class="org-function-name">jne</span>     .L27  <span class="org-comment-delimiter">// </span><span class="org-comment">inlined, in this case</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">edx</span>, DWORD PTR [rsp+136] <span class="org-comment-delimiter">// </span><span class="org-comment">value_.load(std::memory_order_relaxed)</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">DWORD</span> PTR [rsp+120], edx <span class="org-comment-delimiter">// </span><span class="org-comment">ref.store(..., std::memory_order_relaxed)</span>
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">if inlined, rax and rdx registers can be used to check if the load is valid directly such that:</span>
 <span class="org-comment-delimiter">// </span><span class="org-comment">cmp rax rdx</span>
-<span class="org-type">mov</span>     <span class="org-variable-name">rdx</span>, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+128<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-comment-delimiter">// </span><span class="org-comment">another seq_.load(std::memory_order_acquire)</span>
+<span class="org-function-name">mov</span>     <span class="org-keyword">rdx</span>, QWORD PTR [rsp+128] <span class="org-comment-delimiter">// </span><span class="org-comment">another seq_.load(std::memory_order_acquire)</span>
 </pre>
 </div>
 
@@ -272,7 +272,7 @@ Not only that, but also it's often used to solve many <i>real-world</i> problems
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Date: 2021-02-06 Sat 00:00</p>
+<p class="date">Date: 2021-02-06 토 00:00</p>
 <p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

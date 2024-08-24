@@ -134,7 +134,7 @@ One could wonder how =value_= in =store= isn't reordered with the upper store su
 #+END_SRC
 
 This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
-#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm 
   mov     QWORD PTR [rax], rsi // seq_.store(start_seq + 1, std::memory_order_release);
   mov     DWORD PTR [rax+8], ecx // value_ = value
   mov     QWORD PTR [rax], rdx // seq_.store(start_seq + 2, std::memory_order_release);
@@ -146,7 +146,7 @@ Of course, the minimal prerequisites are that the /subsequent stores/ must be of
 #+end_note
 
 The same presumption can be applied for the case of =load=, as follows:
-#+BEGIN_SRC C++ :includes <atomic> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm 
   // rax == s0
   mov     rax, QWORD PTR [rsp+128] // s0 = seq_.load(std::memory_order_acquire)
   // if (s0 & 1)

@@ -22,7 +22,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org5906a5f">1. Table of Contents</a></li>
+<li><a href="#org3883bb9">1. Table of Contents</a></li>
 <li><a href="#circular-buffer">2. Circular Buffer</a>
 <ul>
 <li><a href="#how-does-it-work">2.1. How does it work?</a>
@@ -38,8 +38,8 @@
 </div>
 </div>
 
-<div id="outline-container-org5906a5f" class="outline-2">
-<h2 id="org5906a5f"><span class="section-number-2">1.</span> Table of Contents</h2>
+<div id="outline-container-org3883bb9" class="outline-2">
+<h2 id="org3883bb9"><span class="section-number-2">1.</span> Table of Contents</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li><a href="#circular-buffer">Circular Buffer</a>
@@ -165,7 +165,7 @@ cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_3<span class=
 <p>
 This is a conceptual diagram:
 </p>
-<pre class="example" id="org104ce5e">
+<pre class="example" id="org18615a5">
 +--------+                        +----------------+                        +-------+
 | Client |                        | CircularBuffer |                        | Vector |
 +--------+                        +----------------+                        +-------+
@@ -315,7 +315,7 @@ I will skip the <code>main</code> function part as it should be straight-forward
 <div id="outline-container-mpmcmulti-producer-multi-consumer-circular-buffer" class="outline-4">
 <h4 id="mpmcmulti-producer-multi-consumer-circular-buffer"><span class="section-number-4">2.1.3.</span> MPMC(Multi-Producer Multi-Consumer) Circular Buffer</h4>
 <div class="outline-text-4" id="text-mpmcmulti-producer-multi-consumer-circular-buffer">
-<div class="note" id="org99640e8">
+<div class="note" id="orga0c67bc">
 <p>
 <b>Disclaimer</b>
 </p>
@@ -390,29 +390,29 @@ Likewise, I am skipping the <code>main</code> function part. <br />
 Using GCC 13.2, this is x86 assembly for <code>put</code>:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">head = head_.load(std::memory_order_relaxed);</span>
-   <span class="org-type">mov</span>     <span class="org-variable-name">rcx</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+<pre class="src src-asm"><span class="org-comment-delimiter">// </span><span class="org-comment">head = head_.load(std::memory_order_relaxed);</span>
+   <span class="org-keyword">mov</span>     rcx, QWORD PTR [rsp+32]
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">next_head = (head + 1) % max_size_;</span>
-   <span class="org-keyword">xor</span>     edx, <span class="org-variable-name">edx</span> <span class="org-comment-delimiter">// </span><span class="org-comment">'div' preparation</span>
-   lea     rax, <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-constant">rcx</span>+1<span class="org-rainbow-delimiters-depth-1">]</span>
-   div     QWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span> 
+   <span class="org-keyword">xor</span>     edx, edx <span class="org-comment-delimiter">// </span><span class="org-comment">'div' preparation</span>
+   <span class="org-keyword">lea</span>     rax, [rcx+1]
+   <span class="org-keyword">div</span>     QWORD PTR [rsp+24] 
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">tail_.load(std::memory_order_acquire)</span>
-   mov     rax, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span> 
+   <span class="org-keyword">mov</span>     rax, QWORD PTR [rsp+40] 
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">if (next_head == tail_) {</span>
-   cmp     rdx, <span class="org-type">rax</span>
-   <span class="org-variable-name">je</span>      .L13 <span class="org-comment-delimiter">// </span><span class="org-comment">Return false</span>
+   <span class="org-keyword">cmp</span>     rdx, rax
+   <span class="org-keyword">je</span>      .L13 <span class="org-comment-delimiter">// </span><span class="org-comment">Return false</span>
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">while (!head_.compare_exchange_weak(head, next_head, memory_order_release, memory_order_relaxed)</span>
-   mov     rax, rcx
-   lock cmpxchg    <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-type">rdx</span>
-   <span class="org-variable-name">jne</span>     .L4  
+   <span class="org-keyword">mov</span>     rax, rcx
+   <span class="org-keyword">lock</span> cmpxchg    QWORD PTR [rsp+32], rdx
+   <span class="org-keyword">jne</span>     .L4  
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">buf_[head] = item;</span>
-   mov     rdi, <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp<span class="org-rainbow-delimiters-depth-1">]</span>
-   mov     DWORD PTR <span class="org-rainbow-delimiters-depth-1">[</span>rdi+rax*4<span class="org-rainbow-delimiters-depth-1">]</span>, 1
+   <span class="org-keyword">mov</span>     rdi, QWORD PTR [rsp]
+   <span class="org-keyword">mov</span>     DWORD PTR [rdi+rax*4], 1
 </pre>
 </div>
 
@@ -420,21 +420,21 @@ Using GCC 13.2, this is x86 assembly for <code>put</code>:
 This is for <code>get</code>, by the same compiler, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-comment-delimiter">// </span><span class="org-comment">tail = tail_.load(std::memory_order_relaxed);</span>
-   <span class="org-type">mov</span>     <span class="org-variable-name">rcx</span>, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>
+<pre class="src src-asm"><span class="org-comment-delimiter">// </span><span class="org-comment">tail = tail_.load(std::memory_order_relaxed);</span>
+   <span class="org-keyword">mov</span>     rcx, QWORD PTR [rsp+40]
 <span class="org-comment-delimiter">// </span><span class="org-comment">head_.load(std::memory_order_acquire)</span>
-   mov     rax, <span class="org-variable-name">QWORD</span> PTR <span class="org-rainbow-delimiters-depth-1">[</span>rsp+32<span class="org-rainbow-delimiters-depth-1">]</span>
+   <span class="org-keyword">mov</span>     rax, QWORD PTR [rsp+32]
 <span class="org-comment-delimiter">// </span><span class="org-comment">if (tail == head_.load(std::memory_order_acquire)) {</span>
-   cmp     rcx, <span class="org-variable-name">rax</span>
-   je      .L4
+   <span class="org-keyword">cmp</span>     rcx, rax
+   <span class="org-keyword">je</span>      .L4
 <span class="org-comment-delimiter">// </span><span class="org-comment">next_tail = (tail + 1) % max_size_;</span>
-   lea     rax, <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-constant">rcx</span>+1<span class="org-rainbow-delimiters-depth-1">]</span>
+   <span class="org-keyword">lea</span>     rax, [rcx+1]
    <span class="org-keyword">xor</span>     edx, edx
-   div     <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+24<span class="org-rainbow-delimiters-depth-1">]</span>
+   <span class="org-keyword">div</span>     QWORD PTR [rsp+24]
 <span class="org-comment-delimiter">// </span><span class="org-comment">while (!tail_.compare_exchange_weak(tail, next_tail, memory_order_release, memory_order_relaxed)</span>
-   mov     rax, rcx  # _25, _25
-   lock cmpxchg    <span class="org-type">QWORD</span> <span class="org-variable-name">PTR</span> <span class="org-rainbow-delimiters-depth-1">[</span>rsp+40<span class="org-rainbow-delimiters-depth-1">]</span>, <span class="org-type">rdx</span>
-   <span class="org-variable-name">jne</span>     .L5
+   <span class="org-keyword">mov</span>     rax, rcx  # _25, _25
+   <span class="org-keyword">lock</span> cmpxchg    QWORD PTR [rsp+40], rdx
+   <span class="org-keyword">jne</span>     .L5
 </pre>
 </div>
 
@@ -448,7 +448,7 @@ Note that <code>cmpxchg</code> is used with <code>lock</code> prefix. This is an
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Date: 2020-01-11 토</p>
+<p class="date">Date: 2020-01-11 토 00:00</p>
 <p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

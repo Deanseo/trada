@@ -287,7 +287,7 @@ Therefore, a simple 'weak' CAS can do the job.
 
 Likewise, I am skipping the =main= function part. \\
 Using GCC 13.2, this is x86 assembly for =put=:
-#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm
   // head = head_.load(std::memory_order_relaxed);
      mov     rcx, QWORD PTR [rsp+32]
 
@@ -314,7 +314,7 @@ Using GCC 13.2, this is x86 assembly for =put=:
 #+END_SRC
 
 This is for =get=, by the same compiler, as follows:
-#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm
   // tail = tail_.load(std::memory_order_relaxed);
      mov     rcx, QWORD PTR [rsp+40]
   // head_.load(std::memory_order_acquire)
