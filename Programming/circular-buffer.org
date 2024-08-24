@@ -182,7 +182,7 @@ our primary /logical/ challenge is to make sure the compiler from reordering.
 Using *GCC 13.2*, let's see whether the modification order remains untouched.
 
 For =put= function, it looks good, as follows:
-#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm
   /* bool put(const T& item) */
 
   // size_t head = head_.load(std::memory_order_relaxed);
@@ -202,7 +202,7 @@ For =put= function, it looks good, as follows:
 #+END_SRC
 
 For =get= function, it looks as good, as follows:
-#+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC asm
   /* bool get(T& item) */
 
   // size_t tail = tail_.load(std::memory_order_relaxed);
