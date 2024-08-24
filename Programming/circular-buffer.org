@@ -186,19 +186,19 @@ For =put= function, it looks good, as follows:
   /* bool put(const T& item) */
 
   // size_t head = head_.load(std::memory_order_relaxed);
-      mov     rcx, QWORD PTR [rsp+32]
+     mov     rcx, QWORD PTR [rsp+32]
   // size_t next_head = (head + 1) % max_size_;
-      lea     rax, [rcx+1]
-      div     QWORD PTR [rsp+24]
+     lea     rax, [rcx+1]
+     div     QWORD PTR [rsp+24]
   // if (next_head == tail_.load(std::memory_order_acquire))
-      mov     rax, QWORD PTR [rsp+40]
-      cmp     rdx, rax
-      je      .L2 
+     mov     rax, QWORD PTR [rsp+40]
+     cmp     rdx, rax
+     je      .L2 
   // buf_[head] = item;
-      mov     rax, QWORD PTR [rsp]
-      mov     DWORD PTR [rax+rcx*4], ebx
+     mov     rax, QWORD PTR [rsp]
+     mov     DWORD PTR [rax+rcx*4], ebx
   // head_.store(next_head, std::memory_order_release);
-      mov     QWORD PTR [rsp+32], rdx
+     mov     QWORD PTR [rsp+32], rdx
 #+END_SRC
 
 For =get= function, it looks as good, as follows:
@@ -206,17 +206,17 @@ For =get= function, it looks as good, as follows:
   /* bool get(T& item) */
 
   // size_t tail = tail_.load(std::memory_order_relaxed);
-      mov     rax, QWORD PTR [rsp+40]
+     mov     rax, QWORD PTR [rsp+40]
   // if (tail == head_.load(std::memory_order_acquire))
-      mov     rdx, QWORD PTR [rsp+32]
-      cmp     rax, rdx
-      je      .L2 // Nope, return false
+     mov     rdx, QWORD PTR [rsp+32]
+     cmp     rax, rdx
+     je      .L2 // Nope, return false
   // (tail + 1) % max_size_
-      add     rax, 1
-      xor     edx, edx // 'div' preparation
-      div     QWORD PTR [rsp+24]
+     add     rax, 1
+     xor     edx, edx // 'div' preparation
+     div     QWORD PTR [rsp+24]
   // tail_.store(result);
-      mov     QWORD PTR [rsp+40], rdx
+     mov     QWORD PTR [rsp+40], rdx
 #+END_SRC
 
 I will skip the =main= function part as it should be straight-forward like the [[#a-very-simple-circular-buffer-for-a-single-thread][simple]] version above.
