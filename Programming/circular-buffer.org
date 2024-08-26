@@ -2,6 +2,7 @@
 #+TITLE: Circular Buffer
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2020-01-11 토]
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
 #+options: timestamp:nil
 
 * Table of Contents
@@ -97,9 +98,9 @@ Let's say you're calling =push= and =get= as follows:
 
 This is a conceptual diagram:
 #+begin_example
-  +--------+                        +----------------+                        +-------+
+  +--------+                        +----------------+                        +--------+
   | Client |                        | CircularBuffer |                        | Vector |
-  +--------+                        +----------------+                        +-------+
+  +--------+                        +----------------+                        +--------+
        |                                     |                                     |
        |---------new CircularBuffer(3)------>|                                     |
        |<------------------------------------|                                     |

@@ -3,61 +3,76 @@
 #+TITLE: Building Emacs on MSys2 in Windows
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2024-08-25 Sun]
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
 #+options: timestamp:nil
 
 * Table of Contents
-
+- [[#emacs-in-windows][Emacs in Windows]]
+- [[#building-emacs-in-msys2-on-windows][Building Emacs in MSys2 on Windows]]
 
 * Emacs in Windows
-In general, Windows isn't the best platform to run Emacs.
-You'd have to /redo/ your own configurations just for Windows.
+:PROPERTIES:
+:CUSTOM_ID: emacs-in-windows
+:END:
+I primarily use Emacs in the terminal, where it feels perfectly intuitive.
+However, there are times when using Windows becomes unavoidable for various reasons.
+Generally, operating systems other than Linux aren't the best platforms for running Emacs. \\
+On Windows, for example, I often find myself having to redo configurations that otherwise would work seamlessly on Linux.
 
-Plus, it's /really/ slow. In GUI, Magit, one of the killer packages in Emacs, crawls like a turtle.
+But, the problems with Emacs on Windows don't end there. It's predictably sluggish.
+
+In the GUI, Magit, one of Emacs's standout packages, moves at a pace that can feel terribly slow.
 #+begin_note
-To be fair, it's neither Magit's nor Emacs's fault.
-This is unfortunately due to how Windows executable runs with *emacs.exe* and *git.exe*.
+To be fair, neither Magit nor Emacs is to blame.
+The issue arises from how Windows handles executables like *emacs.exe* and *git.exe*.
 #+end_note
 
-Nevertheless, I think the situation improves a bit on [[https://www.msys2.org/][MSys2]], if you run Emacs in terminal mode by =emacs -nw=.
-As of 2024 August, the default Emacs package available is *Emacs 27.2*, which works pretty well in terminal
-like you would in Linux.
+Despite these issues, I’ve noticed some improvements when using [[https://www.msys2.org/][MSys2]].
+If you run Emacs in a full terminal mode using =emacs -nw=, the experience is comparable to running it on Linux.
 
-Yet, if you are an Emacs user, you'd certainly wanna use *Emacs 29* and take advantage of its fancy features such as
-native compiliation through =libgccjit= bindings, tree-sitter, and etc.
+As of August 2024, the default Emacs package available on MSys2 is *Emacs 27.2*, which works pretty well
+in the terminal in my opinion.
 
-In fact, you can download *Emacs 29* via Pacman, as follows:
+However, if you're an Emacs enthusiast, you'll likely want to use *Emacs 29* to benefit
+from its advanced features, such as native compilation through =libgccjit= bindings, [[https://tree-sitter.github.io/tree-sitter/][tree-sitter]] package and more.
+
+In fact, you can actually download *Emacs 29* using Pacman with the following command:
 #+BEGIN_SRC shell
-  # This will give you Emacs 29.4 or above now
+  # This will give you Emacs 29.4 or later
   $ pacman -S mingw-w64-x86_64-emacs
 #+END_SRC
 
-This works, /partially/.
-The problem is that you'll have to stick to the GUI mode because it won't work in terminal as the whole screen gets garbled:
+But this solution only partially works.
+You'll need to stick to the GUI mode because the terminal mode will cause the screen to become garbled:
 
-#+ATTR_HTML: :width 200px :class center
+#+ATTR_HTML: :width 600px :class center
 [[file:images/building-emacs-in-msys2/emacs-29-garbled.png]]
+/Figure 1. Emacs is 'running' but only mini-buffer is visible and none of key bindings works/.
 
-You'd have to either run it as a GUI application or use it with an alternative tool such [[https://github.com/rprichard/winpty][winpty]].
+To use it in terminal mode, you'd either need to stick with the GUI application or use an alternative tool like [[https://github.com/rprichard/winpty][winpty]].
 
-The reason *Emacs 27.2* works in terminal whilst *Eamcs 29* doesn't, I speculate, is that the latter one was built
-using the [[https://mirrors.kernel.org/gnu/emacs/windows/][Windows source tarball]] instead of [[https://mirror.us-midwest-1.nexcess.net/gnu/emacs/][GNU Emacs]] \\
-I don't think we can find the prebuilt package of that in Windows. To use Emacs 29 in terminal on Windows, unfortunately, we have to build Emacs on MSys2 from scratch.
+The reason *Emacs 27.2* works in the terminal while *Emacs 29* doesn't might be because the latter was
+built using the [[https://mirrors.kernel.org/gnu/emacs/windows/][Windows source tarball]] instead of the [[https://mirror.us-midwest-1.nexcess.net/gnu/emacs/][GNU Emacs]] source.
+Unfortunately, there isn't a pre-built package that works perfectly on Windows.
+
+That being said, to use *Emacs 29* in terminal mode on Windows, you'll likely need to build Emacs from scratch on MSys2.
 #+begin_tip
-This post is explicitly about the usage _within MSys2_.
+This post specifically discusses the usage of Emacs _within MSys2_.
 
-Admittedly, there are other pracitces people do, /outside MSys2/.
-One is to download the official binaries for Windows and run it properly on GUI
-
-Another way is to use [[https://apps.microsoft.com/detail/9n0dx20hk701?hl=en-US&gl=US][Windows Terminal]].
-I have never used Windows Terminal so I will put that approach aside here.
+There are other methods people use outside of MSys2. 
+One option is to download the official binaries for Windows and run Emacs in GUI mode. \\
+\\
+Another approach is to use [[https://apps.microsoft.com/detail/9n0dx20hk701?hl=en-US&gl=US][Windows Terminal]]. I haven't personally used Windows Terminal, so I will leave that method for others to explore.
 #+end_tip
 
-
 * Building Emacs in MSys2 on Windows
+:PROPERTIES:
+:CUSTOM_ID: building-emacs-in-msys2-on-windows
+:END:
 There's the official manual in *nt/INSTALL.W64* to build Emacs in Windows.
 We also have [[https://gist.github.com/nauhygon/f3b44f51b34e89bc54f8][this fantastic user manual]] to introduce the how.
 
-That's it. Just don't forget to use the GNU Emacs to build from.
+That's it. The lesson I learned is always stick to the the GNU one to build from.
 
 
 
