@@ -36,7 +36,6 @@ It took me some time until I made some progress finally.
 - [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
 - [[file:Programming/circular-buffer.org][Implement thread-safe Circular Buffers]]
 - [[file:Programming/transaction-limiter.org][Implement Transaction Limiter]]
-- [[file:Programming/building-emacs-in-msys2.org][Building Emacs on MSys2 in Windows]]
   
 ** Thoughts
 - [[file:Medicine/Blood-Brain Barrier (BBB).org][Medicine: What's BBB(Blood-Brain Barrier) and how it's relevant to drug usages]]
