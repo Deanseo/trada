@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Transaction Limiter</title>
+<meta name="generator" content="Org mode" />
 <meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
-<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -15,41 +15,63 @@
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
 <style> #content{max-width:900px;}</style>>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:e95b018ef3580986a04669f1b5879592219e2a7a&dn=public-domain.txt Public Domain
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
 </head>
 <body>
-<div id="content" class="content">
+<div id="content">
 <h1 class="title">Transaction Limiter</h1>
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="#orga7896b3">1. Table of Contents</a></li>
-<li><a href="#whats-a-transaction-limiter">2. What's a Transaction Limiter?</a></li>
-<li><a href="#why-do-we-need-a-transaction-limiter">3. Why do we need a Transaction Limiter?</a>
+<li><a href="#orgee2410b">Table of Contents</a></li>
+<li><a href="#whats-a-transaction-limiter">What's a Transaction Limiter?</a></li>
+<li><a href="#why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</a>
 <ul>
-<li><a href="#crypto-trading-and-transaction-limiter">3.1. Crypto Trading and Transaction Limiter</a></li>
+<li><a href="#crypto-trading-and-transaction-limiter">Crypto Trading and Transaction Limiter</a></li>
 </ul>
 </li>
-<li><a href="#how-to-develop-a-transaction-limiter">4. How to develop a Transaction Limiter?</a>
+<li><a href="#how-to-develop-a-transaction-limiter">How to develop a Transaction Limiter?</a>
 <ul>
-<li><a href="#implement-a-base-class">4.1. Implement a base class</a></li>
-<li><a href="#implement-a-circular-buffer">4.2. Implement a Circular Buffer</a></li>
-<li><a href="#implementat-the-limiter">4.3. Implementat the limiter</a></li>
+<li><a href="#implement-a-base-class">Implement a base class</a></li>
+<li><a href="#implement-a-circular-buffer">Implement a Circular Buffer</a></li>
+<li><a href="#implementat-the-limiter">Implementat the limiter</a></li>
 </ul>
 </li>
-<li><a href="#how-to-use-transaction-limiter">5. How to use Transaction Limiter</a>
+<li><a href="#how-to-use-transaction-limiter">How to use Transaction Limiter</a>
 <ul>
-<li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">5.1. Another way to implement this without using the circular buffer</a></li>
+<li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</a></li>
 </ul>
 </li>
-<li><a href="#conclusion">6. Conclusion</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga7896b3" class="outline-2">
-<h2 id="orga7896b3"><span class="section-number-2">1.</span> Table of Contents</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-orgee2410b" class="outline-2">
+<h2 id="orgee2410b">Table of Contents</h2>
+<div class="outline-text-2" id="text-orgee2410b">
 <ul class="org-ul">
 <li><a href="#whats-a-transaction-limiter">What's a Transaction Limiter?</a></li>
 <li><a href="#why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</a>
@@ -72,7 +94,7 @@
 </div>
 
 <div id="outline-container-whats-a-transaction-limiter" class="outline-2">
-<h2 id="whats-a-transaction-limiter"><span class="section-number-2">2.</span> What's a Transaction Limiter?</h2>
+<h2 id="whats-a-transaction-limiter">What's a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-whats-a-transaction-limiter">
 <p>
 A Transaction Limiter helps ensure you don't accidentally send more orders than you're allowed to.
@@ -81,7 +103,7 @@ A Transaction Limiter helps ensure you don't accidentally send more orders than 
 </div>
 
 <div id="outline-container-why-do-we-need-a-transaction-limiter" class="outline-2">
-<h2 id="why-do-we-need-a-transaction-limiter"><span class="section-number-2">3.</span> Why do we need a Transaction Limiter?</h2>
+<h2 id="why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-why-do-we-need-a-transaction-limiter">
 <p>
 To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
@@ -97,7 +119,7 @@ It's a good idea to ban those who can't keep their trading system under control.
 </div>
 
 <div id="outline-container-crypto-trading-and-transaction-limiter" class="outline-3">
-<h3 id="crypto-trading-and-transaction-limiter"><span class="section-number-3">3.1.</span> Crypto Trading and Transaction Limiter</h3>
+<h3 id="crypto-trading-and-transaction-limiter">Crypto Trading and Transaction Limiter</h3>
 <div class="outline-text-3" id="text-crypto-trading-and-transaction-limiter">
 <p>
 Crypto exchanges often impose even stricter restrictions - a narrower window of TPS(Transactions Per Second).
@@ -112,9 +134,9 @@ so that market partipants are advised to make order requests in a more <i>conser
 </div>
 
 <div id="outline-container-how-to-develop-a-transaction-limiter" class="outline-2">
-<h2 id="how-to-develop-a-transaction-limiter"><span class="section-number-2">4.</span> How to develop a Transaction Limiter?</h2>
+<h2 id="how-to-develop-a-transaction-limiter">How to develop a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-how-to-develop-a-transaction-limiter">
-<div class="tip" id="org8236a52">
+<div class="tip" id="org8e2a0b0">
 <p>
 In my opinion, creating a transaction limiter class is a fascinating project, not just for the trading industry but in general.
 You can design the implementation to be flexible enough to meet your own business requirements, such that you can control how many times certain tasks can be executed.
@@ -144,7 +166,7 @@ To handle this edge case, we'll also create an <i>exclusive buffer</i> which acc
 </div>
 
 <div id="outline-container-implement-a-base-class" class="outline-3">
-<h3 id="implement-a-base-class"><span class="section-number-3">4.1.</span> Implement a base class</h3>
+<h3 id="implement-a-base-class">Implement a base class</h3>
 <div class="outline-text-3" id="text-implement-a-base-class">
 <p>
 A base class defines those two interfaces as well as <code>priority_tag</code>.
@@ -192,13 +214,13 @@ In that case, <code>priority_tag</code> will be ignored, and the regular overloa
 </div>
 
 <div id="outline-container-implement-a-circular-buffer" class="outline-3">
-<h3 id="implement-a-circular-buffer"><span class="section-number-3">4.2.</span> Implement a Circular Buffer</h3>
+<h3 id="implement-a-circular-buffer">Implement a Circular Buffer</h3>
 <div class="outline-text-3" id="text-implement-a-circular-buffer">
 <p>
 as mentioned, For this article, I will use <a href="circular-buffer.html">Circular Buffer</a> for its inner data structure.
 </p>
 
-<div class="warning" id="org1e3be57">
+<div class="warning" id="orga854ea7">
 <p>
 <i>For obvious reasons, you shouldn't use my implementation in production</i>. <br />
 There are many solid (and better) implementations of circular buffer available, including <a href="https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html">Boost's Circular Buffer</a>
@@ -209,7 +231,7 @@ There are many solid (and better) implementations of circular buffer available, 
 </div>
 
 <div id="outline-container-implementat-the-limiter" class="outline-3">
-<h3 id="implementat-the-limiter"><span class="section-number-3">4.3.</span> Implementat the limiter</h3>
+<h3 id="implementat-the-limiter">Implementat the limiter</h3>
 <div class="outline-text-3" id="text-implementat-the-limiter">
 <p>
 The actual implementation can be as follows:
@@ -330,7 +352,7 @@ Once you have that, it lets you focus sorely on the <i>business</i> logic - the 
 </div>
 
 <div id="outline-container-how-to-use-transaction-limiter" class="outline-2">
-<h2 id="how-to-use-transaction-limiter"><span class="section-number-2">5.</span> How to use Transaction Limiter</h2>
+<h2 id="how-to-use-transaction-limiter">How to use Transaction Limiter</h2>
 <div class="outline-text-2" id="text-how-to-use-transaction-limiter">
 <p>
 The usage is quite straight-forward; it immediately returns with the result indicating if an order can be submitted, as follows:
@@ -354,7 +376,7 @@ The usage is quite straight-forward; it immediately returns with the result indi
 It capsulizes the inner implementation so the order sender part may focus on its business logic.
 The big-picture sequencial diagram would be:
 </p>
-<pre class="example" id="org22eac79">
+<pre class="example" id="org872726a">
 +--------------------------+
 |          Client          |
 +--------------------------+
@@ -392,7 +414,7 @@ The big-picture sequencial diagram would be:
 For cancellation, that special added buffer is looked up instead.
 This allows users to cancel their working orders in the book without having to worry about overlapping the buffer for new orders.
 </p>
-<div class="note" id="org10f9fba">
+<div class="note" id="orga653a95">
 <p>
 <b>What if there are just too many orders to cancel at once?</b> <br />
 <br />
@@ -406,7 +428,7 @@ For market making account holders or those staggering orders for hits may want t
 </div>
 
 <div id="outline-container-another-way-to-implement-this-without-using-the-circular-buffer" class="outline-3">
-<h3 id="another-way-to-implement-this-without-using-the-circular-buffer"><span class="section-number-3">5.1.</span> Another way to implement this without using the circular buffer</h3>
+<h3 id="another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</h3>
 <div class="outline-text-3" id="text-another-way-to-implement-this-without-using-the-circular-buffer">
 <p>
 As mentioned earlier there are a few different ways to make your own transaction limiter.
@@ -421,7 +443,7 @@ Hopefully I can re-visit this and cover those parts someday.
 </div>
 
 <div id="outline-container-conclusion" class="outline-2">
-<h2 id="conclusion"><span class="section-number-2">6.</span> Conclusion</h2>
+<h2 id="conclusion">Conclusion</h2>
 <div class="outline-text-2" id="text-conclusion">
 <p>
 In conclusion, by focusing on the essential functions of checking and managing capacity, we can implement a simple solution tailored to various business needs.

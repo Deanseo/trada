@@ -3,7 +3,8 @@
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2020-01-25 토]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#whats-a-transaction-limiter][What's a Transaction Limiter?]]

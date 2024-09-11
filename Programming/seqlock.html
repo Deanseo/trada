@@ -6,44 +6,66 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SeqLock</title>
+<meta name="generator" content="Org mode" />
 <meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
-<meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:e95b018ef3580986a04669f1b5879592219e2a7a&dn=public-domain.txt Public Domain
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
 </head>
 <body>
-<div id="content" class="content">
+<div id="content">
 <h1 class="title">SeqLock</h1>
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="#orgdd5a559">1. Table of Contents</a></li>
-<li><a href="#what-is-seqlock-and-how-it-works">2. What is SeqLock and how it works</a>
+<li><a href="#orga2c7bbb">Table of Contents</a></li>
+<li><a href="#what-is-seqlock-and-how-it-works">What is SeqLock and how it works</a>
 <ul>
-<li><a href="#actual-code">2.1. Actual code</a></li>
-<li><a href="#how-it-works">2.2. How it works</a></li>
-<li><a href="#caveats">2.3. Caveats</a>
+<li><a href="#actual-code">Actual code</a></li>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#caveats">Caveats</a>
 <ul>
-<li><a href="#single-writer-only">2.3.1. Single Writer Only</a></li>
-<li><a href="#relaxed-operation-might-be-sufficient-in-x86">2.3.2. Relaxed operation might be sufficient in x86</a></li>
-<li><a href="#what-prevents-the-store-on-value_-from-being-reordered-with-start_seq">2.3.3. What prevents the store on <code>value_</code> from being reordered with <code>start_seq</code>?</a></li>
+<li><a href="#single-writer-only">Single Writer Only</a></li>
+<li><a href="#relaxed-operation-might-be-sufficient-in-x86">Relaxed operation might be sufficient in x86</a></li>
+<li><a href="#what-prevents-the-store-on-value_-from-being-reordered-with-start_seq">What prevents the store on <code>value_</code> from being reordered with <code>start_seq</code>?</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#conclusion">3. Conclusion</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgdd5a559" class="outline-2">
-<h2 id="orgdd5a559"><span class="section-number-2">1.</span> Table of Contents</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-orga2c7bbb" class="outline-2">
+<h2 id="orga2c7bbb">Table of Contents</h2>
+<div class="outline-text-2" id="text-orga2c7bbb">
 <ul class="org-ul">
 <li><a href="#what-is-seqlock-and-how-it-works">What is SeqLock and how it works</a>
 <ul class="org-ul">
@@ -62,7 +84,7 @@
 </div>
 
 <div id="outline-container-what-is-seqlock-and-how-it-works" class="outline-2">
-<h2 id="what-is-seqlock-and-how-it-works"><span class="section-number-2">2.</span> What is SeqLock and how it works</h2>
+<h2 id="what-is-seqlock-and-how-it-works">What is SeqLock and how it works</h2>
 <div class="outline-text-2" id="text-what-is-seqlock-and-how-it-works">
 <p>
 Before I begin, I must say <b>SeqLock</b> is one of my favorite lock-free algorithms.
@@ -79,7 +101,7 @@ Let's look at the actual code first. Then we will break it down.
 </p>
 </div>
 <div id="outline-container-actual-code" class="outline-3">
-<h3 id="actual-code"><span class="section-number-3">2.1.</span> Actual code</h3>
+<h3 id="actual-code">Actual code</h3>
 <div class="outline-text-3" id="text-actual-code">
 <div class="org-src-container">
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">class</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>                                  
@@ -113,12 +135,12 @@ Let's look at the actual code first. Then we will break it down.
 </div>
 
 <div id="outline-container-how-it-works" class="outline-3">
-<h3 id="how-it-works"><span class="section-number-3">2.2.</span> How it works</h3>
+<h3 id="how-it-works">How it works</h3>
 <div class="outline-text-3" id="text-how-it-works">
 <p>
 SeqLock, short for Sequence Lock, is a synchronization mechanism that operates using a sequence counter that monitors updates to the data:
 </p>
-<pre class="example" id="orge9407bc">
+<pre class="example" id="orgc7e2fa2">
 Sequence Counter: 0 (even - no write in progress)
       |
       v
@@ -160,11 +182,11 @@ The benefits of this mechanism is that it minimizes the locking overhead for wri
 </div>
 
 <div id="outline-container-caveats" class="outline-3">
-<h3 id="caveats"><span class="section-number-3">2.3.</span> Caveats</h3>
+<h3 id="caveats">Caveats</h3>
 <div class="outline-text-3" id="text-caveats">
 </div>
 <div id="outline-container-single-writer-only" class="outline-4">
-<h4 id="single-writer-only"><span class="section-number-4">2.3.1.</span> Single Writer Only</h4>
+<h4 id="single-writer-only">Single Writer Only</h4>
 <div class="outline-text-4" id="text-single-writer-only">
 <p>
 The implementation above only supports a single writer because <code>store</code> doesn't verify its read,
@@ -184,7 +206,7 @@ That being said, if there are more than one writer thread running, it's advisibl
 </div>
 
 <div id="outline-container-relaxed-operation-might-be-sufficient-in-x86" class="outline-4">
-<h4 id="relaxed-operation-might-be-sufficient-in-x86"><span class="section-number-4">2.3.2.</span> Relaxed operation might be sufficient in x86</h4>
+<h4 id="relaxed-operation-might-be-sufficient-in-x86">Relaxed operation might be sufficient in x86</h4>
 <div class="outline-text-4" id="text-relaxed-operation-might-be-sufficient-in-x86">
 <p>
 In x86, every store is a release store and every load is a release load.
@@ -198,7 +220,7 @@ In other words, we only need to worry about reordering done by the compiler so u
 </div>
 
 <div id="outline-container-what-prevents-the-store-on-value_-from-being-reordered-with-start_seq" class="outline-4">
-<h4 id="what-prevents-the-store-on-value_-from-being-reordered-with-start_seq"><span class="section-number-4">2.3.3.</span> What prevents the store on <code>value_</code> from being reordered with <code>start_seq</code>?</h4>
+<h4 id="what-prevents-the-store-on-value_-from-being-reordered-with-start_seq">What prevents the store on <code>value_</code> from being reordered with <code>start_seq</code>?</h4>
 <div class="outline-text-4" id="text-what-prevents-the-store-on-value_-from-being-reordered-with-start_seq">
 <p>
 One could wonder how <code>value_</code> in <code>store</code> isn't reordered with the upper store such that:
@@ -224,7 +246,7 @@ This is probably not guaranteed by the C++ standard's memory model, though the c
 <p>
 My presumtion is that a store barrier in the modern system including X86 generally has a by-default <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">trait of a release store</a> where <span class="underline">subsequent stores are sequential</span> so there's no <i>accidential</i> reorder that can be caught.
 </p>
-<div class="note" id="org356c5f3">
+<div class="note" id="org5390413">
 <p>
 Of course, the minimal prerequisites are that the <i>subsequent stores</i> must be of a atomic type, always.
 </p>
@@ -258,7 +280,7 @@ Plus, in contrast to <code>store</code>, the condition is acting as a <i>control
 </div>
 
 <div id="outline-container-conclusion" class="outline-2">
-<h2 id="conclusion"><span class="section-number-2">3.</span> Conclusion</h2>
+<h2 id="conclusion">Conclusion</h2>
 <div class="outline-text-2" id="text-conclusion">
 <p>
 <b>SeqLock</b> is a simple and fast locking mechanism that doesn't block the writer.

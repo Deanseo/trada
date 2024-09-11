@@ -2,7 +2,8 @@
 #+TITLE: SeqLock
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2021-02-06 토]
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]

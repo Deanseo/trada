@@ -4,7 +4,8 @@
 #+DATE:  [2022-09-28 ]
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 .

@@ -4,7 +4,8 @@
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2024-07-28 Sun]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Introduction
 :PROPERTIES:

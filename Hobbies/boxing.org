@@ -3,7 +3,8 @@
 #+TITLE: Boxing 
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2023-06-25 Sun]
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#boxing][Boxing]]
