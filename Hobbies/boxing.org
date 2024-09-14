@@ -13,22 +13,22 @@
 :PROPERTIES:
 :CUSTOM_ID: boxing
 :END:
-I started practicing boxing as a hobby a couple years ago.
+I started boxing as a hobby a couple years ago.
 
-Since that I realized it offers numerous beneifts for self-discipline, health, and my stress management.
-It's tough, requiring a high level of dedication and consistency through which it instills discipline in all areas of life.
+Since that I've realized it offers numerous beneifts for self-discipline, health, and my stress management.
+It's tough; requiring a high level of dedication and consistency, through which it instills discipline in all areas of life.
 
-Not only that, but I think boxing is also an excellent way to stay physically healthy.
-This sport provides a full-body workout with strength, agility, and endurance.
+Apart from that, I think boxing is also an excellent way to stay physically healthy.
+This sport provides a full-body workout which incrases strength, agility, and endurance.
 
 #+ATTR_HTML: :class center
 [[file:images/boxing.gif]]
 
-Most importantly it's really a powerful tool for stress management.
-I used to run at night, when I'm under stress. I feel like I discovered a better method though.
+Most importantly, it's really a powerful tool for stress management.
+I used to run at night, whenever I was stressd. I feel like I discovered a better method though.
 
-It definitely triggers the release of endorph at a greater scale lifting my mood and getting ready for the next day's work.
-Through this hobby ones can find a balance between physical exertion and mental relaxation for a more harmonious life style.
+It definitely triggers the release of endorphins at a greater scale, lifting my mood and helping me get ready for the next day's work.
+Through this hobby ones can find a balance between physical exertion and mental relaxation for a more holistic life style.
 
 Someday, I might go for BJJ as well.
 
