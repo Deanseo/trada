@@ -1,0 +1,49 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE: Draft Title
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2023-05-25 Thu]
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
+
+* Table of Contents
+.
+
+* When are we using total ordering?
+Since C++11, C++ has covered memory models in the standard:
+- std::memory_order_relaxed
+- std::memory_order_consume
+- std::memory_order_acquire
+- std::memory_order_release
+- std::memory_order_acq_rel
+- std::memory_order_seq_cst
+
+For obvious reasons the committes did the hard work to cover different platforms' memory model to allow us
+to write a portable program within C++.
+
+This is a delicate subject underlying [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][how the Linux kernel's supports the atomic operations]].
+In x86, a strongly ordered architecture, however this model can be simpler though.
+
+** std::memory_order_consume
+This implies the /address-dependency partial load barrier./
+It ins't always obvious to identify the address-dependant loads.
+
+The good news is that in strongly ordered architectures, this is now a /historical/ concern, automatically implied in a load barrier today.
+=std::memory_order_consume= is likely to be only used to prevent compiler reorderings within C++'s memory model.
+
+** std::memory_order_relaxed
+Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid release/acquire /synchronize-with/ relation.
+In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
+
+** std::memory_order_release / std::memory_order_acquire
+In most cases this pair is what we want to use.
+
+Each operation is a specific partial ordering for a store and load pair.
+In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected.
+
+** std::memory_order_seq_cst
+This implies a total ordering, which is the strongest, full memory barrier you can use.
+In this post, I'm gonna talk about a situation that a rel/acq pair isn't good enough whilst =std::memory_order_seq_cst= must be present. (in a 3rd party library, maybe 'must').
+
+* 
+
