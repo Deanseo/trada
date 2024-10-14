@@ -1,5 +1,5 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+TITLE: Draft Title
+#+TITLE: When are we using a sequencially consistent total ordering?
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2023-05-25 Thu]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
@@ -144,39 +144,40 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
 
 To be logically consistent, given that each operation is atomic:
 #+begin_example
-| case | T1   | T2   | Misc.            |
-|------+------+------+------------------|
-| #1   | X=1  |      |                  |
-|      | r1=Y |      |                  |
-|      |      | Y=1  |                  |
-|      |      | r2=X |                  |
-|------+------+------+------------------|
-| #2   | X=1  |      |                  |
-|      |      | Y=1  |                  |
-|      | r1=Y |      |                  |
-|      |      | r2=X |                  |
-|------+------+------+------------------|
-| #3   |      | Y=1  |                  |
-|      | X=1  |      |                  |
-|      | r1=Y |      |                  |
-|      |      | r2=X |                  |
-|------+------+------+------------------|
-| #4   | X=1  | Y=1  | at the same time |
-|      | r1=Y | r2=X | at the same time |
-|------+------+------+------------------|
-| #5   | X=1  | Y=1  | at the same time |
-|      | r1=Y |      |                  |
-|      |      | r2=X |                  |
-|------+------+------+------------------|
-| #6   | X=1  | Y=1  | at the same time |
-|      |      | r2=X |                  |
-|      | r1=Y |      |                  |
-|------+------+------+------------------|
+  +------+------+------+------------------+
+  | case | T1   | T2   | Misc.            |
+  |------+------+------+------------------|
+  | #1   | X=1  |      |                  |
+  |      | r1=Y |      |                  |
+  |      |      | Y=1  |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #2   | X=1  |      |                  |
+  |      |      | Y=1  |                  |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #3   |      | Y=1  |                  |
+  |      | X=1  |      |                  |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #4   | X=1  | Y=1  | at the same time |
+  |      | r1=Y | r2=X | at the same time |
+  |------+------+------+------------------|
+  | #5   | X=1  | Y=1  | at the same time |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #6   | X=1  | Y=1  | at the same time |
+  |      |      | r2=X |                  |
+  |      | r1=Y |      |                  |
+  +------+------+------+------------------+
 #+end_example
 
 you can tell that "r0 = r1 = 0" is impossible.
-The reason you're seeing the reordering is:
-#+begin_example
+The reason you're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/, as follows:
+#+begin_src text
                   +------+                +-------+                                                
                   | X=0  |                | X=0   |                              
   +-------+       +------+                +-------+       +-------+             
@@ -192,17 +193,47 @@ The reason you're seeing the reordering is:
   |       |       :      :     ---------->| X=1   |------>| miss! |
   |       |       :      :        |       +-------+       |       |
   |       |       :      :        |       :       :       |       |
-  |       |       +------+       /        :       :       |       |
-  | r1=0  |<------| r1=Y |      /         :       :       |       |
-  |       |       +------+     /          :       :       |       |
-  |       |       :      :    /           :       :       |       |
-  |       |       +------+   /            :       :       |       |
-  | miss! |<------| Y=1  |<--             :       :       |       |
+  |       |       +------+        |       :       :       |       |
+  | r1=0  |<------| r1=Y |        |       :       :       |       |
+  |       |       +------+        |       :       :       |       |
+  |       |       :      :       /        :       :       |       |
+  |       |       +------+      /         :       :       |       |
+  | miss! |<------| Y=1  |<----           :       :       |       |
   |       |       +------+                :       :       |       |
   |       |       :      :                :       :       |       |
   +-------+       :      :                :       :       +-------+
-#+end_example
+#+end_src
 
+As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
+To prevent that happening, it's essential to impose the sequencially consistent full ordering such as =mfence= in the original post so the single ordering is visible to all CPUs.
+
+* Still, isn't a rel/acq pair good enough to prevent reordering?
+A release and acquire must be paired and when paired there's a guaranteed ordering such that any atomic opreations
+before the release /happens-before/ any atomic operations.
+
+The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' can have the same ordering
+so we often use a =is_ready= practice:
+#+BEGIN_SRC C++ :includes <memory> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  std::atomic<int> value;
+  std::atomic<bool> is_ready;
+
+  void release() {
+      value.store(1, std::memory_order_relaxed);
+      is_ready.store(true, std::memory_order_release);
+  }
+
+  auto acquire() {
+      if (const auto readiness = is_ready.load(std::memory_order_acquire);
+          readiness) {
+          return value.load(std::memory_order_relaxed);
+      }
+
+      return 0;
+  }
+#+END_SRC
+
+In most cases this is good enough. Considering x86 is strongly ordered and for sequencially consistent operation the compiler yields stronger
+instructions than relaxed, such as =lock= prefix or =mfence=, I once wondered if there's a case we /must/ use =std::memory_order_seq_cst=.
 
 
 
