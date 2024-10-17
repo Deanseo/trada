@@ -34,6 +34,7 @@ changes of their user agreement, I decided to revamp my articles and repost some
 It took me some time until I made some progress finally.
 
 ** Programming
+- [[file:Programming/when-are-we-using-total-ordering-seq-cst.org][When are we using a total ordering memory barrier in C++?]]
 - [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
 - [[file:Programming/circular-buffer.org][Implement thread-safe Circular Buffers]]
 - [[file:Programming/transaction-limiter.org][Implement Transaction Limiter]]

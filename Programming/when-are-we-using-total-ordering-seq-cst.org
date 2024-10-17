@@ -1,7 +1,7 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE: When are we using a sequencially consistent total ordering?
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  [2023-05-25 Thu]
+#+DATE:  [2020-05-25 월]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
 #+OPTIONS: timestamp:nil
 #+OPTIONS: num:nil
@@ -207,12 +207,12 @@ The reason you're seeing the reordering is possibly each cache visibe to differn
 As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
 To prevent that happening, it's essential to impose the sequencially consistent full ordering such as =mfence= in the original post so the single ordering is visible to all CPUs.
 
-* Still, isn't a rel/acq pair good enough to prevent reordering?
+* Isn't a rel/acq pair good enough to prevent reordering?
 A release and acquire must be paired and when paired there's a guaranteed ordering such that any atomic opreations
 before the release /happens-before/ any atomic operations.
 
-The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' can have the same ordering
-so we often use a =is_ready= practice:
+The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' is guaranteed to have the same ordering.
+Thus, the good ole =is_ready= practice in C is now available in C++, as follows:
 #+BEGIN_SRC C++ :includes <memory> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   std::atomic<int> value;
   std::atomic<bool> is_ready;
@@ -232,8 +232,20 @@ so we often use a =is_ready= practice:
   }
 #+END_SRC
 
-In most cases this is good enough. Considering x86 is strongly ordered and for sequencially consistent operation the compiler yields stronger
-instructions than relaxed, such as =lock= prefix or =mfence=, I once wondered if there's a case we /must/ use =std::memory_order_seq_cst=.
+That's it. In fact, for most cases in atomic programming, a /rel-acq/ fair is good enough. There's a bonus in x86.
+Considering it's strongly ordered by default there's no strong instrucution yield such as =lock= prefix or =mfence=.
+
+So I once wondered, "_what's a use case for =std::memory_order_seq_cst=?_"
+
+* Placing general barriers for a total ordering
+In short, you use =std::memory_order_seq_cst= for full ordering that covers operations beyond the rel-acq chain.
+In a well-designed structure, probably it's best to avoid placing total orderings often, but in some cases that might be inevitable.
+
+Recycling Preshing's code above, let's add one more thread off the rel/acq partial ordering chain:
+#+BEGIN_SRC C++ :includes <atomic> <random> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+
+#+END_SRC
+
 
 
 
