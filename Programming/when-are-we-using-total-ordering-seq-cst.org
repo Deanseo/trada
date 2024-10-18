@@ -31,6 +31,8 @@ It ins't always obvious to identify the address-dependant loads.
 The good news is that in strongly ordered architectures, this is now a /historical/ concern, automatically implied in a load barrier today.
 =std::memory_order_consume= is likely to be only used to prevent compiler reorderings within C++'s memory model.
 
+https://stackoverflow.com/questions/58986135/what-does-strongly-happens-before-mean
+
 ** =std::memory_order_relaxed=
 Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid release/acquire /synchronize-with/ relation.
 In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
@@ -243,7 +245,107 @@ In a well-designed structure, probably it's best to avoid placing total ordering
 
 Recycling Preshing's code above, let's add one more thread off the rel/acq partial ordering chain:
 #+BEGIN_SRC C++ :includes <atomic> <random> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  sem_t beginSema1;
+  sem_t beginSema2;
+  sem_t beginSema3;
+  sem_t endSema;
 
+  // int X, Y;
+  std::atomic<int> X, Y;
+  std::atomic<int> flag;
+
+  std::random_device seed_generator;
+
+  void *thread1Func(void *param) {
+      std::mt19937 random(seed_generator());
+      for (;;) {
+          sem_wait(&beginSema1); // Wait for signal
+          while (random() % 8 != 0) {
+          } // Random delay
+
+          // ----- THE TRANSACTION! -----
+          // X = 1;
+          X.store(1, std::memory_order_relaxed);
+          flag.store(1, std::memory_order_release);
+          // flag.store(1, std::memory_order_seq_cst);
+          sem_post(&endSema); // Notify transaction complete
+      }
+      return nullptr; // Never returns
+  };
+
+  void *thread2Func(void *param) {
+      std::mt19937 random(seed_generator());
+      for (;;) {
+          sem_wait(&beginSema2); // Wait for signal
+          while (random() % 8 != 0) {
+          } // Random delay
+
+          // ----- THE TRANSACTION! -----
+          if (flag.load(std::memory_order_acquire) == 1) {
+              Y.store(1, std::memory_order_relaxed);
+          }
+          sem_post(&endSema); // Notify transaction complete
+      }
+      return nullptr; // Never returns
+  };
+
+  void *thread3Func(void *param) {
+      std::mt19937 random(seed_generator());
+
+      std::size_t detected = 0;
+      for (std::size_t iterations = 0; ; iterations++) {
+          sem_wait(&beginSema3); // Wait for signal
+          while (random() % 8 != 0) {
+          } // Random delay
+  
+          const auto x = X.load(std::memory_order_relaxed);
+          const auto y = Y.load(std::memory_order_relaxed);
+
+          if ( y == 1 and x == 0 ) {
+              detected++;
+              printf("%d reorders detected after %d iterations. \n", detected, iterations);
+          }
+
+          sem_post(&endSema); // Notify transaction complete
+      }
+
+      return nullptr; // Never returns
+  }
+
+  int main() {
+      // Initialize the semaphores
+      sem_init(&beginSema1, 0, 0);
+      sem_init(&beginSema2, 0, 0);
+      sem_init(&endSema, 0, 0);
+
+      // Spawn the threads
+      pthread_t thread1, thread2, thread3;
+      pthread_create(&thread1, NULL, thread1Func, NULL);
+      pthread_create(&thread2, NULL, thread2Func, NULL);
+      pthread_create(&thread3, NULL, thread3Func, NULL);
+
+      // Repeat the experiment ad infinitum
+      for (int iterations = 1;; iterations++) {
+          // Reset X, Y and flag
+          X = 0;
+          Y = 0;
+          flag = 0;
+
+          // Signal both threads
+          sem_post(&beginSema1);
+          sem_post(&beginSema2);
+          sem_post(&beginSema3);
+
+          // Wait for both threads
+          sem_wait(&endSema);
+          sem_wait(&endSema);
+          sem_wait(&endSema);
+
+          // Check if there was a simultaneous reorder
+          // std::this_thread::yield();
+      }
+      return 0; // Never returns
+  }
 #+END_SRC
 
 
