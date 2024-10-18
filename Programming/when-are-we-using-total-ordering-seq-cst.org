@@ -31,7 +31,9 @@ It ins't always obvious to identify the address-dependant loads.
 The good news is that in strongly ordered architectures, this is now a /historical/ concern, automatically implied in a load barrier today.
 =std::memory_order_consume= is likely to be only used to prevent compiler reorderings within C++'s memory model.
 
-https://stackoverflow.com/questions/58986135/what-does-strongly-happens-before-mean
+https://stackoverflow.com/questions/58986135/what-does-strongly-happens-before-mean: about consume in comments
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html: scfix
+https://www.reddit.com/r/cpp/comments/15v8ke2/is_sequentiallyconsistent_ordering_documentation: reddit
 
 ** =std::memory_order_relaxed=
 Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid release/acquire /synchronize-with/ relation.
