@@ -1,23 +1,24 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+TITLE: When are we using a sequencially consistent total ordering?
+#+TITLE: Memory Order in C++
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  [2020-05-25 월]
+#+DATE:  [2024-10-26 토]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
 #+OPTIONS: timestamp:nil
 #+OPTIONS: num:nil
 
 * Table of Contents
-- [[#when-are-we-using-total-ordering][When are we using total ordering?]]
-  - [[#stdmemory_order_consume][std::memory_order_consume]]
-  - [[#stdmemory_order_relaxed][std::memory_order_relaxed]]
-  - [[#stdmemory_order_release--stdmemory_order_acquire][std::memory_order_release / std::memory_order_acquire]]
-  - [[#stdmemory_order_seq_cst][std::memory_order_seq_cst]]
+- [[#memory-ordering-in-c][Memory Order in C++]]
+  - [[#-consume][Consume]]
+  - [[#-relaxed][Relaxed]]
+  - [[#-release--acquire][Release / Acquire]]
+  - [[#-sequencially-consistent][Sequencially-Consistent]]
 - [[#memory-reordering-caught-in-the-act][Memory reordering caught in the act]]
 - [[#isnt-a-relacq-pair-good-enough-to-prevent-reordering][Isn't a rel/acq pair good enough to prevent reordering?]]
+- [[#references-worth-reading][References worth reading]]
 
-* When are we using total ordering?
+* Memory Order in C++
 :PROPERTIES:
-:CUSTOM_ID: when-are-we-using-total-ordering
+:CUSTOM_ID: memory-ordering-in-c
 :END:
 Since C++11, C++ has covered memory models in the standard:
 - =std::memory_order_relaxed=
@@ -27,61 +28,74 @@ Since C++11, C++ has covered memory models in the standard:
 - =std::memory_order_acq_rel=
 - =std::memory_order_seq_cst=
 
-For obvious reasons the committes did the hard work to cover different platforms' memory model to allow us
-to write a portable program within C++.
+The committes did the hard work to cover different platforms' memory model to allow us
+to write a portable program within C++. Personally it concepturized it so well that reading thorough its specs and usages has helped me understand atomic operations
+to a great scale.
 
 This is a delicate subject underlying [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][how the Linux kernel's supports the atomic operations]].
-In x86, a strongly ordered architecture, however this model can be simpler though.
+In x86, a /strongly-ordered/ architecture, we can even see this model far simpler.
 
-** consume
+** ✅ Consume
 :PROPERTIES:
-:CUSTOM_ID: stdmemory_order_consume
+:CUSTOM_ID: -consume
 :END:
-This implies the /address-dependency partial load barrier./
-It ins't always obvious to identify the address-dependant loads.
+This implies the /address-dependency partial load barrier/ that was [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][historically important]] but not so much today.
 
-The good news is that in strongly ordered architectures, this is now a /historical/ concern, automatically implied in a load barrier today.
-=std::memory_order_consume= is likely to be only used to prevent compiler reorderings within C++'s memory model.
+It ins't always obvious to identify the address-dependant load.
+Good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
+as in most modern platforms a load barrier implies a consume by default.
 
-https://stackoverflow.com/questions/58986135/what-does-strongly-happens-before-mean: about consume in comments
-https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html: scfix
-https://www.reddit.com/r/cpp/comments/15v8ke2/is_sequentiallyconsistent_ordering_documentation: reddit
+I'm not saying it's a deprecate trait as there's a valid use case against [[https://en.wikipedia.org/wiki/DEC_Alpha][DEC Alpha]] 64-bit instruction sets and as a compiler barrier
+for other platforms within C++'s memory model [[https://stackoverflow.com/a/58994136][providing the compiler as large the room for optimizations as possible]].
 
-** relaxed
+Yet, in my opinion I didn't witness a case where a consume is used in order to yield a better performance result myself though.
+
+** ✅ Relaxed
 :PROPERTIES:
-:CUSTOM_ID: stdmemory_order_relaxed
+:CUSTOM_ID: -relaxed
 :END:
-Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid release/acquire /synchronize-with/ relation.
-In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
+Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid
+/release-acquire,/ /synchronize-with/ relation.
 
-** release / acquire
+** ✅ Release / Acquire
 :PROPERTIES:
-:CUSTOM_ID: stdmemory_order_release--stdmemory_order_acquire
+:CUSTOM_ID: -release--acquire
 :END:
-In most cases this pair is what we want to use.
+In most cases this pair is good enough for what we want to accomplish.
 
 Each operation is a specific partial ordering for a store and load pair.
-In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected.
+In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected (synchronized-with).
 
-** seq_cst
+In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
+
+** ✅ Sequencially-Consistent
 :PROPERTIES:
-:CUSTOM_ID: stdmemory_order_seq_cst
+:CUSTOM_ID: -sequencially-consistent
 :END:
 This implies a total ordering, which is the strongest, full memory barrier you can use.
-In this post, I'm gonna talk about a situation that a /rel/acq/ pair isn't good enough, whilst =std::memory_order_seq_cst= must be present. (todo: remove: in a 3rd party library, maybe 'must').
+
+In my opininon, in any carefully designed algorithms, without having to be portable, you won't need this in x86.
+One possible use case I can think of off the top of my head is:
+
+- you are binding your program to a dynamic library with a heavy use of atomic operations
+- you have no access to its source code
+- you're directly interractingg with the memory addresses the library is residing
+- the compiler versions aren't even the same (with potential ABI issues)
+
+In which case it's probably advisible to enhance the correct ordering.
 
 * Memory reordering caught in the act
 :PROPERTIES:
 :CUSTOM_ID: memory-reordering-caught-in-the-act
 :END:
-[[https://preshing.com/20120515/memory-reordering-caught-in-the-act][Preshing's post]] about demonstrating memory reordering done in x86 shows that a strongly-ordered CPU isn't completley immunne to the modification order [[http://preshing.com/files/ordering.zip][being reordred]].
+[[https://preshing.com/20120515/memory-reordering-caught-in-the-act][Preshing's post]] about demonstrating memory reordering done in x86 shows that a /strongly-ordered/ CPU isn't completley immunne to the modification order [[http://preshing.com/files/ordering.zip][being reordred]].
 Here's the equivalent version where I only replaced his [[https://en.wikipedia.org/wiki/Mersenne_Twister][Mersenne Twister]] implemetation with =std::mt19337=:
 #+BEGIN_SRC C++ :exports both :main no :noweb yes
   #define USE_CPU_FENCE 0
 
-  sem_t beginSema1;
-  sem_t beginSema2;
-  sem_t endSema;
+  std::binary_semaphore beginSema1 {0};
+  std::binary_semaphore beginSema2 {0};
+  std::counting_semaphore<2> endSema {0};
 
   int X, Y;
   int r1, r2;
@@ -90,87 +104,79 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
   void *thread1Func(void *param) {
       std::mt19937 random(seed_generator());
       for (;;) {
-          sem_wait(&beginSema1);  // Wait for signal
-          while (random() % 8 != 0) {}  // Random delay
+          beginSema1.acquire();
+          while (random() % 8 != 0) { }  // Random delay
 
           // ----- THE TRANSACTION! -----
           X = 1;
   #if USE_CPU_FENCE
           std::atomic_thread_fence(std::memory_order_seq_cst);
   #else
-          std::atomic_signal_fence(std::memory_order_seq_cst); // Would it work?
-          // asm volatile("" ::: "memory");  // Prevent compiler reordering
+          std::atomic_signal_fence(std::memory_order_seq_cst); 
   #endif
           r1 = Y;
 
-          sem_post(&endSema);  // Notify transaction complete
+          endSema.release();
       }
-    
+
       return nullptr;  // Never returns
   };
 
   void *thread2Func(void *param) {
       std::mt19937 random(seed_generator());
       for (;;) {
-          sem_wait(&beginSema2);  // Wait for signal
-          while (random() % 8 != 0) {}  // Random delay
+          beginSema2.acquire();
+          while (random() % 8 != 0) { }  // Random delay
 
           // ----- THE TRANSACTION! -----
           Y = 1;
   #if USE_CPU_FENCE
           std::atomic_thread_fence(std::memory_order_seq_cst);
   #else
-          std::atomic_signal_fence(std::memory_order_seq_cst); // Would it work?
-          // asm volatile("" ::: "memory");  // Prevent compiler reordering
+          std::atomic_signal_fence(std::memory_order_seq_cst);
   #endif
           r2 = X;
 
-          sem_post(&endSema);  // Notify transaction complete
+          endSema.release();
       }
-    
+
       return nullptr;  // Never returns
   };
 
   int main() {
-      // Initialize the semaphores
-      sem_init(&beginSema1, 0, 0);
-      sem_init(&beginSema2, 0, 0);
-      sem_init(&endSema, 0, 0);
-
       // Spawn the threads
-      pthread_t thread1, thread2;
-      pthread_create(&thread1, nullptr, thread1Func, nullptr);
-      pthread_create(&thread2, nullptr, thread2Func, nullptr);
+      std::thread thread1 { thread1Func };
+      std::thread thread2 { thread2Func };
 
       // Repeat the experiment ad infinitum
       std::size_t detected = 0;
-      for (int iterations = 1; ; iterations++)
-      {
+      for (int iterations = 1; ; iterations++) {
           // Reset X and Y
           X = 0;
           Y = 0;
 
           // Signal both threads
-          sem_post(&beginSema1);
-          sem_post(&beginSema2);
+          beginSema1.release();
+          beginSema2.release();
 
           // Wait for both threads
-          sem_wait(&endSema);
-          sem_wait(&endSema);
+          endSema.acquire();
+          endSema.acquire();
 
           // Check if there was a simultaneous reorder
-          if (r1 == 0 and r2 == 0)
-          {
+          if (r1 == 0 and r2 == 0) {
               detected++;
               printf("%d reorders detected after %d iterations\n", detected, iterations);
           }
       }
 
+      thread1.join();
+      thread2.join();
       return 0;  // Never returns
   }
 #+END_SRC
 
-To be logically consistent, given that each operation is atomic:
+Given that each operation is atomic, the following table shows the possible outcomes:
 #+begin_example
   +------+------+------+------------------+
   | case | T1   | T2   | Misc.            |
@@ -203,8 +209,10 @@ To be logically consistent, given that each operation is atomic:
   +------+------+------+------------------+
 #+end_example
 
-you can tell that "r0 = r1 = 0" is impossible.
-The reason you're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/, as follows:
+As such, you can tell that "*r0 = r1 = 0*" is impossible.
+The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/.
+
+We can illsutrate that in the following diagram:
 #+begin_src text
                   +------+                +-------+                                                
                   | X=0  |                | X=0   |                              
@@ -233,17 +241,18 @@ The reason you're seeing the reordering is possibly each cache visibe to differn
 #+end_src
 
 As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
-To prevent that happening, it's essential to impose the sequencially consistent full ordering such as =mfence= in the original post so the single ordering is visible to all CPUs.
+To prevent that happening, it's essential to impose the sequencially consistent full ordering
+such as =mfence= in the original post so the single ordering is visible to all CPUs.
 
 * Isn't a rel/acq pair good enough to prevent reordering?
 :PROPERTIES:
 :CUSTOM_ID: isnt-a-relacq-pair-good-enough-to-prevent-reordering
 :END:
-A release and acquire must be paired and when paired there's a guaranteed ordering such that any atomic opreations
+A /release-and-acquire/ must be paired. When paired there's a guaranteed happens-before ordering such that any atomic opreations
 before the release /happens-before/ any atomic operations.
 
 The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' is guaranteed to have the same ordering.
-Thus, the good ole =is_ready= practice in C is now available in C++, as follows:
+Thus, the good ole =is_ready= practice in C is now available in the C++ standard, as follows:
 #+BEGIN_SRC C++ :includes <memory> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   std::atomic<int> value;
   std::atomic<bool> is_ready;
@@ -263,17 +272,19 @@ Thus, the good ole =is_ready= practice in C is now available in C++, as follows:
   }
 #+END_SRC
 
-That's it. In fact, for most cases in atomic programming, a /rel-acq/ fair is good enough. There's a bonus in x86.
-Considering it's strongly ordered by default there's no strong instrucution yield such as =lock= prefix or =mfence=.
+That's it. In fact, for most cases in atomic programming in general, a /rel-acq/ fair is good enough.
+#+begin_tip
+In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
+#+end_tip
 
-So I once wondered, "_what's a use case for =std::memory_order_seq_cst=?_"
+One bonus is that, considering it's strongly ordered by default, there's no strong instrucution yield such as =lock= prefix or =mfence=.
 
-In x86, a normal relaxed atomic operation is automatically escalated to either release or acquire at least.
-So given that A is 'always' /synchronized-with/ B thorugh a rel/acq pair, it's impossible to demonstrate a valid usage of seq_cst
-even from a perspective of C which isn't in the rel/acq chain.
-
-
-
+* References worth reading
+:PROPERTIES:
+:CUSTOM_ID: references-worth-reading
+:END:
+- [[https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html][SC Revision (P0668R5)]]
+  - [[https://www.reddit.com/r/cpp/comments/15v8ke2/is_sequentiallyconsistent_ordering_documentation/?rdt=51618][r/cpp: Is sequentially-consistent ordering documentation example still correct with SCfix?]]
 
 
 
