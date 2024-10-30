@@ -25,7 +25,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga9cd157">Table of Contents</a></li>
+<li><a href="#org2b4e6ea">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -41,9 +41,9 @@
 </div>
 </div>
 
-<div id="outline-container-orga9cd157" class="outline-2">
-<h2 id="orga9cd157">Table of Contents</h2>
-<div class="outline-text-2" id="text-orga9cd157">
+<div id="outline-container-org2b4e6ea" class="outline-2">
+<h2 id="org2b4e6ea">Table of Contents</h2>
+<div class="outline-text-2" id="text-org2b4e6ea">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -158,7 +158,7 @@ One possible use case I can think of off the top of my head is:
 </ul>
 
 <p>
-In which case it's probably advisible to enhance the correct ordering.
+In which case, with a a bit of exaggeration, it's probably advisible to enhance the correct ordering, though you can
 </p>
 </div>
 </div>
@@ -261,7 +261,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="orgeb5666a">
+<pre class="example" id="org5cc7ada">
 +------+------+------+------------------+
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -372,7 +372,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="orgb4f2f10">
+<div class="tip" id="org7090276">
 <p>
 In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
 </p>
