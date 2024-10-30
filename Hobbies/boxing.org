@@ -1,0 +1,40 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+TITLE: Boxing 
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2023-06-25 Sun]
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
+
+* Table of Contents
+- [[#boxing][Boxing]]
+
+* Boxing
+:PROPERTIES:
+:CUSTOM_ID: boxing
+:END:
+I started boxing as a hobby a couple years ago.
+
+Since that I've realized it offers numerous beneifts for self-discipline, health, and my stress management.
+It's tough; requiring a high level of dedication and consistency, through which it instills discipline in all areas of life.
+
+Apart from that, I think boxing is also an excellent way to stay physically healthy.
+This sport provides a full-body workout which incrases strength, agility, and endurance.
+
+#+ATTR_HTML: :class center
+[[file:images/boxing.gif]]
+
+Most importantly, it's really a powerful tool for stress management.
+I used to run at night, whenever I was stressd. I feel like I discovered a better method though.
+
+It definitely triggers the release of endorphins at a greater scale, lifting my mood and helping me get ready for the next day's work.
+Through this hobby ones can find a balance between physical exertion and mental relaxation for a more holistic life style.
+
+Someday, I might go for BJJ as well.
+
+
+
+
+
+
+
