@@ -25,7 +25,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org851dd06">Table of Contents</a></li>
+<li><a href="#org2b4e6ea">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -41,9 +41,9 @@
 </div>
 </div>
 
-<div id="outline-container-org851dd06" class="outline-2">
-<h2 id="org851dd06">Table of Contents</h2>
-<div class="outline-text-2" id="text-org851dd06">
+<div id="outline-container-org2b4e6ea" class="outline-2">
+<h2 id="org2b4e6ea">Table of Contents</h2>
+<div class="outline-text-2" id="text-org2b4e6ea">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -158,7 +158,7 @@ One possible use case I can think of off the top of my head is:
 </ul>
 
 <p>
-In which case it's probably advisible to enhance the correct ordering.
+In which case, with a a bit of exaggeration, it's probably advisible to enhance the correct ordering, though you can
 </p>
 </div>
 </div>
@@ -182,7 +182,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <span class="org-type">int</span> <span class="org-variable-name">r1</span>, <span class="org-variable-name">r2</span>;
 <span class="org-constant">std</span>::<span class="org-type">random_device</span> <span class="org-variable-name">seed_generator</span>;
 
-<span class="org-type">void</span> *<span class="org-function-name">thread1Func</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">void</span> *<span class="org-variable-name">param</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-type">void</span> *<span class="org-function-name">thread1Func</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-constant">std</span>::<span class="org-type">mt19937</span> <span class="org-variable-name">random</span><span class="org-rainbow-delimiters-depth-2">(</span>seed_generator<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span>;
     <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>;;<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         beginSema1.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
@@ -203,7 +203,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
     <span class="org-keyword">return</span> <span class="org-constant">nullptr</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Never returns</span>
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 
-<span class="org-type">void</span> *<span class="org-function-name">thread2Func</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">void</span> *<span class="org-variable-name">param</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-type">void</span> *<span class="org-function-name">thread2Func</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-constant">std</span>::<span class="org-type">mt19937</span> <span class="org-variable-name">random</span><span class="org-rainbow-delimiters-depth-2">(</span>seed_generator<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span>;
     <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>;;<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         beginSema2.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
@@ -261,7 +261,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="org9550af9">
+<pre class="example" id="org5cc7ada">
 +------+------+------+------------------+
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -372,7 +372,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="org1f8004c">
+<div class="tip" id="org7090276">
 <p>
 In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
 </p>
@@ -398,7 +398,7 @@ One bonus is that, considering it's strongly ordered by default, there's no stro
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Date: 2024-10-26 토 00:00</p>
+<p class="date">Date: 2024-10-26 Sat 00:00</p>
 <p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

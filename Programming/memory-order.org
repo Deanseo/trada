@@ -82,7 +82,7 @@ One possible use case I can think of off the top of my head is:
 - you're directly interractingg with the memory addresses the library is residing
 - the compiler versions aren't even the same (with potential ABI issues)
 
-In which case it's probably advisible to enhance the correct ordering.
+In which case, with a a bit of exaggeration, it's probably advisible to enhance the correct ordering, though you can
 
 * Memory reordering caught in the act
 :PROPERTIES:
@@ -101,7 +101,7 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
   int r1, r2;
   std::random_device seed_generator;
 
-  void *thread1Func(void *param) {
+  void *thread1Func() {
       std::mt19937 random(seed_generator());
       for (;;) {
           beginSema1.acquire();
@@ -122,7 +122,7 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
       return nullptr;  // Never returns
   };
 
-  void *thread2Func(void *param) {
+  void *thread2Func() {
       std::mt19937 random(seed_generator());
       for (;;) {
           beginSema2.acquire();
