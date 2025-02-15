@@ -10,10 +10,13 @@
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<link rel="stylesheet" type="text/css" href="src/readtheorg_theme/css/search.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/search.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/javascript">disableSearch();</script>
 <style> #content{max-width:900px;}</style>>
 </head>
 <body>
@@ -23,32 +26,33 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org662ce86">1. Table of Contents</a></li>
-<li><a href="#whats-a-transaction-limiter">2. What's a Transaction Limiter?</a></li>
-<li><a href="#why-do-we-need-a-transaction-limiter">3. Why do we need a Transaction Limiter?</a>
+<li><a href="#org3adc098">Table of Contents</a></li>
+<li><a href="#whats-a-transaction-limiter">What's a Transaction Limiter?</a></li>
+<li><a href="#why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</a>
 <ul>
-<li><a href="#crypto-trading-and-transaction-limiter">3.1. Crypto Trading and Transaction Limiter</a></li>
+<li><a href="#crypto-trading-and-transaction-limiter">Crypto Trading and Transaction Limiter</a></li>
 </ul>
 </li>
-<li><a href="#how-to-develop-a-transaction-limiter">4. How to develop a Transaction Limiter?</a>
+<li><a href="#how-to-develop-a-transaction-limiter">How to develop a Transaction Limiter?</a>
 <ul>
-<li><a href="#implement-a-base-class">4.1. Implement a base class</a></li>
-<li><a href="#implement-a-circular-buffer">4.2. Implement a Circular Buffer</a></li>
-<li><a href="#implementat-the-limiter">4.3. Implementat the limiter</a></li>
+<li><a href="#implement-a-base-class">Implement a base class</a></li>
+<li><a href="#implement-a-circular-buffer">Implement a Circular Buffer</a></li>
+<li><a href="#implementat-the-limiter">Implementat the limiter</a></li>
 </ul>
 </li>
-<li><a href="#how-to-use-transaction-limiter">5. How to use Transaction Limiter</a>
+<li><a href="#how-to-use-transaction-limiter">How to use Transaction Limiter</a>
 <ul>
-<li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">5.1. Another way to implement this without using the circular buffer</a></li>
+<li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</a></li>
 </ul>
 </li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org662ce86" class="outline-2">
-<h2 id="org662ce86"><span class="section-number-2">1.</span> Table of Contents</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-org3adc098" class="outline-2">
+<h2 id="org3adc098">Table of Contents</h2>
+<div class="outline-text-2" id="text-org3adc098">
 <ul class="org-ul">
 <li><a href="#whats-a-transaction-limiter">What's a Transaction Limiter?</a></li>
 <li><a href="#why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</a>
@@ -65,12 +69,13 @@
 <ul class="org-ul">
 <li><a href="#another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</a></li>
 </ul></li>
+<li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-whats-a-transaction-limiter" class="outline-2">
-<h2 id="whats-a-transaction-limiter"><span class="section-number-2">2.</span> What's a Transaction Limiter?</h2>
+<h2 id="whats-a-transaction-limiter">What's a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-whats-a-transaction-limiter">
 <p>
 A Transaction Limiter helps ensure you don't accidentally send more orders than you're allowed to.
@@ -79,7 +84,7 @@ A Transaction Limiter helps ensure you don't accidentally send more orders than 
 </div>
 
 <div id="outline-container-why-do-we-need-a-transaction-limiter" class="outline-2">
-<h2 id="why-do-we-need-a-transaction-limiter"><span class="section-number-2">3.</span> Why do we need a Transaction Limiter?</h2>
+<h2 id="why-do-we-need-a-transaction-limiter">Why do we need a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-why-do-we-need-a-transaction-limiter">
 <p>
 To maintain a fair trading environment and protect individual traders, global exchanges often limit the total number of order requests a market participant can send, within a fixed time frame.
@@ -95,7 +100,7 @@ It's a good idea to ban those who can't keep their trading system under control.
 </div>
 
 <div id="outline-container-crypto-trading-and-transaction-limiter" class="outline-3">
-<h3 id="crypto-trading-and-transaction-limiter"><span class="section-number-3">3.1.</span> Crypto Trading and Transaction Limiter</h3>
+<h3 id="crypto-trading-and-transaction-limiter">Crypto Trading and Transaction Limiter</h3>
 <div class="outline-text-3" id="text-crypto-trading-and-transaction-limiter">
 <p>
 Crypto exchanges often impose even stricter restrictions - a narrower window of TPS(Transactions Per Second).
@@ -110,9 +115,9 @@ so that market partipants are advised to make order requests in a more <i>conser
 </div>
 
 <div id="outline-container-how-to-develop-a-transaction-limiter" class="outline-2">
-<h2 id="how-to-develop-a-transaction-limiter"><span class="section-number-2">4.</span> How to develop a Transaction Limiter?</h2>
+<h2 id="how-to-develop-a-transaction-limiter">How to develop a Transaction Limiter?</h2>
 <div class="outline-text-2" id="text-how-to-develop-a-transaction-limiter">
-<div class="tip" id="org1852b53">
+<div class="tip" id="org35c9772">
 <p>
 In my opinion, creating a transaction limiter class is a fascinating project, not just for the trading industry but in general.
 You can design the implementation to be flexible enough to meet your own business requirements, such that you can control how many times certain tasks can be executed.
@@ -142,7 +147,7 @@ To handle this edge case, we'll also create an <i>exclusive buffer</i> which acc
 </div>
 
 <div id="outline-container-implement-a-base-class" class="outline-3">
-<h3 id="implement-a-base-class"><span class="section-number-3">4.1.</span> Implement a base class</h3>
+<h3 id="implement-a-base-class">Implement a base class</h3>
 <div class="outline-text-3" id="text-implement-a-base-class">
 <p>
 A base class defines those two interfaces as well as <code>priority_tag</code>.
@@ -161,7 +166,7 @@ As such, I made the base class have the priority tag <i>optional</i> so the user
 <pre class="src src-C++"><span class="org-keyword">enum</span> <span class="org-keyword">class</span> <span class="org-type">priority_tag</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-variable-name">Tag_</span> <span class="org-rainbow-delimiters-depth-1">}</span>;
 
 <span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">ImplType</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
-<span class="org-keyword">struct</span> <span class="org-type">base_limitter</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">struct</span> <span class="org-type">base_limiter</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-keyword">auto</span> *<span class="org-function-name">This</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> <span class="org-keyword">static_cast</span><span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">ImplType</span> *<span class="org-rainbow-delimiters-depth-3">&gt;(</span><span class="org-keyword">this</span><span class="org-rainbow-delimiters-depth-3">)</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
     <span class="org-keyword">auto</span> *<span class="org-function-name">This</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-keyword">const</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> <span class="org-keyword">static_cast</span><span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-keyword">const</span> <span class="org-type">ImplType</span> *<span class="org-rainbow-delimiters-depth-3">&gt;(</span><span class="org-keyword">this</span><span class="org-rainbow-delimiters-depth-3">)</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
 
@@ -169,7 +174,7 @@ As such, I made the base class have the priority tag <i>optional</i> so the user
 
     <span class="org-type">bool</span> <span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-2">{</span> <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-3">()</span>-&gt;acquire_order_slot<span class="org-rainbow-delimiters-depth-3">()</span>; <span class="org-rainbow-delimiters-depth-2">}</span>
     <span class="org-type">bool</span> <span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">priority_tag</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-keyword">if</span> <span class="org-keyword">constexpr</span> <span class="org-rainbow-delimiters-depth-3">(</span>requires<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">ImplType</span> <span class="org-variable-name">impl</span>, <span class="org-type">priority_tag</span> <span class="org-variable-name">tag</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+        <span class="org-keyword">if</span> <span class="org-keyword">constexpr</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">requires</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">ImplType</span> <span class="org-variable-name">impl</span>, <span class="org-type">priority_tag</span> <span class="org-variable-name">tag</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
                           <span class="org-rainbow-delimiters-depth-5">{</span> impl.acquire_order_slot<span class="org-rainbow-delimiters-depth-6">(</span>tag<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-5">}</span> -&gt; <span class="org-constant">std</span>::<span class="org-type">same_as</span><span class="org-rainbow-delimiters-depth-5">&lt;</span><span class="org-type">bool</span><span class="org-rainbow-delimiters-depth-5">&gt;</span>;
                       <span class="org-rainbow-delimiters-depth-4">}</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
             <span class="org-keyword">return</span> This<span class="org-rainbow-delimiters-depth-4">()</span>-&gt;acquire_order_slot<span class="org-rainbow-delimiters-depth-4">(</span>priority_tag<span class="org-rainbow-delimiters-depth-5">{}</span><span class="org-rainbow-delimiters-depth-4">)</span>;
@@ -183,20 +188,20 @@ As such, I made the base class have the priority tag <i>optional</i> so the user
 </div>
 
 <p>
-Note that a limiter implementation inheriting from <code>base_limitter</code> might not support "<i>prioritines</i>".
+Note that a limiter implementation inheriting from <code>base_limiter</code> might not support "<i>prioritines</i>".
 In that case, <code>priority_tag</code> will be ignored, and the regular overload will be chosen.
 </p>
 </div>
 </div>
 
 <div id="outline-container-implement-a-circular-buffer" class="outline-3">
-<h3 id="implement-a-circular-buffer"><span class="section-number-3">4.2.</span> Implement a Circular Buffer</h3>
+<h3 id="implement-a-circular-buffer">Implement a Circular Buffer</h3>
 <div class="outline-text-3" id="text-implement-a-circular-buffer">
 <p>
 as mentioned, For this article, I will use <a href="circular-buffer.html">Circular Buffer</a> for its inner data structure.
 </p>
 
-<div class="warning" id="orgb442879">
+<div class="warning" id="orgce96c02">
 <p>
 <i>For obvious reasons, you shouldn't use my implementation in production</i>. <br />
 There are many solid (and better) implementations of circular buffer available, including <a href="https://www.boost.org/doc/libs/1_79_0/doc/html/circular_buffer.html">Boost's Circular Buffer</a>
@@ -207,18 +212,18 @@ There are many solid (and better) implementations of circular buffer available, 
 </div>
 
 <div id="outline-container-implementat-the-limiter" class="outline-3">
-<h3 id="implementat-the-limiter"><span class="section-number-3">4.3.</span> Implementat the limiter</h3>
+<h3 id="implementat-the-limiter">Implementat the limiter</h3>
 <div class="outline-text-3" id="text-implementat-the-limiter">
 <p>
 The actual implementation can be as follows:
 </p>
 <div class="org-src-container">
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">Size</span>, <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">PriorityCapacity</span> = 0<span class="org-rainbow-delimiters-depth-1">&gt;</span>
-<span class="org-keyword">class</span> <span class="org-type">limitter</span> : <span class="org-keyword">public</span> <span class="org-type">base_limitter</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">limitter</span><span class="org-rainbow-delimiters-depth-2">&lt;</span>Size, PriorityCapacity<span class="org-rainbow-delimiters-depth-2">&gt;</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">class</span> <span class="org-type">limiter</span> : <span class="org-keyword">public</span> <span class="org-type">base_limiter</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">limiter</span><span class="org-rainbow-delimiters-depth-2">&lt;</span>Size, PriorityCapacity<span class="org-rainbow-delimiters-depth-2">&gt;</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
 <span class="org-keyword">public</span>:
     static_assert<span class="org-rainbow-delimiters-depth-2">(</span>PriorityCapacity &lt; Size<span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    <span class="org-keyword">constexpr</span> <span class="org-function-name">limitter</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-constant">std</span>::<span class="org-constant">chrono</span>::<span class="org-type">microseconds</span> <span class="org-variable-name">interval</span><span class="org-rainbow-delimiters-depth-2">)</span> : interval_<span class="org-rainbow-delimiters-depth-2">(</span>interval.count<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+    <span class="org-keyword">constexpr</span> <span class="org-function-name">limiter</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-constant">std</span>::<span class="org-constant">chrono</span>::<span class="org-type">microseconds</span> <span class="org-variable-name">interval</span><span class="org-rainbow-delimiters-depth-2">)</span> : interval_<span class="org-rainbow-delimiters-depth-2">(</span>interval.count<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         window_.set_capacity<span class="org-rainbow-delimiters-depth-3">(</span>Size - PriorityCapacity<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">auto</span> <span class="org-variable-name">idx</span> = 0; idx &lt; window_.capacity<span class="org-rainbow-delimiters-depth-4">()</span>; idx++<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
@@ -258,7 +263,7 @@ such that users can use that buffer to submit <i>urgent</i> cancellation orders.
 <code>acquire_order_slot</code> is the main dish where it is to insert element into the inner circular buffer:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-type">bool</span> <span class="org-constant">limitter</span>::<span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<pre class="src src-C++"><span class="org-type">bool</span> <span class="org-constant">limiter</span>::<span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-rainbow-delimiters-depth-3">[</span>is_available, now<span class="org-rainbow-delimiters-depth-3">]</span> = is_available_now<span class="org-rainbow-delimiters-depth-3">(</span>window_<span class="org-rainbow-delimiters-depth-3">)</span>; is_available<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">[</span>likely<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         window_.push_back<span class="org-rainbow-delimiters-depth-3">(</span>now.count<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
         <span class="org-keyword">return</span> <span class="org-constant">true</span>;
@@ -273,7 +278,7 @@ such that users can use that buffer to submit <i>urgent</i> cancellation orders.
 Another overload is equally intuitive, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-type">bool</span> <span class="org-constant">limitter</span>::<span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-1">(</span>priority_tag<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<pre class="src src-C++"><span class="org-type">bool</span> <span class="org-constant">limiter</span>::<span class="org-function-name">acquire_order_slot</span><span class="org-rainbow-delimiters-depth-1">(</span>priority_tag<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     static_assert<span class="org-rainbow-delimiters-depth-2">(</span>PriorityCapacity &gt; 0<span class="org-rainbow-delimiters-depth-2">)</span>;
 
     <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-rainbow-delimiters-depth-3">[</span>is_available, now<span class="org-rainbow-delimiters-depth-3">]</span> = is_available_now<span class="org-rainbow-delimiters-depth-3">(</span>priority_window_.value<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>; is_available<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">[</span>likely<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">{</span>
@@ -291,7 +296,7 @@ Another overload is equally intuitive, as follows:
 This can be doen with <code>std::chrono</code>, as follows:
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span class="org-keyword">auto</span> <span class="org-function-name">is_available_now</span><span class="org-rainbow-delimiters-depth-1">(</span>CircularBufferType <span class="org-keyword">auto</span> <span class="org-keyword">const</span> &amp; <span class="org-variable-name">buffer</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<pre class="src src-C++"><span class="org-keyword">auto</span> <span class="org-function-name">is_available_now</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">CircularBufferType</span> <span class="org-keyword">auto</span> <span class="org-keyword">const</span> &amp; <span class="org-variable-name">buffer</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">now</span> = <span class="org-constant">std</span>::<span class="org-constant">chrono</span>::<span class="org-constant">steady_clock</span>::now<span class="org-rainbow-delimiters-depth-2">()</span>;
     <span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">is_available</span> = buffer.empty<span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-keyword">or</span> <span class="org-rainbow-delimiters-depth-2">(</span>now.count<span class="org-rainbow-delimiters-depth-3">()</span> - buffer.front<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span> &gt; interval_;
 
@@ -328,7 +333,7 @@ Once you have that, it lets you focus sorely on the <i>business</i> logic - the 
 </div>
 
 <div id="outline-container-how-to-use-transaction-limiter" class="outline-2">
-<h2 id="how-to-use-transaction-limiter"><span class="section-number-2">5.</span> How to use Transaction Limiter</h2>
+<h2 id="how-to-use-transaction-limiter">How to use Transaction Limiter</h2>
 <div class="outline-text-2" id="text-how-to-use-transaction-limiter">
 <p>
 The usage is quite straight-forward; it immediately returns with the result indicating if an order can be submitted, as follows:
@@ -352,45 +357,45 @@ The usage is quite straight-forward; it immediately returns with the result indi
 It capsulizes the inner implementation so the order sender part may focus on its business logic.
 The big-picture sequencial diagram would be:
 </p>
-<pre class="example" id="org35c2045">
-+---------------------------+
-|          Client           |
-+---------------------------+
+<pre class="example" id="org4b8be26">
++--------------------------+
+|          Client          |
++--------------------------+
              |
              | 1. Call acquire_order_slot(priority_tag -&gt; optional)
              |
              v
-+---------------------------+
-|         limitter          |
-+---------------------------+
++--------------------------+
+|         limiter          |
++--------------------------+
              |
              | 2. Call is_available_now()
              |
              v
-+-------------------------------------------+
-|         is_available_now(window_)         |
-+-------------------------------------------+
++-------------------------------+
+|   is_available_now(window_)   |
++-------------------------------+
              |
              | 3. True, if buffer is empty or interval has passed
              |
              v
-+---------------------------+
-|         limitter          |
-+---------------------------+
++--------------------------+
+|         limiter          |
++--------------------------+
              |
              | 4. If available, push the new timepoint and return true.
              |    Otherwise, return false
              v
-+---------------------------+
-|          Client           |
-+---------------------------+
++--------------------------+
+|          Client          |
++--------------------------+
 </pre>
 
 <p>
 For cancellation, that special added buffer is looked up instead.
 This allows users to cancel their working orders in the book without having to worry about overlapping the buffer for new orders.
 </p>
-<div class="note" id="orgf10d157">
+<div class="note" id="orgd93b68e">
 <p>
 <b>What if there are just too many orders to cancel at once?</b> <br />
 <br />
@@ -404,10 +409,10 @@ For market making account holders or those staggering orders for hits may want t
 </div>
 
 <div id="outline-container-another-way-to-implement-this-without-using-the-circular-buffer" class="outline-3">
-<h3 id="another-way-to-implement-this-without-using-the-circular-buffer"><span class="section-number-3">5.1.</span> Another way to implement this without using the circular buffer</h3>
+<h3 id="another-way-to-implement-this-without-using-the-circular-buffer">Another way to implement this without using the circular buffer</h3>
 <div class="outline-text-3" id="text-another-way-to-implement-this-without-using-the-circular-buffer">
 <p>
-As mentioned earlier there are a few different ways to make your own transaction limitter.
+As mentioned earlier there are a few different ways to make your own transaction limiter.
 Each method has differnet cons and pros although in my opinion Circular Buffer is one of the most intuitive ways.
 </p>
 
@@ -415,6 +420,20 @@ Each method has differnet cons and pros although in my opinion Circular Buffer i
 Hopefully I can re-visit this and cover those parts someday.
 </p>
 </div>
+</div>
+</div>
+
+<div id="outline-container-conclusion" class="outline-2">
+<h2 id="conclusion">Conclusion</h2>
+<div class="outline-text-2" id="text-conclusion">
+<p>
+In conclusion, by focusing on the essential functions of checking and managing capacity, we can implement a simple solution tailored to various business needs.
+Utilizing a circular buffer is one easy way to allow for efficient capacity management.
+</p>
+
+<p>
+Whether you're looking to enhance trading systems or apply these principles to other areas, a well-designed Transaction Limiter can help maintain control and ensure smooth operations.
+</p>
 </div>
 </div>
 </div>

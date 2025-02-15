@@ -1,0 +1,297 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
+#+TITLE: Memory Order in C++
+#+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
+#+DATE:  [2024-10-26 토]
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
+
+* Table of Contents
+- [[#memory-ordering-in-c][Memory Order in C++]]
+  - [[#-consume][Consume]]
+  - [[#-relaxed][Relaxed]]
+  - [[#-release--acquire][Release / Acquire]]
+  - [[#-sequencially-consistent][Sequencially-Consistent]]
+- [[#memory-reordering-caught-in-the-act][Memory reordering caught in the act]]
+- [[#isnt-a-relacq-pair-good-enough-to-prevent-reordering][Isn't a rel/acq pair good enough to prevent reordering?]]
+- [[#references-worth-reading][References worth reading]]
+
+* Memory Order in C++
+:PROPERTIES:
+:CUSTOM_ID: memory-ordering-in-c
+:END:
+Since C++11, C++ has covered memory models in the standard:
+- =std::memory_order_relaxed=
+- =std::memory_order_consume=
+- =std::memory_order_acquire=
+- =std::memory_order_release=
+- =std::memory_order_acq_rel=
+- =std::memory_order_seq_cst=
+
+The committes did the hard work to cover different platforms' memory model to allow us
+to write a portable program within C++. Personally it concepturized it so well that reading thorough its specs and usages has helped me understand atomic operations
+to a great scale.
+
+This is a delicate subject underlying [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][how the Linux kernel's supports the atomic operations]].
+In x86, a /strongly-ordered/ architecture, we can even see this model far simpler.
+
+** ✅ Consume
+:PROPERTIES:
+:CUSTOM_ID: -consume
+:END:
+This implies the /address-dependency partial load barrier/ that was [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][historically important]] but not so much today.
+
+It ins't always obvious to identify the address-dependant load.
+Good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
+as in most modern platforms a load barrier implies a consume by default.
+
+I'm not saying it's a deprecate trait as there's a valid use case against [[https://en.wikipedia.org/wiki/DEC_Alpha][DEC Alpha]] 64-bit instruction sets and as a compiler barrier
+for other platforms within C++'s memory model [[https://stackoverflow.com/a/58994136][providing the compiler as large the room for optimizations as possible]].
+
+Yet, in my opinion I didn't witness a case where a consume is used in order to yield a better performance result myself though.
+
+** ✅ Relaxed
+:PROPERTIES:
+:CUSTOM_ID: -relaxed
+:END:
+Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid
+/release-acquire,/ /synchronize-with/ relation.
+
+** ✅ Release / Acquire
+:PROPERTIES:
+:CUSTOM_ID: -release--acquire
+:END:
+In most cases this pair is good enough for what we want to accomplish.
+
+Each operation is a specific partial ordering for a store and load pair.
+In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected (synchronized-with).
+
+In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
+
+** ✅ Sequencially-Consistent
+:PROPERTIES:
+:CUSTOM_ID: -sequencially-consistent
+:END:
+This implies a total ordering, which is the strongest, full memory barrier you can use.
+
+In my opininon, in any carefully designed algorithms, without having to be portable, you won't need this in x86.
+One possible use case I can think of off the top of my head is:
+
+- you are binding your program to a dynamic library with a heavy use of atomic operations
+- you have no access to its source code
+- you're directly interractingg with the memory addresses the library is residing
+- the compiler versions aren't even the same (with potential ABI issues)
+
+In which case, with a a bit of exaggeration, it's probably advisible to enhance the correct ordering, though you can
+
+* Memory reordering caught in the act
+:PROPERTIES:
+:CUSTOM_ID: memory-reordering-caught-in-the-act
+:END:
+[[https://preshing.com/20120515/memory-reordering-caught-in-the-act][Preshing's post]] about demonstrating memory reordering done in x86 shows that a /strongly-ordered/ CPU isn't completley immunne to the modification order [[http://preshing.com/files/ordering.zip][being reordred]].
+Here's the equivalent version where I only replaced his [[https://en.wikipedia.org/wiki/Mersenne_Twister][Mersenne Twister]] implemetation with =std::mt19337=:
+#+BEGIN_SRC C++ :exports both :main no :noweb yes
+  #define USE_CPU_FENCE 0
+
+  std::binary_semaphore beginSema1 {0};
+  std::binary_semaphore beginSema2 {0};
+  std::counting_semaphore<2> endSema {0};
+
+  int X, Y;
+  int r1, r2;
+  std::random_device seed_generator;
+
+  void *thread1Func() {
+      std::mt19937 random(seed_generator());
+      for (;;) {
+          beginSema1.acquire();
+          while (random() % 8 != 0) { }  // Random delay
+
+          // ----- THE TRANSACTION! -----
+          X = 1;
+  #if USE_CPU_FENCE
+          std::atomic_thread_fence(std::memory_order_seq_cst);
+  #else
+          std::atomic_signal_fence(std::memory_order_seq_cst); 
+  #endif
+          r1 = Y;
+
+          endSema.release();
+      }
+
+      return nullptr;  // Never returns
+  };
+
+  void *thread2Func() {
+      std::mt19937 random(seed_generator());
+      for (;;) {
+          beginSema2.acquire();
+          while (random() % 8 != 0) { }  // Random delay
+
+          // ----- THE TRANSACTION! -----
+          Y = 1;
+  #if USE_CPU_FENCE
+          std::atomic_thread_fence(std::memory_order_seq_cst);
+  #else
+          std::atomic_signal_fence(std::memory_order_seq_cst);
+  #endif
+          r2 = X;
+
+          endSema.release();
+      }
+
+      return nullptr;  // Never returns
+  };
+
+  int main() {
+      // Spawn the threads
+      std::thread thread1 { thread1Func };
+      std::thread thread2 { thread2Func };
+
+      // Repeat the experiment ad infinitum
+      std::size_t detected = 0;
+      for (int iterations = 1; ; iterations++) {
+          // Reset X and Y
+          X = 0;
+          Y = 0;
+
+          // Signal both threads
+          beginSema1.release();
+          beginSema2.release();
+
+          // Wait for both threads
+          endSema.acquire();
+          endSema.acquire();
+
+          // Check if there was a simultaneous reorder
+          if (r1 == 0 and r2 == 0) {
+              detected++;
+              printf("%d reorders detected after %d iterations\n", detected, iterations);
+          }
+      }
+
+      thread1.join();
+      thread2.join();
+      return 0;  // Never returns
+  }
+#+END_SRC
+
+Given that each operation is atomic, the following table shows the possible outcomes:
+#+begin_example
+  +------+------+------+------------------+
+  | case | T1   | T2   | Misc.            |
+  |------+------+------+------------------|
+  | #1   | X=1  |      |                  |
+  |      | r1=Y |      |                  |
+  |      |      | Y=1  |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #2   | X=1  |      |                  |
+  |      |      | Y=1  |                  |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #3   |      | Y=1  |                  |
+  |      | X=1  |      |                  |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #4   | X=1  | Y=1  | at the same time |
+  |      | r1=Y | r2=X | at the same time |
+  |------+------+------+------------------|
+  | #5   | X=1  | Y=1  | at the same time |
+  |      | r1=Y |      |                  |
+  |      |      | r2=X |                  |
+  |------+------+------+------------------|
+  | #6   | X=1  | Y=1  | at the same time |
+  |      |      | r2=X |                  |
+  |      | r1=Y |      |                  |
+  +------+------+------+------------------+
+#+end_example
+
+As such, you can tell that "*r0 = r1 = 0*" is impossible.
+The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/.
+
+We can illsutrate that in the following diagram:
+#+begin_src text
+                  +------+                +-------+                                                
+                  | X=0  |                | X=0   |                              
+  +-------+       +------+                +-------+       +-------+             
+  | CPU1  |       | Y=0  |                | Y=0   |       | CPU2  |     
+  |       |       +------+                +-------+       |       |     
+  |       |       :      :           -----| Y=1   |       |       |     
+  |       |       :      :          /     +-------+       |       |     
+  |       |       :      :         /      | r2=X  |------>| r2=0  |     
+  |       |       +------+        |       +-------+       |       |     
+  |       |------>| X=1  |---     |       :       :       |       |     
+  |       |       +------+   \    |       :       :       |       |                    
+  |       |       :      :    \   |       +-------+       |       |
+  |       |       :      :     ---------->| X=1   |------>| miss! |
+  |       |       :      :        |       +-------+       |       |
+  |       |       :      :        |       :       :       |       |
+  |       |       +------+        |       :       :       |       |
+  | r1=0  |<------| r1=Y |        |       :       :       |       |
+  |       |       +------+        |       :       :       |       |
+  |       |       :      :       /        :       :       |       |
+  |       |       +------+      /         :       :       |       |
+  | miss! |<------| Y=1  |<----           :       :       |       |
+  |       |       +------+                :       :       |       |
+  |       |       :      :                :       :       |       |
+  |       |       :      :                :       :       |       |
+  |       |       :      :                :       :       |       |
+  +-------+       :      :                :       :       +-------+
+#+end_src
+
+As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
+To prevent that happening, it's essential to impose the sequencially consistent full ordering
+such as =mfence= in the original post so the single ordering is visible to all CPUs.
+
+* Isn't a rel/acq pair good enough to prevent reordering?
+:PROPERTIES:
+:CUSTOM_ID: isnt-a-relacq-pair-good-enough-to-prevent-reordering
+:END:
+A /release-and-acquire/ must be paired. When paired there's a guaranteed happens-before ordering such that any atomic opreations
+before the release /happens-before/ any atomic operations.
+
+The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' is guaranteed to have the same ordering.
+Thus, the good ole =is_ready= practice in C is now available in the C++ standard, as follows:
+#+BEGIN_SRC C++ :includes <memory> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+  std::atomic<int> value;
+  std::atomic<bool> is_ready;
+
+  void release() {
+      value.store(1, std::memory_order_relaxed);
+      is_ready.store(true, std::memory_order_release);
+  }
+
+  auto acquire() {
+      if (const auto readiness = is_ready.load(std::memory_order_acquire);
+          readiness) {
+          return value.load(std::memory_order_relaxed);
+      }
+
+      return 0;
+  }
+#+END_SRC
+
+That's it. In fact, for most cases in atomic programming in general, a /rel-acq/ fair is good enough.
+#+begin_tip
+In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
+#+end_tip
+
+One bonus is that, considering it's strongly ordered by default, there's no strong instrucution yield such as =lock= prefix or =mfence=.
+
+* References worth reading
+:PROPERTIES:
+:CUSTOM_ID: references-worth-reading
+:END:
+- [[https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html][SC Revision (P0668R5)]]
+  - [[https://www.reddit.com/r/cpp/comments/15v8ke2/is_sequentiallyconsistent_ordering_documentation/?rdt=51618][r/cpp: Is sequentially-consistent ordering documentation example still correct with SCfix?]]
+
+
+
+
+
+
+

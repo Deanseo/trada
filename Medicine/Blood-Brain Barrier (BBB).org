@@ -1,9 +1,12 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: BBB (Blood-Brain Barrier)
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2019-05-25 토]
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#once-upon-a-time-][Once upon a time ...]]
@@ -14,6 +17,7 @@
         - [[#connection-to-dementia][Connection to dementia]]
     - [[#adderall][Adderall]]
     - [[#caffein-and-coffee][Caffein and coffee]]
+- [[#conclusion][Conclusion]]
 
 * Once upon a time ...
 :PROPERTIES:
@@ -53,7 +57,7 @@ The *Blood-Brain Barrier (BBB)* is this selective barrier that separates the blo
 
 Its main function is to protect the brain from harmful substances while allowing essential nutrients to enter.
 
-#+ATTR_HTML: :width 300px :class center
+#+ATTR_HTML: :width 350px :class center
 [[file:images/BBB.png]]
 /Figure 1. An image of Blood-Brain Barrier in the brain, (Taken from "Cordance Medical"/).
 
@@ -84,7 +88,7 @@ Therefore, Cetirizine blocking histamine H1 receptors in the CNS, even to a smal
 Diphenhydramine is the 1st gen. antihistamine with anticholinergic toxicity.
 Although it's labled as an antihistamine, it's more often used as a sleep inducer today.
 The scary part is that it's quite anticholinergic and there are strong evidences that its chronic use is related to dementia.
-#+ATTR_HTML: :width 200px :class center
+#+ATTR_HTML: :width 300px :class center
 [[file:images/Sleep-eze.jpg]]
 /Figure 2. Wanna ride an express train to lowering your IQ with a risk of dementia?/
 
@@ -156,8 +160,12 @@ Too much caffeine can lead to excessive alertness, causing side effects like ins
                                +-----------------------+
 #+end_example
 
-
-
+* Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
+The BBB is a critical protective system in the brain that maintains its delicate environment by selectively regulating what substances can enter the CNS.
+That highlights the need for careful management of medications we take in order to ensure they are used safely and effectively.
 
 
 

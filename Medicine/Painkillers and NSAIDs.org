@@ -1,32 +1,80 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../hide-search-bar.css"/>
 #+TITLE: Painkillers and NSAIDs
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  [2019-09-28 토]
-#+options: timestamp:nil
+#+DATE:  [2022-09-28 ]
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 .
 
 * Painkillers and NSAIDs
-Are Painkiller bad? I grew up hearing painkilers are bad because it merely /tricks/ my brain into thinking there's no pain
-but without healing the cause of the pain.
+Are Painkiller /bad/? I grew up hearing painkilers merely /tricks/ my brain to delusionally believe you aren't hurt.
+According to them, it doesn't heal the pain, but just /hides/ it.
 
-So, is that really true?
+I still see people inclined to avoid taking the painkillers because of the very reason, ending up visiting those alternative doctors with a hope
+that they might have a 'proper' method to ease their pain. \\
+Back in Korea those TCM doctors (though they don't like to call them that - we pioneered a new term "*Doctors of Korean Medicine*") knowingly
+pulled the wool over the eyes. \\
+I guess, regardless of whether it's true, that explanation sounds convincing people to believe it enough.
 
-To answer that question, we need to define what really a painkiller is.
+But really, is that really true?
+We have so many different kinds of medicines labeled a painkiller.
 
-Painkillers are misleading terms, maybe.
+- Are all painkilers designed that way?
+- Your family doctor has been just prescribing the /blue pill/?
+
+To answer that question, let's first define what really a painkiller is.
 
 ** What are painkillers?
-.
+Painkillers is a broad term to refer to a drug used as a pain management. \\
+There are a common one we get to use without prescription, and those /scary/ ones like [[https://en.wikipedia.org/wiki/Morphine][Morphine]] or even worse, [[https://en.wikipedia.org/wiki/Fentanyl][Fentanyl]].
+When it comes to painkillers in a daily life, what we mostly refer to is either Pracetamol or NSAIDs(COX inhibitors):
+#+begin_example
+                              Pain Killers
+                                   |
+   --------------------------------------------------------------
+   |                               |                            |                               
+  NSAIDs                      Acetaminophen                  Opioids                       
+                              (Paracetamol)                                                                                                           
+                                                                                                                  
+  Examples:                    Examples:                     Examples:   
+  - Ibuprofen                  - Tylenol                     - Morphine                                                   
+  - Naproxen                                                 - Codeine                                             
+  - Aspirin                                                  - Oxycodone             
+  - Celecoxib                                                - Fentanyl             
+                                                                                                                  
+  Mechanism:                   Mechanism:                    Mechanism:                                            
+  - Inhibits COX enzymes       * Not entirely understood     - Binds to opioid receptors altering                                                 
+  - COX-2 inhibitor (2nd gen)  - Inhibits more COX-3           the perception to pain                                          
+                               - Stimulate Serotonin                                                               
+#+end_example
+
+To know whether painkillers work merely by faking a false reality that there's no pain to our brain,
+my take is to grasp NSAIDs and Paracetamol and how they are /disticnt/.
 
 ** NSAIDs
 .
 
-*** 타이레놀은?
+** Antipyretic analgesic 
+
+*** Covid19 and Acetaminophen
 .
 
+*** 타이레놀은? 
+아세트아미노펜
+COX1, COX2 억제력은 매우 낮은편.
+따라서 NSAIDs 로 분류하지는 않는다.
+
+코로나 당시 이부프로펜 문제로 WHO 에서 아세트아미노펜 쓰라고 권고함.
+
+
 * Conclusion
-.
+TL;DR, most painkilers actually do help you heal the root cause of your pain so it's probably a wrong judgement to avoid taking them when prescribed by a doctor,
+although there are some kinds that are designed to only reduce the level of pain by faking your brain.
 
 

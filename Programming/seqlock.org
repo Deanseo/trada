@@ -1,8 +1,10 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: SeqLock
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2021-02-06 토]
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#what-is-seqlock-and-how-it-works][What is SeqLock and how it works]]
@@ -30,26 +32,31 @@ Let's look at the actual code first. Then we will break it down.
 :CUSTOM_ID: actual-code
 :END:
 #+BEGIN_SRC C++ :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-template <class T>                                  
-struct alignas(std::hardware_destructive_interference_size) seq_lock {
-    [[nodiscard]] bool load(T & required) const noexcept {
-        const auto s0 = seq_.load(std::memory_order_acquire);
-        if (s0 & 1) { return false; }
-        required = value_;
-        return s0 == seq_.load(std::memory_order_acquire);
-    }
+  template <class T>                                  
+  struct alignas(std::hardware_destructive_interference_size) seq_lock {
+      [[nodiscard]] auto load(T& required) const noexcept {
+          while (true) {
+              const auto s0 = seq_.load(std::memory_order_acquire);
+              if (s0 & 1) { return false; }
 
-    void store(const T value) noexcept {
-        const auto start_seq = seq_.load(std::memory_order_relaxed);
-        seq_.store(start_seq + 1, std::memory_order_release);
-        value_ = value;
-        seq_.store(start_seq + 2, std::memory_order_release);
-    }
+              std::atomic_ref<T> ref { required };
+              ref.store(value_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+            
+              return s0 == seq_.load(std::memory_order_acquire);
+          }
+      }
+
+      void store(const T value) noexcept {
+          const auto start_seq = seq_.load(std::memory_order_relaxed);
+          seq_.store(start_seq + 1, std::memory_order_release);
+          value_.store(value, std::memory_order_relaxed);
+          seq_.store(start_seq + 2, std::memory_order_release);
+      }
     
-private:
-    std::atomic<std::uint64_t> seq_ = 0;
-    T value_;
-};
+  private:
+      std::atomic<std::uint64_t> seq_ = 0;
+      std::atomic<T> value_;
+  };
 #+END_SRC
 
 ** How it works
@@ -103,8 +110,10 @@ presuming that there's only one writer (itself) incrementing the sequence.
 
 =store= doesn't use a RMW(read-modify-write) operation so there's no lock emitted in instructuion level.
 The current implementation only takes care of memory orders and atomicity on =seq_=.
+As long as these conditions are met, there's no lock instruction or full memmory fence emitted.
 
 That being said, if there are more than one writer thread running, it's advisible to look for a different lock-free structure, which I can hopefully post about in future.
+
 *** Relaxed operation might be sufficient in x86
 :PROPERTIES:
 :CUSTOM_ID: relaxed-operation-might-be-sufficient-in-x86
@@ -122,21 +131,38 @@ One could wonder how =value_= in =store= isn't reordered with the upper store su
 #+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   // ...
   seq_.store(start_seq + 1, std::memory_order_release);
-  value_ = value; // ↑ : reordered with the preceding store
+  value_.store(value, std::memory_order_relaxed); // ↑ : reordered with the preceding store
   // ...
 #+END_SRC
 
 This is probably not guaranteed by the C++ standard's memory model, though the compiler already writes the correct order, as follows:
-#+BEGIN_SRC C++ :includes <iostream> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
-    mov     QWORD PTR [rax], rsi
-    mov     DWORD PTR [rax+8], ecx
-    mov     QWORD PTR [rax], rdx
+#+BEGIN_SRC asm 
+  mov     QWORD PTR [rax], rsi // seq_.store(start_seq + 1, std::memory_order_release);
+  mov     DWORD PTR [rax+8], ecx // value_ = value
+  mov     QWORD PTR [rax], rdx // seq_.store(start_seq + 2, std::memory_order_release);
 #+END_SRC
 
 My presumtion is that a store barrier in the modern system including X86 generally has a by-default [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][trait of a release store]] where _subsequent stores are sequential_ so there's no /accidential/ reorder that can be caught.
+#+begin_note
+Of course, the minimal prerequisites are that the /subsequent stores/ must be of a atomic type, always.
+#+end_note
 
-The same presumption can be applied for the case of =load=.
-Plus, in contrast to =store=, the condition is acting as a control dependency so the reorder should be certainly prevented.
+The same presumption can be applied for the case of =load=, as follows:
+#+BEGIN_SRC asm 
+  // rax == s0
+  mov     rax, QWORD PTR [rsp+128] // s0 = seq_.load(std::memory_order_acquire)
+  // if (s0 & 1)
+  test    al, 1 
+  jne     .L27  // inlined, in this case
+  mov     edx, DWORD PTR [rsp+136] // value_.load(std::memory_order_relaxed)
+  mov     DWORD PTR [rsp+120], edx // ref.store(..., std::memory_order_relaxed)
+
+  // if inlined, rax and rdx registers can be used to check if the load is valid directly such that:
+  // cmp rax rdx
+  mov     rdx, QWORD PTR [rsp+128] // another seq_.load(std::memory_order_acquire)
+#+END_SRC
+
+Plus, in contrast to =store=, the condition is acting as a /control dependency/ so the reorder should be certainly prevented.
 
 * Conclusion
 :PROPERTIES:

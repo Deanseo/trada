@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Memory Order in C++</title>
+<meta name="author" content="Dean Seo (deaniac.seo@gmail.com)" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<link rel="stylesheet" type="text/css" href="src/readtheorg_theme/css/search.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/search.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/javascript">disableSearch();</script>
+<style> #content{max-width:900px;}</style>>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Memory Order in C++</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgcaf9365">Table of Contents</a></li>
+<li><a href="#memory-ordering-in-c">Memory Order in C++</a>
+<ul>
+<li><a href="#-consume">✅ Consume</a></li>
+<li><a href="#-relaxed">✅ Relaxed</a></li>
+<li><a href="#-release--acquire">✅ Release / Acquire</a></li>
+<li><a href="#-sequencially-consistent">✅ Sequencially-Consistent</a></li>
+</ul>
+</li>
+<li><a href="#memory-reordering-caught-in-the-act">Memory reordering caught in the act</a></li>
+<li><a href="#isnt-a-relacq-pair-good-enough-to-prevent-reordering">Isn't a rel/acq pair good enough to prevent reordering?</a></li>
+<li><a href="#references-worth-reading">References worth reading</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcaf9365" class="outline-2">
+<h2 id="orgcaf9365">Table of Contents</h2>
+<div class="outline-text-2" id="text-orgcaf9365">
+<ul class="org-ul">
+<li><a href="#memory-ordering-in-c">Memory Order in C++</a>
+<ul class="org-ul">
+<li><a href="#-consume">Consume</a></li>
+<li><a href="#-relaxed">Relaxed</a></li>
+<li><a href="#-release--acquire">Release / Acquire</a></li>
+<li><a href="#-sequencially-consistent">Sequencially-Consistent</a></li>
+</ul></li>
+<li><a href="#memory-reordering-caught-in-the-act">Memory reordering caught in the act</a></li>
+<li><a href="#isnt-a-relacq-pair-good-enough-to-prevent-reordering">Isn't a rel/acq pair good enough to prevent reordering?</a></li>
+<li><a href="#references-worth-reading">References worth reading</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-memory-ordering-in-c" class="outline-2">
+<h2 id="memory-ordering-in-c">Memory Order in C++</h2>
+<div class="outline-text-2" id="text-memory-ordering-in-c">
+<p>
+Since C++11, C++ has covered memory models in the standard:
+</p>
+<ul class="org-ul">
+<li><code>std::memory_order_relaxed</code></li>
+<li><code>std::memory_order_consume</code></li>
+<li><code>std::memory_order_acquire</code></li>
+<li><code>std::memory_order_release</code></li>
+<li><code>std::memory_order_acq_rel</code></li>
+<li><code>std::memory_order_seq_cst</code></li>
+</ul>
+
+<p>
+The committes did the hard work to cover different platforms' memory model to allow us
+to write a portable program within C++. Personally it concepturized it so well that reading thorough its specs and usages has helped me understand atomic operations
+to a great scale.
+</p>
+
+<p>
+This is a delicate subject underlying <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">how the Linux kernel's supports the atomic operations</a>.
+In x86, a <i>strongly-ordered</i> architecture, we can even see this model far simpler.
+</p>
+</div>
+
+<div id="outline-container--consume" class="outline-3">
+<h3 id="-consume">✅ Consume</h3>
+<div class="outline-text-3" id="text--consume">
+<p>
+This implies the <i>address-dependency partial load barrier</i> that was <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">historically important</a> but not so much today.
+</p>
+
+<p>
+It ins't always obvious to identify the address-dependant load.
+Good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
+as in most modern platforms a load barrier implies a consume by default.
+</p>
+
+<p>
+I'm not saying it's a deprecate trait as there's a valid use case against <a href="https://en.wikipedia.org/wiki/DEC_Alpha">DEC Alpha</a> 64-bit instruction sets and as a compiler barrier
+for other platforms within C++'s memory model <a href="https://stackoverflow.com/a/58994136">providing the compiler as large the room for optimizations as possible</a>.
+</p>
+
+<p>
+Yet, in my opinion I didn't witness a case where a consume is used in order to yield a better performance result myself though.
+</p>
+</div>
+</div>
+
+<div id="outline-container--relaxed" class="outline-3">
+<h3 id="-relaxed">✅ Relaxed</h3>
+<div class="outline-text-3" id="text--relaxed">
+<p>
+Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid
+<i>release-acquire,</i> <i>synchronize-with</i> relation.
+</p>
+</div>
+</div>
+
+<div id="outline-container--release--acquire" class="outline-3">
+<h3 id="-release--acquire">✅ Release / Acquire</h3>
+<div class="outline-text-3" id="text--release--acquire">
+<p>
+In most cases this pair is good enough for what we want to accomplish.
+</p>
+
+<p>
+Each operation is a specific partial ordering for a store and load pair.
+In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected (synchronized-with).
+</p>
+
+<p>
+In general, a strong lock instrucion like a <code>lock</code> prefix or <code>xchg</code> isn't emitted for a rel/acq operation by the compiler.
+</p>
+</div>
+</div>
+
+<div id="outline-container--sequencially-consistent" class="outline-3">
+<h3 id="-sequencially-consistent">✅ Sequencially-Consistent</h3>
+<div class="outline-text-3" id="text--sequencially-consistent">
+<p>
+This implies a total ordering, which is the strongest, full memory barrier you can use.
+</p>
+
+<p>
+In my opininon, in any carefully designed algorithms, without having to be portable, you won't need this in x86.
+One possible use case I can think of off the top of my head is:
+</p>
+
+<ul class="org-ul">
+<li>you are binding your program to a dynamic library with a heavy use of atomic operations</li>
+<li>you have no access to its source code</li>
+<li>you're directly interractingg with the memory addresses the library is residing</li>
+<li>the compiler versions aren't even the same (with potential ABI issues)</li>
+</ul>
+
+<p>
+In which case, with a a bit of exaggeration, it's probably advisible to enhance the correct ordering, though you can
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-memory-reordering-caught-in-the-act" class="outline-2">
+<h2 id="memory-reordering-caught-in-the-act">Memory reordering caught in the act</h2>
+<div class="outline-text-2" id="text-memory-reordering-caught-in-the-act">
+<p>
+<a href="https://preshing.com/20120515/memory-reordering-caught-in-the-act">Preshing's post</a> about demonstrating memory reordering done in x86 shows that a <i>strongly-ordered</i> CPU isn't completley immunne to the modification order <a href="http://preshing.com/files/ordering.zip">being reordred</a>.
+Here's the equivalent version where I only replaced his <a href="https://en.wikipedia.org/wiki/Mersenne_Twister">Mersenne Twister</a> implemetation with <code>std::mt19337</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-preprocessor">#define</span> <span class="org-variable-name">USE_CPU_FENCE</span> 0
+
+<span class="org-constant">std</span>::<span class="org-type">binary_semaphore</span> <span class="org-variable-name">beginSema1</span> <span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span>;
+<span class="org-constant">std</span>::<span class="org-type">binary_semaphore</span> <span class="org-variable-name">beginSema2</span> <span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span>;
+<span class="org-constant">std</span>::<span class="org-type">counting_semaphore</span><span class="org-rainbow-delimiters-depth-1">&lt;</span>2<span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">endSema</span> <span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-type">int</span> <span class="org-variable-name">X</span>, <span class="org-variable-name">Y</span>;
+<span class="org-type">int</span> <span class="org-variable-name">r1</span>, <span class="org-variable-name">r2</span>;
+<span class="org-constant">std</span>::<span class="org-type">random_device</span> <span class="org-variable-name">seed_generator</span>;
+
+<span class="org-type">void</span> *<span class="org-function-name">thread1Func</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-constant">std</span>::<span class="org-type">mt19937</span> <span class="org-variable-name">random</span><span class="org-rainbow-delimiters-depth-2">(</span>seed_generator<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>;;<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        beginSema1.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
+        <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span>random<span class="org-rainbow-delimiters-depth-4">()</span> % 8 != 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span> <span class="org-rainbow-delimiters-depth-3">}</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">Random delay</span>
+
+        <span class="org-comment-delimiter">// </span><span class="org-comment">----- THE TRANSACTION! -----</span>
+        X = 1;
+<span class="org-preprocessor">#if</span> USE_CPU_FENCE
+        <span class="org-constant">std</span>::atomic_thread_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
+<span class="org-preprocessor">#else</span>
+        <span class="org-constant">std</span>::atomic_signal_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>; 
+<span class="org-preprocessor">#endif</span>
+        r1 = Y;
+
+        endSema.release<span class="org-rainbow-delimiters-depth-3">()</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-keyword">return</span> <span class="org-constant">nullptr</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Never returns</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-type">void</span> *<span class="org-function-name">thread2Func</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-constant">std</span>::<span class="org-type">mt19937</span> <span class="org-variable-name">random</span><span class="org-rainbow-delimiters-depth-2">(</span>seed_generator<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>;;<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        beginSema2.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
+        <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span>random<span class="org-rainbow-delimiters-depth-4">()</span> % 8 != 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span> <span class="org-rainbow-delimiters-depth-3">}</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">Random delay</span>
+
+        <span class="org-comment-delimiter">// </span><span class="org-comment">----- THE TRANSACTION! -----</span>
+        Y = 1;
+<span class="org-preprocessor">#if</span> USE_CPU_FENCE
+        <span class="org-constant">std</span>::atomic_thread_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
+<span class="org-preprocessor">#else</span>
+        <span class="org-constant">std</span>::atomic_signal_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
+<span class="org-preprocessor">#endif</span>
+        r2 = X;
+
+        endSema.release<span class="org-rainbow-delimiters-depth-3">()</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-keyword">return</span> <span class="org-constant">nullptr</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Never returns</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-type">int</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Spawn the threads</span>
+    <span class="org-constant">std</span>::<span class="org-type">thread</span> <span class="org-variable-name">thread1</span> <span class="org-rainbow-delimiters-depth-2">{</span> thread1Func <span class="org-rainbow-delimiters-depth-2">}</span>;
+    <span class="org-constant">std</span>::<span class="org-type">thread</span> <span class="org-variable-name">thread2</span> <span class="org-rainbow-delimiters-depth-2">{</span> thread2Func <span class="org-rainbow-delimiters-depth-2">}</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Repeat the experiment ad infinitum</span>
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">detected</span> = 0;
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">int</span> <span class="org-variable-name">iterations</span> = 1; ; iterations++<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Reset X and Y</span>
+        X = 0;
+        Y = 0;
+
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Signal both threads</span>
+        beginSema1.release<span class="org-rainbow-delimiters-depth-3">()</span>;
+        beginSema2.release<span class="org-rainbow-delimiters-depth-3">()</span>;
+
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Wait for both threads</span>
+        endSema.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
+        endSema.acquire<span class="org-rainbow-delimiters-depth-3">()</span>;
+
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Check if there was a simultaneous reorder</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>r1 == 0 <span class="org-keyword">and</span> r2 == 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            detected++;
+            printf<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"%d reorders detected after %d iterations\n"</span>, detected, iterations<span class="org-rainbow-delimiters-depth-4">)</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    thread1.join<span class="org-rainbow-delimiters-depth-2">()</span>;
+    thread2.join<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">return</span> 0;  <span class="org-comment-delimiter">// </span><span class="org-comment">Never returns</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+Given that each operation is atomic, the following table shows the possible outcomes:
+</p>
+<pre class="example" id="org1a3255c">
++------+------+------+------------------+
+| case | T1   | T2   | Misc.            |
+|------+------+------+------------------|
+| #1   | X=1  |      |                  |
+|      | r1=Y |      |                  |
+|      |      | Y=1  |                  |
+|      |      | r2=X |                  |
+|------+------+------+------------------|
+| #2   | X=1  |      |                  |
+|      |      | Y=1  |                  |
+|      | r1=Y |      |                  |
+|      |      | r2=X |                  |
+|------+------+------+------------------|
+| #3   |      | Y=1  |                  |
+|      | X=1  |      |                  |
+|      | r1=Y |      |                  |
+|      |      | r2=X |                  |
+|------+------+------+------------------|
+| #4   | X=1  | Y=1  | at the same time |
+|      | r1=Y | r2=X | at the same time |
+|------+------+------+------------------|
+| #5   | X=1  | Y=1  | at the same time |
+|      | r1=Y |      |                  |
+|      |      | r2=X |                  |
+|------+------+------+------------------|
+| #6   | X=1  | Y=1  | at the same time |
+|      |      | r2=X |                  |
+|      | r1=Y |      |                  |
++------+------+------+------------------+
+</pre>
+
+<p>
+As such, you can tell that "<b>r0 = r1 = 0</b>" is impossible.
+The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't <i>synchronized-with</i>.
+</p>
+
+<p>
+We can illsutrate that in the following diagram:
+</p>
+<div class="org-src-container">
+<pre class="src src-text">                +------+                +-------+                                                
+                | X=0  |                | X=0   |                              
++-------+       +------+                +-------+       +-------+             
+| CPU1  |       | Y=0  |                | Y=0   |       | CPU2  |     
+|       |       +------+                +-------+       |       |     
+|       |       :      :           -----| Y=1   |       |       |     
+|       |       :      :          /     +-------+       |       |     
+|       |       :      :         /      | r2=X  |------&gt;| r2=0  |     
+|       |       +------+        |       +-------+       |       |     
+|       |------&gt;| X=1  |---     |       :       :       |       |     
+|       |       +------+   \    |       :       :       |       |                    
+|       |       :      :    \   |       +-------+       |       |
+|       |       :      :     ----------&gt;| X=1   |------&gt;| miss! |
+|       |       :      :        |       +-------+       |       |
+|       |       :      :        |       :       :       |       |
+|       |       +------+        |       :       :       |       |
+| r1=0  |&lt;------| r1=Y |        |       :       :       |       |
+|       |       +------+        |       :       :       |       |
+|       |       :      :       /        :       :       |       |
+|       |       +------+      /         :       :       |       |
+| miss! |&lt;------| Y=1  |&lt;----           :       :       |       |
+|       |       +------+                :       :       |       |
+|       |       :      :                :       :       |       |
+|       |       :      :                :       :       |       |
+|       |       :      :                :       :       |       |
++-------+       :      :                :       :       +-------+
+</pre>
+</div>
+
+<p>
+As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
+To prevent that happening, it's essential to impose the sequencially consistent full ordering
+such as <code>mfence</code> in the original post so the single ordering is visible to all CPUs.
+</p>
+</div>
+</div>
+
+<div id="outline-container-isnt-a-relacq-pair-good-enough-to-prevent-reordering" class="outline-2">
+<h2 id="isnt-a-relacq-pair-good-enough-to-prevent-reordering">Isn't a rel/acq pair good enough to prevent reordering?</h2>
+<div class="outline-text-2" id="text-isnt-a-relacq-pair-good-enough-to-prevent-reordering">
+<p>
+A <i>release-and-acquire</i> must be paired. When paired there's a guaranteed happens-before ordering such that any atomic opreations
+before the release <i>happens-before</i> any atomic operations.
+</p>
+
+<p>
+The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' is guaranteed to have the same ordering.
+Thus, the good ole <code>is_ready</code> practice in C is now available in the C++ standard, as follows:
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">int</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">value</span>;
+<span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">bool</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">is_ready</span>;
+
+<span class="org-type">void</span> <span class="org-function-name">release</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    value.store<span class="org-rainbow-delimiters-depth-2">(</span>1, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-2">)</span>;
+    is_ready.store<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">true</span>, <span class="org-constant">std</span>::memory_order_release<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">auto</span> <span class="org-function-name">acquire</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-keyword">auto</span> <span class="org-variable-name">readiness</span> = is_ready.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-3">)</span>;
+        readiness<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">return</span> value.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-keyword">return</span> 0;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
+</p>
+<div class="tip" id="org578572e">
+<p>
+In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
+</p>
+
+</div>
+
+<p>
+One bonus is that, considering it's strongly ordered by default, there's no strong instrucution yield such as <code>lock</code> prefix or <code>mfence</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-references-worth-reading" class="outline-2">
+<h2 id="references-worth-reading">References worth reading</h2>
+<div class="outline-text-2" id="text-references-worth-reading">
+<ul class="org-ul">
+<li><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r5.html">SC Revision (P0668R5)</a>
+<ul class="org-ul">
+<li><a href="https://www.reddit.com/r/cpp/comments/15v8ke2/is_sequentiallyconsistent_ordering_documentation/?rdt=51618">r/cpp: Is sequentially-consistent ordering documentation example still correct with SCfix?</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2024-10-26 Sat 00:00</p>
+<p class="author">Author: Dean Seo (deaniac.seo@gmail.com)</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

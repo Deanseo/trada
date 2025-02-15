@@ -1,9 +1,11 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
+#+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Boxing 
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2023-06-25 Sun]
-#+options: timestamp:nil
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Table of Contents
 - [[#boxing][Boxing]]
@@ -12,27 +14,27 @@
 :PROPERTIES:
 :CUSTOM_ID: boxing
 :END:
-I started practicing boxing as a hobby a couple years ago.
+I started boxing as a hobby a couple of years ago after watching a MMA fight that captivated me with its intensity and strategy.
+Since then, I've realized it offers numerous benefits for self-discipline, health, and stress management.
 
-Since that I realized it offers numerous beneifts for self-discipline, health, and my stress management.
-It's tough, requiring a high level of dedication and consistency through which it instills discipline in all areas of life.
+It's tough, requiring a high level of dedication and consistency, but through this, it instills discipline in all areas of life.
 
-Not only that, but I think boxing is also an excellent way to stay physically healthy.
-This sport provides a full-body workout with strength, agility, and endurance.
+I think it's an excellent way to stay physically healthy.
+The sport provides a full-body workout, increasing strength, agility, and endurance.
+
+Most importantly, it's a powerful tool for stress management, helping to wash frustration and anxiety away through sweat
+while promoting mental clarity and resilience.
+I used to run at night whenever I was stressed, but I feel like I've discovered a better method now.
 
 #+ATTR_HTML: :class center
 [[file:images/boxing.gif]]
 
-Most importantly it's really a powerful tool for stress management.
-I used to run at night, when I'm under stress. I feel like I discovered a better method though.
+Boxing definitely triggers the release of endorphins on a greater scale,
+lifting my mood and helping me get ready for the next day's work.
 
-It definitely triggers the release of endorph at a greater scale lifting my mood and getting ready for the next day's work.
-Through this hobby ones can find a balance between physical exertion and mental relaxation for a more harmonious life style.
+Through this hobby, one can find a balance between physical exertion and mental relaxation for a more holistic lifestyle.
 
-Someday, I might go for BJJ as well.
-
-
-
+Someday, I might try Brazilian Jiu-Jitsu (BJJ) as well, as it offers a different approach to combat sports, focusing more on ground control rather than striking. It could complement boxing by enhancing my ability to stay calm under pressure.
 
 
 

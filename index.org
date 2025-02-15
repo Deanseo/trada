@@ -1,9 +1,12 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="center.css"/>
+#+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Dean's Blog
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2024-07-28 Sun]
-#+options: timestamp:nil
+#+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+OPTIONS: timestamp:nil
+#+OPTIONS: num:nil
 
 * Introduction
 :PROPERTIES:
@@ -32,9 +35,10 @@ changes of their user agreement, I decided to revamp my articles and repost some
 It took me some time until I made some progress finally.
 
 ** Programming
+- [[file:Programming/memory-order.org][Memory Order in C++]]
 - [[file:Programming/seqlock.org][Implement a thread-safe, single-producer multi-consumer SeqLock]]
 - [[file:Programming/circular-buffer.org][Implement thread-safe Circular Buffers]]
-- [[file:Programming/transaction-limitter.org][Implement Transaction Limiter]]
+- [[file:Programming/transaction-limiter.org][Implement Transaction Limiter]]
   
 ** Thoughts
 - [[file:Medicine/Blood-Brain Barrier (BBB).org][Medicine: What's BBB(Blood-Brain Barrier) and how it's relevant to drug usages]]
