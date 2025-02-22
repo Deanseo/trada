@@ -21,7 +21,7 @@
 *Circular Buffer* is one of the most often used data structure in /real world/.
 Most buy-side firms probably have one or two in-house implementations and it's often even used during the live coding assessment.
 
-This implementation can be also used in my previous post about [[file:transaction-limitter.org][Transaction Limitter]] where you limit the total number of orders submitted per second.
+This implementation can be also used in my previous post about [[file:transaction-limiter.org][Transaction Limitter]] where you limit the total number of orders submitted per second.
 
 So yeah, Circular Buffer is useful with interesting traits.
 There are several ways to implement it, depending on how you define the requirements, as follows:
@@ -248,9 +248,10 @@ Therefore, a simple 'weak' CAS can do the job.
           : buf_(std::vector<T>(size)), max_size_(size), head_(0), tail_(0) {}
 
       bool put(const T& item) {
-          size_t head, next_head;
+          size_t next_head;
+          auto head = head_.load(std::memory_order_relaxed);
+
           do {
-              head = head_.load(std::memory_order_relaxed);
               next_head = (head + 1) % max_size_;
               if (next_head == tail_.load(std::memory_order_acquire)) {
                   return false; // Buffer is full
@@ -265,9 +266,10 @@ Therefore, a simple 'weak' CAS can do the job.
       }
 
       bool get(T& item) {
-          size_t tail, next_tail;
+          size_t next_tail;
+          auto tail = tail_.load(std::memory_order_relaxed);
+
           do {
-              tail = tail_.load(std::memory_order_relaxed);
               if (tail == head_.load(std::memory_order_acquire)) {
                   return false; // Buffer is empty
               }

@@ -26,7 +26,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1c0300d">Table of Contents</a></li>
+<li><a href="#org0360ca7">Table of Contents</a></li>
 <li><a href="#circular-buffer">Circular Buffer</a>
 <ul>
 <li><a href="#how-does-it-work">How does it work?</a>
@@ -42,9 +42,9 @@
 </div>
 </div>
 
-<div id="outline-container-org1c0300d" class="outline-2">
-<h2 id="org1c0300d">Table of Contents</h2>
-<div class="outline-text-2" id="text-org1c0300d">
+<div id="outline-container-org0360ca7" class="outline-2">
+<h2 id="org0360ca7">Table of Contents</h2>
+<div class="outline-text-2" id="text-org0360ca7">
 <ul class="org-ul">
 <li><a href="#circular-buffer">Circular Buffer</a>
 <ul class="org-ul">
@@ -68,7 +68,7 @@ Most buy-side firms probably have one or two in-house implementations and it's o
 </p>
 
 <p>
-This implementation can be also used in my previous post about <a href="transaction-limitter.html">Transaction Limitter</a> where you limit the total number of orders submitted per second.
+This implementation can be also used in my previous post about <a href="transaction-limiter.html">Transaction Limitter</a> where you limit the total number of orders submitted per second.
 </p>
 
 <p>
@@ -169,7 +169,7 @@ cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_3<span class=
 <p>
 This is a conceptual diagram:
 </p>
-<pre class="example" id="org1620e07">
+<pre class="example" id="org7d5686e">
 +--------+                        +----------------+                        +--------+
 | Client |                        | CircularBuffer |                        | Vector |
 +--------+                        +----------------+                        +--------+
@@ -319,7 +319,7 @@ I will skip the <code>main</code> function part as it should be straight-forward
 <div id="outline-container-mpmcmulti-producer-multi-consumer-circular-buffer" class="outline-4">
 <h4 id="mpmcmulti-producer-multi-consumer-circular-buffer">MPMC(Multi-Producer Multi-Consumer) Circular Buffer</h4>
 <div class="outline-text-4" id="text-mpmcmulti-producer-multi-consumer-circular-buffer">
-<div class="note" id="orgcd5f449">
+<div class="note" id="orgeec1205">
 <p>
 <b>Disclaimer</b>
 </p>
@@ -348,9 +348,10 @@ Therefore, a simple 'weak' CAS can do the job.
         : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span>, head_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span>, tail_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">head</span>, <span class="org-variable-name">next_head</span>;
+        <span class="org-type">size_t</span> <span class="org-variable-name">next_head</span>;
+        <span class="org-keyword">auto</span> <span class="org-variable-name">head</span> = head_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+
         <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
-            head = head_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>;
             next_head = <span class="org-rainbow-delimiters-depth-4">(</span>head + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_;
             <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>next_head == tail_.load<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
                 <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is full</span>
@@ -365,9 +366,10 @@ Therefore, a simple 'weak' CAS can do the job.
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">tail</span>, <span class="org-variable-name">next_tail</span>;
+        <span class="org-type">size_t</span> <span class="org-variable-name">next_tail</span>;
+        <span class="org-keyword">auto</span> <span class="org-variable-name">tail</span> = tail_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+
         <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
-            tail = tail_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>;
             <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>tail == head_.load<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
                 <span class="org-keyword">return</span> <span class="org-constant">false</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is empty</span>
             <span class="org-rainbow-delimiters-depth-4">}</span>
