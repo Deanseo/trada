@@ -216,9 +216,9 @@ The reason we're seeing the reordering is possibly each cache visibe to differnt
 We can illsutrate that in the following diagram:
 #+begin_src text
                   ┌───────┐               ┌───────┐                                                
-                  │ X=0   │               │ X=0   │                              
+    CPU1          │ X=0   │               │ X=0   │         CPU2                      
   ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
-  │ CPU1  │       │ Y=0   │               │ Y=0   │       │ CPU2  │     
+  │       │       │ Y=0   │               │ Y=0   │       │       │     
   │       │       ├───────┤               ├───────┤       │       │     
   │       │       :       :       ┌------>│ Y=1   │       │       │     
   │       │       :       :       │       ├───────┤       │       │     
