@@ -53,7 +53,7 @@ This offers the two minimal functionalities of circular buffer:
   template <typename T>
   class circular_buffer {
   public:
-      circular_buffer(size_t size) : buf_(std::vector<T>(size)), max_size_(size) {}
+      circular_buffer(std::size_t size) : buf_(std::vector<T>(size)), max_size_(size) {}
 
       bool put(const T& item) {
           if ((head_ + 1) % max_size_ == tail_) {
@@ -77,9 +77,9 @@ This offers the two minimal functionalities of circular buffer:
 
   private:
       std::vector<T> buf_;    // Storage buffer
-      size_t head_ = 0;       // Index of the next write position
-      size_t tail_ = 0;       // Index of the next read position
-      size_t max_size_;       // Maximum capacity of the buffer
+      std::size_t head_ = 0;       // Index of the next write position
+      std::size_t tail_ = 0;       // Index of the next read position
+      std::size_t max_size_;       // Maximum capacity of the buffer
   };
 #+END_SRC
 
@@ -148,12 +148,12 @@ To make it thread-safe, it's important to define how many writers and readers ar
   template <typename T>
   class circular_buffer {
   public:
-      circular_buffer(size_t size) 
+      circular_buffer(std::size_t size) 
           : buf_(std::vector<T>(size)), max_size_(size), head_(0), tail_(0) {}
 
       bool put(const T& item) {
-          size_t head = head_.load(std::memory_order_relaxed);
-          size_t next_head = (head + 1) % max_size_;
+          std::size_t head = head_.load(std::memory_order_relaxed);
+          std::size_t next_head = (head + 1) % max_size_;
           if (next_head == tail_.load(std::memory_order_acquire)) {
               return false;  // Buffer is full
           }
@@ -163,7 +163,7 @@ To make it thread-safe, it's important to define how many writers and readers ar
       }
 
       bool get(T& item) {
-          size_t tail = tail_.load(std::memory_order_relaxed);
+          std::size_t tail = tail_.load(std::memory_order_relaxed);
           if (tail == head_.load(std::memory_order_acquire)) {
               return false;  // Buffer is empty
           }
@@ -174,8 +174,8 @@ To make it thread-safe, it's important to define how many writers and readers ar
 
   private:
       std::vector<T> buf_;
-      size_t max_size_;
-      std::atomic<size_t> head_, tail_;
+      std::size_t max_size_;
+      std::atomic<std::size_t> head_, tail_;
   };
 #+END_SRC
 
@@ -188,9 +188,9 @@ For =put= function, it looks good, as follows:
 #+BEGIN_SRC asm
   /* bool put(const T& item) */
 
-  // size_t head = head_.load(std::memory_order_relaxed);
+  // std::size_t head = head_.load(std::memory_order_relaxed);
      mov     rcx, QWORD PTR [rsp+32]
-  // size_t next_head = (head + 1) % max_size_;
+  // std::size_t next_head = (head + 1) % max_size_;
      lea     rax, [rcx+1]
      div     QWORD PTR [rsp+24]
   // if (next_head == tail_.load(std::memory_order_acquire))
@@ -208,7 +208,7 @@ For =get= function, it looks as good, as follows:
 #+BEGIN_SRC asm
   /* bool get(T& item) */
 
-  // size_t tail = tail_.load(std::memory_order_relaxed);
+  // std::size_t tail = tail_.load(std::memory_order_relaxed);
      mov     rax, QWORD PTR [rsp+40]
   // if (tail == head_.load(std::memory_order_acquire))
      mov     rdx, QWORD PTR [rsp+32]
@@ -244,11 +244,11 @@ Therefore, a simple 'weak' CAS can do the job.
   template <typename T>
   class circular_buffer {
   public:
-      circular_buffer(size_t size) 
+      circular_buffer(std::size_t size) 
           : buf_(std::vector<T>(size)), max_size_(size), head_(0), tail_(0) {}
 
       bool put(const T& item) {
-          size_t next_head;
+          std::size_t next_head;
           auto head = head_.load(std::memory_order_relaxed);
 
           do {
@@ -266,7 +266,7 @@ Therefore, a simple 'weak' CAS can do the job.
       }
 
       bool get(T& item) {
-          size_t next_tail;
+          std::size_t next_tail;
           auto tail = tail_.load(std::memory_order_relaxed);
 
           do {
@@ -285,8 +285,8 @@ Therefore, a simple 'weak' CAS can do the job.
 
   private:
       std::vector<T> buf_;
-      size_t max_size_;
-      std::atomic<size_t> head_, tail_;
+      std::size_t max_size_;
+      std::atomic<std::size_t> head_, tail_;
   };
 #+END_SRC
 

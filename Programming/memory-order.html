@@ -26,7 +26,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1cdc7fe">Table of Contents</a></li>
+<li><a href="#orgde64ca0">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -42,9 +42,9 @@
 </div>
 </div>
 
-<div id="outline-container-org1cdc7fe" class="outline-2">
-<h2 id="org1cdc7fe">Table of Contents</h2>
-<div class="outline-text-2" id="text-org1cdc7fe">
+<div id="outline-container-orgde64ca0" class="outline-2">
+<h2 id="orgde64ca0">Table of Contents</h2>
+<div class="outline-text-2" id="text-orgde64ca0">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -230,7 +230,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
     <span class="org-constant">std</span>::<span class="org-type">thread</span> <span class="org-variable-name">thread1</span> <span class="org-rainbow-delimiters-depth-2">{</span> thread1Func <span class="org-rainbow-delimiters-depth-2">}</span>;
     <span class="org-constant">std</span>::<span class="org-type">thread</span> <span class="org-variable-name">thread2</span> <span class="org-rainbow-delimiters-depth-2">{</span> thread2Func <span class="org-rainbow-delimiters-depth-2">}</span>;
 
-    <span class="org-comment-delimiter">// </span><span class="org-comment">Repeat the experiment ad infinitum</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Repeat the experiment</span>
     <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">detected</span> = 0;
     <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">int</span> <span class="org-variable-name">iterations</span> = 1; ; iterations++<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         <span class="org-comment-delimiter">// </span><span class="org-comment">Reset X and Y</span>
@@ -262,7 +262,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="org3827559">
+<pre class="example" id="org54cf71c">
 +------+------+------+------------------+
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -295,7 +295,7 @@ Given that each operation is atomic, the following table shows the possible outc
 </pre>
 
 <p>
-As such, you can tell that "<b>r0 = r1 = 0</b>" is impossible.
+As such, you can tell that "<b>r0 = r1 = 0</b>" should be impossible.
 The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't <i>synchronized-with</i>.
 </p>
 
@@ -375,7 +375,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="org767e844">
+<div class="tip" id="org367d9ca">
 <p>
 In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
 </p>

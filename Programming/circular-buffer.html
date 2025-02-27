@@ -26,7 +26,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org0360ca7">Table of Contents</a></li>
+<li><a href="#orga394bc8">Table of Contents</a></li>
 <li><a href="#circular-buffer">Circular Buffer</a>
 <ul>
 <li><a href="#how-does-it-work">How does it work?</a>
@@ -42,9 +42,9 @@
 </div>
 </div>
 
-<div id="outline-container-org0360ca7" class="outline-2">
-<h2 id="org0360ca7">Table of Contents</h2>
-<div class="outline-text-2" id="text-org0360ca7">
+<div id="outline-container-orga394bc8" class="outline-2">
+<h2 id="orga394bc8">Table of Contents</h2>
+<div class="outline-text-2" id="text-orga394bc8">
 <ul class="org-ul">
 <li><a href="#circular-buffer">Circular Buffer</a>
 <ul class="org-ul">
@@ -117,7 +117,7 @@ This offers the two minimal functionalities of circular buffer:
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
 <span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
 <span class="org-keyword">public</span>:
-    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>head_ + 1<span class="org-rainbow-delimiters-depth-4">)</span> % max_size_ == tail_<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
@@ -141,9 +141,9 @@ This offers the two minimal functionalities of circular buffer:
 
 <span class="org-keyword">private</span>:
     <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;    <span class="org-comment-delimiter">// </span><span class="org-comment">Storage buffer</span>
-    <span class="org-type">size_t</span> <span class="org-variable-name">head_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next write position</span>
-    <span class="org-type">size_t</span> <span class="org-variable-name">tail_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next read position</span>
-    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;       <span class="org-comment-delimiter">// </span><span class="org-comment">Maximum capacity of the buffer</span>
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">head_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next write position</span>
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">tail_</span> = 0;       <span class="org-comment-delimiter">// </span><span class="org-comment">Index of the next read position</span>
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;       <span class="org-comment-delimiter">// </span><span class="org-comment">Maximum capacity of the buffer</span>
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 </pre>
 </div>
@@ -169,7 +169,7 @@ cb.get<span class="org-rainbow-delimiters-depth-1">(</span>element_3<span class=
 <p>
 This is a conceptual diagram:
 </p>
-<pre class="example" id="org7d5686e">
+<pre class="example" id="orgcb49b17">
 +--------+                        +----------------+                        +--------+
 | Client |                        | CircularBuffer |                        | Vector |
 +--------+                        +----------------+                        +--------+
@@ -225,12 +225,12 @@ To make it thread-safe, it's important to define how many writers and readers ar
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
 <span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
 <span class="org-keyword">public</span>:
-    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
         : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span>, head_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span>, tail_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">head</span> = head_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
-        <span class="org-type">size_t</span> <span class="org-variable-name">next_head</span> = <span class="org-rainbow-delimiters-depth-3">(</span>head + 1<span class="org-rainbow-delimiters-depth-3">)</span> % max_size_;
+        <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">head</span> = head_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">next_head</span> = <span class="org-rainbow-delimiters-depth-3">(</span>head + 1<span class="org-rainbow-delimiters-depth-3">)</span> % max_size_;
         <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>next_head == tail_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
             <span class="org-keyword">return</span> <span class="org-constant">false</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is full</span>
         <span class="org-rainbow-delimiters-depth-3">}</span>
@@ -240,7 +240,7 @@ To make it thread-safe, it's important to define how many writers and readers ar
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">tail</span> = tail_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">tail</span> = tail_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
         <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>tail == head_.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_acquire<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
             <span class="org-keyword">return</span> <span class="org-constant">false</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">Buffer is empty</span>
         <span class="org-rainbow-delimiters-depth-3">}</span>
@@ -251,8 +251,8 @@ To make it thread-safe, it's important to define how many writers and readers ar
 
 <span class="org-keyword">private</span>:
     <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;
-    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
-    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-constant">std</span>::<span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 </pre>
 </div>
@@ -272,9 +272,9 @@ For <code>put</code> function, it looks good, as follows:
 <div class="org-src-container">
 <pre class="src src-asm"><span class="org-comment-delimiter">/* </span><span class="org-comment">bool put(const T&amp; item)</span><span class="org-comment-delimiter"> */</span>
 
-<span class="org-comment-delimiter">// </span><span class="org-comment">size_t head = head_.load(std::memory_order_relaxed);</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">std::size_t head = head_.load(std::memory_order_relaxed);</span>
    <span class="org-keyword">mov</span>     rcx, QWORD PTR [rsp+32]
-<span class="org-comment-delimiter">// </span><span class="org-comment">size_t next_head = (head + 1) % max_size_;</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">std::size_t next_head = (head + 1) % max_size_;</span>
    <span class="org-keyword">lea</span>     rax, [rcx+1]
    <span class="org-keyword">div</span>     QWORD PTR [rsp+24]
 <span class="org-comment-delimiter">// </span><span class="org-comment">if (next_head == tail_.load(std::memory_order_acquire))</span>
@@ -295,7 +295,7 @@ For <code>get</code> function, it looks as good, as follows:
 <div class="org-src-container">
 <pre class="src src-asm"><span class="org-comment-delimiter">/* </span><span class="org-comment">bool get(T&amp; item)</span><span class="org-comment-delimiter"> */</span>
 
-<span class="org-comment-delimiter">// </span><span class="org-comment">size_t tail = tail_.load(std::memory_order_relaxed);</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">std::size_t tail = tail_.load(std::memory_order_relaxed);</span>
    <span class="org-keyword">mov</span>     rax, QWORD PTR [rsp+40]
 <span class="org-comment-delimiter">// </span><span class="org-comment">if (tail == head_.load(std::memory_order_acquire))</span>
    <span class="org-keyword">mov</span>     rdx, QWORD PTR [rsp+32]
@@ -319,7 +319,7 @@ I will skip the <code>main</code> function part as it should be straight-forward
 <div id="outline-container-mpmcmulti-producer-multi-consumer-circular-buffer" class="outline-4">
 <h4 id="mpmcmulti-producer-multi-consumer-circular-buffer">MPMC(Multi-Producer Multi-Consumer) Circular Buffer</h4>
 <div class="outline-text-4" id="text-mpmcmulti-producer-multi-consumer-circular-buffer">
-<div class="note" id="orgeec1205">
+<div class="note" id="org206bffe">
 <p>
 <b>Disclaimer</b>
 </p>
@@ -344,11 +344,11 @@ Therefore, a simple 'weak' CAS can do the job.
 <pre class="src src-C++"><span class="org-keyword">template</span> <span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-keyword">typename</span> <span class="org-type">T</span><span class="org-rainbow-delimiters-depth-1">&gt;</span>
 <span class="org-keyword">class</span> <span class="org-type">circular_buffer</span> <span class="org-rainbow-delimiters-depth-1">{</span>
 <span class="org-keyword">public</span>:
-    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
+    <span class="org-function-name">circular_buffer</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">size</span><span class="org-rainbow-delimiters-depth-2">)</span> 
         : buf_<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">std</span>::vector<span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-3">&gt;(</span>size<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>, max_size_<span class="org-rainbow-delimiters-depth-2">(</span>size<span class="org-rainbow-delimiters-depth-2">)</span>, head_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span>, tail_<span class="org-rainbow-delimiters-depth-2">(</span>0<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">put</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">const</span> <span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">next_head</span>;
+        <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">next_head</span>;
         <span class="org-keyword">auto</span> <span class="org-variable-name">head</span> = head_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
@@ -366,7 +366,7 @@ Therefore, a simple 'weak' CAS can do the job.
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
     <span class="org-type">bool</span> <span class="org-function-name">get</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">T</span>&amp; <span class="org-variable-name">item</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-type">size_t</span> <span class="org-variable-name">next_tail</span>;
+        <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">next_tail</span>;
         <span class="org-keyword">auto</span> <span class="org-variable-name">tail</span> = tail_.load<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         <span class="org-keyword">do</span> <span class="org-rainbow-delimiters-depth-3">{</span>
@@ -385,8 +385,8 @@ Therefore, a simple 'weak' CAS can do the job.
 
 <span class="org-keyword">private</span>:
     <span class="org-constant">std</span>::<span class="org-type">vector</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">T</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">buf_</span>;
-    <span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
-    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">max_size_</span>;
+    <span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-constant">std</span>::<span class="org-type">size_t</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">head_</span>, <span class="org-variable-name">tail_</span>;
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 </pre>
 </div>

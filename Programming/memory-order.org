@@ -149,7 +149,7 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
       std::thread thread1 { thread1Func };
       std::thread thread2 { thread2Func };
 
-      // Repeat the experiment ad infinitum
+      // Repeat the experiment
       std::size_t detected = 0;
       for (int iterations = 1; ; iterations++) {
           // Reset X and Y
@@ -210,7 +210,7 @@ Given that each operation is atomic, the following table shows the possible outc
   +------+------+------+------------------+
 #+end_example
 
-As such, you can tell that "*r0 = r1 = 0*" is impossible.
+As such, you can tell that "*r0 = r1 = 0*" should be impossible.
 The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/.
 
 We can illsutrate that in the following diagram:
