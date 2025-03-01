@@ -214,7 +214,7 @@ As such, you can tell that "*r0 = r1 = 0*" should be impossible.
 The reason we're seeing the reordering is possibly each cache visibe to differnt cpus isn't /synchronized-with/.
 
 We can illsutrate that in the following diagram:
-#+begin_src text
+#+begin_example
                   ┌───────┐               ┌───────┐                                                
     CPU1          │ X=0   │               │ X=0   │         CPU2                      
   ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
@@ -241,7 +241,7 @@ We can illsutrate that in the following diagram:
   │       │       :       :               :       :       │       │
   │       │       :       :               :       :       │       │
   └───────┘       :       :               :       :       └───────┘
-#+end_src
+#+end_example
 
 As you see, it is totally allowed that a modification in one thread isn't visible to others immediately.
 To prevent that happening, it's essential to impose the sequencially consistent full ordering
