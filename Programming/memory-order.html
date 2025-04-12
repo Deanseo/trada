@@ -18,6 +18,7 @@
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
 <script type="text/javascript">disableSearch();</script>
 <style> #content{max-width:900px;}</style>>
+<style> pre{ font-family: "Consolas", "Menlo", "DejaVu Sans Mono", "Courier New", monospace; }</style>
 </head>
 <body>
 <div id="content" class="content">
@@ -26,7 +27,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org6a9a5d5">Table of Contents</a></li>
+<li><a href="#org21cf195">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -42,9 +43,9 @@
 </div>
 </div>
 
-<div id="outline-container-org6a9a5d5" class="outline-2">
-<h2 id="org6a9a5d5">Table of Contents</h2>
-<div class="outline-text-2" id="text-org6a9a5d5">
+<div id="outline-container-org21cf195" class="outline-2">
+<h2 id="org21cf195">Table of Contents</h2>
+<div class="outline-text-2" id="text-org21cf195">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -262,7 +263,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="org68b0871">
+<pre class="example" id="orgdd0a7dc">
 +------+------+------+------------------+
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -302,7 +303,7 @@ The reason we're seeing the reordering is possibly each cache visibe to differnt
 <p>
 We can illsutrate that in the following diagram:
 </p>
-<pre class="example" id="orgef51ea4">
+<pre class="example" id="orgf12f7db">
                 ┌───────┐               ┌───────┐                                                
   CPU1          │ X=0   │               │ X=0   │         CPU2                      
 ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
@@ -374,7 +375,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="orgf093e06">
+<div class="tip" id="org0c02bf5">
 <p>
 In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
 </p>

@@ -4,6 +4,7 @@
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
 #+DATE:  [2024-10-26 토]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
+#+HTML_HEAD: <style> pre{ font-family: "Consolas", "Menlo", "DejaVu Sans Mono", "Courier New", monospace; }</style>
 #+OPTIONS: timestamp:nil
 #+OPTIONS: num:nil
 
