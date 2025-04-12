@@ -180,7 +180,7 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
 
 Given that each operation is atomic, the following table shows the possible outcomes:
 #+begin_example
-  +------+------+------+------------------+
+  ┌───────────────────────────────────────┐
   | case | T1   | T2   | Misc.            |
   |------+------+------+------------------|
   | #1   | X=1  |      |                  |
@@ -208,7 +208,7 @@ Given that each operation is atomic, the following table shows the possible outc
   | #6   | X=1  | Y=1  | at the same time |
   |      |      | r2=X |                  |
   |      | r1=Y |      |                  |
-  +------+------+------+------------------+
+  └───────────────────────────────────────┘
 #+end_example
 
 As such, you can tell that "*r0 = r1 = 0*" should be impossible.
@@ -228,7 +228,7 @@ We can illsutrate that in the following diagram:
   │       │------>│ X=1   │---┐   │       :       :       │       │     
   │       │       ├───────┤   │   │       :       :       │       │                    
   │       │       :       :   │   │       ├───────┤       │       │
-  │       │       :       :   └---+------>│ X=1   │------>│ miss! │
+  │       │       :       :   └---┼------>│ X=1   │------>│ miss! │
   │       │       :       :       │       ├───────┤       │       │
   │       │       :       :       │       :       :       │       │
   │       │       ├───────┤       │       :       :       │       │

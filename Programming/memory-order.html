@@ -27,7 +27,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org21cf195">Table of Contents</a></li>
+<li><a href="#org905d753">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -43,9 +43,9 @@
 </div>
 </div>
 
-<div id="outline-container-org21cf195" class="outline-2">
-<h2 id="org21cf195">Table of Contents</h2>
-<div class="outline-text-2" id="text-org21cf195">
+<div id="outline-container-org905d753" class="outline-2">
+<h2 id="org905d753">Table of Contents</h2>
+<div class="outline-text-2" id="text-org905d753">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -263,8 +263,8 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="orgdd0a7dc">
-+------+------+------+------------------+
+<pre class="example" id="org1d7da52">
+┌───────────────────────────────────────┐
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
 | #1   | X=1  |      |                  |
@@ -292,7 +292,7 @@ Given that each operation is atomic, the following table shows the possible outc
 | #6   | X=1  | Y=1  | at the same time |
 |      |      | r2=X |                  |
 |      | r1=Y |      |                  |
-+------+------+------+------------------+
+└───────────────────────────────────────┘
 </pre>
 
 <p>
@@ -303,7 +303,7 @@ The reason we're seeing the reordering is possibly each cache visibe to differnt
 <p>
 We can illsutrate that in the following diagram:
 </p>
-<pre class="example" id="orgf12f7db">
+<pre class="example" id="org6ea6b6f">
                 ┌───────┐               ┌───────┐                                                
   CPU1          │ X=0   │               │ X=0   │         CPU2                      
 ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
@@ -316,7 +316,7 @@ We can illsutrate that in the following diagram:
 │       │------&gt;│ X=1   │---┐   │       :       :       │       │     
 │       │       ├───────┤   │   │       :       :       │       │                    
 │       │       :       :   │   │       ├───────┤       │       │
-│       │       :       :   └---+------&gt;│ X=1   │------&gt;│ miss! │
+│       │       :       :   └---┼------&gt;│ X=1   │------&gt;│ miss! │
 │       │       :       :       │       ├───────┤       │       │
 │       │       :       :       │       :       :       │       │
 │       │       ├───────┤       │       :       :       │       │
@@ -375,7 +375,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="org0c02bf5">
+<div class="tip" id="orgee8fc0e">
 <p>
 In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
 </p>
