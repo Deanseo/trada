@@ -98,15 +98,15 @@ In which case, with a a bit of exaggeration, it's probably advisible to enhance 
 :END:
 [[https://preshing.com/20120515/memory-reordering-caught-in-the-act][Preshing's post]] about demonstrating memory reordering done in x86 shows that a /strongly-ordered/ CPU isn't completley immunne to the modification order [[http://preshing.com/files/ordering.zip][being reordred]].
 Here's the equivalent version where I only replaced his [[https://en.wikipedia.org/wiki/Mersenne_Twister][Mersenne Twister]] implemetation with =std::mt19337=:
-#+BEGIN_SRC C++ :exports both :main no :noweb yes
+#+BEGIN_SRC C++ :includes <atomic> <semaphore> <random> <cstdio> <thread> :exports both :main no :noweb yes
   #define USE_CPU_FENCE 0
 
   std::binary_semaphore beginSema1 {0};
   std::binary_semaphore beginSema2 {0};
   std::counting_semaphore<2> endSema {0};
 
-  int X, Y;
-  int r1, r2;
+  std::atomic<int> X, Y;
+  std::atomic<int> r1, r2;
   std::random_device seed_generator;
 
   void *thread1Func() {
@@ -116,13 +116,13 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
           while (random() % 8 != 0) { }  // Random delay
 
           // ----- THE TRANSACTION! -----
-          X = 1;
+          X.store(1, std::memory_order_relaxed);
   #if USE_CPU_FENCE
           std::atomic_thread_fence(std::memory_order_seq_cst);
   #else
           std::atomic_signal_fence(std::memory_order_seq_cst); 
   #endif
-          r1 = Y;
+          r1.store(Y.load(std::memory_order_relaxed), std::memory_order_relaxed);
 
           endSema.release();
       }
@@ -137,13 +137,13 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
           while (random() % 8 != 0) { }  // Random delay
 
           // ----- THE TRANSACTION! -----
-          Y = 1;
+          Y.store(1, std::memory_order_relaxed);
   #if USE_CPU_FENCE
           std::atomic_thread_fence(std::memory_order_seq_cst);
   #else
           std::atomic_signal_fence(std::memory_order_seq_cst);
   #endif
-          r2 = X;
+          r2.store(X.load(std::memory_order_relaxed), std::memory_order_relaxed);
 
           endSema.release();
       }
@@ -160,8 +160,8 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
       std::size_t detected = 0;
       for (int iterations = 1; ; iterations++) {
           // Reset X and Y
-          X = 0;
-          Y = 0;
+          X.store(0, std::memory_order_relaxed);
+          Y.store(0, std::memory_order_relaxed);
 
           // Signal both threads
           beginSema1.release();
@@ -174,7 +174,7 @@ Here's the equivalent version where I only replaced his [[https://en.wikipedia.o
           // Check if there was a simultaneous reorder
           if (r1 == 0 and r2 == 0) {
               detected++;
-              printf("%d reorders detected after %d iterations\n", detected, iterations);
+              printf("%d reorders detected after %d iterations\n", static_cast<int>(detected), iterations);
           }
       }
 

@@ -27,7 +27,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org0af7925">Table of Contents</a></li>
+<li><a href="#org5d0a0bd">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -43,9 +43,9 @@
 </div>
 </div>
 
-<div id="outline-container-org0af7925" class="outline-2">
-<h2 id="org0af7925">Table of Contents</h2>
-<div class="outline-text-2" id="text-org0af7925">
+<div id="outline-container-org5d0a0bd" class="outline-2">
+<h2 id="org5d0a0bd">Table of Contents</h2>
+<div class="outline-text-2" id="text-org5d0a0bd">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -190,8 +190,8 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <span class="org-constant">std</span>::<span class="org-type">binary_semaphore</span> <span class="org-variable-name">beginSema2</span> <span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span>;
 <span class="org-constant">std</span>::<span class="org-type">counting_semaphore</span><span class="org-rainbow-delimiters-depth-1">&lt;</span>2<span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">endSema</span> <span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span>;
 
-<span class="org-type">int</span> <span class="org-variable-name">X</span>, <span class="org-variable-name">Y</span>;
-<span class="org-type">int</span> <span class="org-variable-name">r1</span>, <span class="org-variable-name">r2</span>;
+<span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">int</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">X</span>, <span class="org-variable-name">Y</span>;
+<span class="org-constant">std</span>::<span class="org-type">atomic</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">int</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">r1</span>, <span class="org-variable-name">r2</span>;
 <span class="org-constant">std</span>::<span class="org-type">random_device</span> <span class="org-variable-name">seed_generator</span>;
 
 <span class="org-type">void</span> *<span class="org-function-name">thread1Func</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
@@ -201,13 +201,13 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
         <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span>random<span class="org-rainbow-delimiters-depth-4">()</span> % 8 != 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span> <span class="org-rainbow-delimiters-depth-3">}</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">Random delay</span>
 
         <span class="org-comment-delimiter">// </span><span class="org-comment">----- THE TRANSACTION! -----</span>
-        X = 1;
+        X.store<span class="org-rainbow-delimiters-depth-3">(</span>1, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 <span class="org-preprocessor">#if</span> USE_CPU_FENCE
         <span class="org-constant">std</span>::atomic_thread_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
 <span class="org-preprocessor">#else</span>
         <span class="org-constant">std</span>::atomic_signal_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>; 
 <span class="org-preprocessor">#endif</span>
-        r1 = Y;
+        r1.store<span class="org-rainbow-delimiters-depth-3">(</span>Y.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         endSema.release<span class="org-rainbow-delimiters-depth-3">()</span>;
     <span class="org-rainbow-delimiters-depth-2">}</span>
@@ -222,13 +222,13 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
         <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span>random<span class="org-rainbow-delimiters-depth-4">()</span> % 8 != 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span> <span class="org-rainbow-delimiters-depth-3">}</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">Random delay</span>
 
         <span class="org-comment-delimiter">// </span><span class="org-comment">----- THE TRANSACTION! -----</span>
-        Y = 1;
+        Y.store<span class="org-rainbow-delimiters-depth-3">(</span>1, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 <span class="org-preprocessor">#if</span> USE_CPU_FENCE
         <span class="org-constant">std</span>::atomic_thread_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
 <span class="org-preprocessor">#else</span>
         <span class="org-constant">std</span>::atomic_signal_fence<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-constant">std</span>::memory_order_seq_cst<span class="org-rainbow-delimiters-depth-3">)</span>;
 <span class="org-preprocessor">#endif</span>
-        r2 = X;
+        r2.store<span class="org-rainbow-delimiters-depth-3">(</span>X.load<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-4">)</span>, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         endSema.release<span class="org-rainbow-delimiters-depth-3">()</span>;
     <span class="org-rainbow-delimiters-depth-2">}</span>
@@ -245,8 +245,8 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
     <span class="org-constant">std</span>::<span class="org-type">size_t</span> <span class="org-variable-name">detected</span> = 0;
     <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">int</span> <span class="org-variable-name">iterations</span> = 1; ; iterations++<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
         <span class="org-comment-delimiter">// </span><span class="org-comment">Reset X and Y</span>
-        X = 0;
-        Y = 0;
+        X.store<span class="org-rainbow-delimiters-depth-3">(</span>0, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
+        Y.store<span class="org-rainbow-delimiters-depth-3">(</span>0, <span class="org-constant">std</span>::memory_order_relaxed<span class="org-rainbow-delimiters-depth-3">)</span>;
 
         <span class="org-comment-delimiter">// </span><span class="org-comment">Signal both threads</span>
         beginSema1.release<span class="org-rainbow-delimiters-depth-3">()</span>;
@@ -259,7 +259,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
         <span class="org-comment-delimiter">// </span><span class="org-comment">Check if there was a simultaneous reorder</span>
         <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>r1 == 0 <span class="org-keyword">and</span> r2 == 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
             detected++;
-            printf<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"%d reorders detected after %d iterations\n"</span>, detected, iterations<span class="org-rainbow-delimiters-depth-4">)</span>;
+            printf<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"%d reorders detected after %d iterations\n"</span>, <span class="org-keyword">static_cast</span><span class="org-rainbow-delimiters-depth-5">&lt;</span><span class="org-type">int</span><span class="org-rainbow-delimiters-depth-5">&gt;(</span>detected<span class="org-rainbow-delimiters-depth-5">)</span>, iterations<span class="org-rainbow-delimiters-depth-4">)</span>;
         <span class="org-rainbow-delimiters-depth-3">}</span>
     <span class="org-rainbow-delimiters-depth-2">}</span>
 
@@ -273,7 +273,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="orga9be45d">
+<pre class="example" id="org547362f">
 ┌───────────────────────────────────────┐
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -313,7 +313,7 @@ The reason we're seeing the reordering is possibly each cache visibe to differnt
 <p>
 We can illsutrate that in the following diagram:
 </p>
-<pre class="example" id="orga9d1e8b">
+<pre class="example" id="org8a877ec">
                 ┌───────┐               ┌───────┐                                                
   CPU1          │ X=0   │               │ X=0   │         CPU2                      
 ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
@@ -385,7 +385,7 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="org1b69631">
+<div class="tip" id="org993d524">
 <p>
 In x86, a normal relaxed atomic operation is escalated by default to either release or acquire at least.
 </p>
