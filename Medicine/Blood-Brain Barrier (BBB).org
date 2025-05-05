@@ -26,7 +26,7 @@
 #+begin_warning
 *Disclaimer*
 
-If you're looking for a medical advice, plase go see a doctor for consultation. (/No, I'm *not* a doctor./) \\
+If you're looking for a medical advice, plase consult a doctor for consultation. (/No, I'm *not* a doctor./) \\
 This posting may have errors or inaccurate/misleading information by mistake.
 #+end_warning
 
@@ -36,7 +36,7 @@ After taking the pill, I felt sleepy.
 I told my doctor about it and he explained that still, Cetirizine was the best choice, saying other similar medicines would make me even more drowsy, 
 
 At the time, I didn't really understand why a pill would have that side effect.
-I mean, I thought it should make me feel more /energetic/...? because it's supposed to kill those "evil allergy germs," so I get /helthier/, right?
+I mean, I thought it would make me feel more /energetic/...? because I assumed it would kill those "/evil allergy germs/," so I should get /helthier/, right?
 
 Of course, now I know there's no such thing as evil allergy germs.
 Certain drugs make us feel:
@@ -62,7 +62,7 @@ Its main function is to protect the brain from harmful substances while allowing
 /Figure 1. An image of Blood-Brain Barrier in the brain, (Taken from "Cordance Medical"/).
 
 Generally, lipid-soluble molecules, which are "oil-friendly," can pass through the BBB, whereas water-soluble molecules cannot. \\
-Some drugs /happen to/ cross the BBB even though we don't want them to, while some others drugs (most of psychoactive drugs) are specifically designed to do so.
+Some drugs can unintentionally cross the BBB, while other drugs (mostly psychoactive ones) are specifically designed to do so.
 
 ** Well-known drugs that enter the BBB with side-effects
 :PROPERTIES:
@@ -73,10 +73,10 @@ Some drugs /happen to/ cross the BBB even though we don't want them to, while so
 :PROPERTIES:
 :CUSTOM_ID: cetirizine
 :END:
-Cetirizine, one of the most famouse antihistamines, is what first came to my mind to write this article.
-it can cause drowsiness, although it's generally known for being /less sedating/ compared to those /first-generation/ antihistamines, which aren't really a preferred choice to treat your allergy.
+Cetirizine, one of the most commonly-used antihistamines, is the example that first comes to my mind to write this article.
+It can cause drowsiness, although it's generally considered /less sedating/ than those /first-generation/ antihistamines, which are often avodied due to their stronger sedative effects.
 
-It is indded far less fat-soluble, but it still penetrates the BBB, entering the CNS.
+Although it is indeed far less lipid-soluble, small amounts can still cross the BBB and enter the CNS.
 
 One of the important roles Histamine plays is that it regulates wakefulness and alertness in the brain.
 Therefore, Cetirizine blocking histamine H1 receptors in the CNS, even to a small extent, would result in drowsiness and sedation.
@@ -85,76 +85,75 @@ Therefore, Cetirizine blocking histamine H1 receptors in the CNS, even to a smal
 :PROPERTIES:
 :CUSTOM_ID: diphenhydramine
 :END:
-Diphenhydramine is the 1st gen. antihistamine with anticholinergic toxicity.
-Although it's labled as an antihistamine, it's more often used as a sleep inducer today.
-The scary part is that it's quite anticholinergic and there are strong evidences that its chronic use is related to dementia.
+Diphenhydramine is a first-generation antihistamine with significant anticholinergic effects.
+Although labled as an antihistamine, it's now more commonly used as a sleep inducer today.
+
+Its strong anticholinergic properties and chronic use have been linked to a noticibly increased risk of dementia.
 #+ATTR_HTML: :width 300px :class center
 [[file:images/Sleep-eze.jpg]]
 /Figure 2. Wanna ride an express train to lowering your IQ with a risk of dementia?/
 
 In my opinion, it's unfortunate that in most countries you can buy this without doctor's prescription considering the risk after a long term use is significant.
 
-***** Connection to dementia
+***** Anticholinergic drugs connected to dementia
 :PROPERTIES:
 :CUSTOM_ID: connection-to-dementia
 :END:
-There are many studies published, indicating that the long-term use of those drug, especially anticholinergic ones is /strongly/ associated with [[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7821204/][an increased risk of dementia]].
+Several studies have indicated that long-term use of those anticholinergic drugs is /strongly/ associated with [[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7821204/][dementia]].
 
 *** Adderall
 :PROPERTIES:
 :CUSTOM_ID: adderall
 :END:
-The notorious drug Adderall uses a similar mechanism.
-It's designed to cross the BBB and directly stimulates the release of dopamine, disrupting the brain's natural reuptake process.
+Similarly, Adderall is designed to cross the BBB, promote the release of dopamine and and norepinephrine, and inhibit their reuptake.
 
 That results in a hyper-alertness, stronger than the /regular/ alertness caused by caffeine as described above, which merely blocks some adenosine receptors.
 
-*** Caffein and coffee
+*** Caffeine and coffee
 :PROPERTIES:
 :CUSTOM_ID: caffein-and-coffee
 :END:
 Arguably, the most loved drug among people today is coffee, though you don't need a doctor's prescription.
-Caffeine in tne coffee can cross the BBB and block adenosine receptors.
+Caffeine found in coffee can cross the BBB and block adenosine receptors.
 
-Adenosine makes you feel calm, but when caffeine blocks its receptors, your brain can't calm down, resulting in a state of alertness.
+Adenosine promotes calmness, but when caffeine blocks its receptors, your brain can't calm down, resulting in a state of alertness.
 Too much caffeine can lead to excessive alertness, causing side effects like insomnia, as shown below:
-
 #+begin_example
   Step 1: Caffeine Ingestion
         |
-        v
+        ↓ 
   +-----------------------+
   |  Caffeine enters the  |
-  |    blood stream        |
+  |    blood stream       |
   +-----------------------+
         |
         v
   Step 2: Caffeine Crosses the BBB
         |
-        v
+        ↓
   +-----------------------+    +-----------------------+
-  |   Caffeine crosses    | -> |   Caffeine reaches    |
+  |   Caffeine crosses    | -→ |   Caffeine reaches    |
   |   the Blood-Brain     |    |      the brain        |
   |       Barrier         |    +-----------------------+
   +-----------------------+            |
-                                       v
+                                       ↓
   Step 3: Blocking Adenosine Receptors
                                        |
-                                       v
+                                       ↓
   +-----------------------+    +-----------------------+    +-----------------------+
-  |   Caffeine binds to   | -> |  Adenosine receptors  | -> |  Blocking adenosine   |
+  |   Caffeine binds to   | -→ |  Adenosine receptors  | -→ |  Blocking adenosine   |
   |  adenosine receptors  |    |      are blocked      |    |  reduces the calming  |
   +-----------------------+    +-----------------------+    |       effect          |
                                                             +-----------------------+
                                                                    |
                         +------------------------------------------+                                           
                         |
-                        v
+                        ↓
   Step 4: Increased Alertness
                         |                                            
-                        v                                           
+                        ↓                                           
   +-----------------------+    +-----------------------+
-  |  State of alertness   | -> | Excessive alertness   |
+  |  State of alertness   | -→ | Excessive alertness   |
   |    is maintained      |    | can lead to insomnia  |
   +-----------------------+    |      and anxiety      |
                                +-----------------------+
