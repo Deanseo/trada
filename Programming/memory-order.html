@@ -27,7 +27,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org905d753">Table of Contents</a></li>
+<li><a href="#org0af7925">Table of Contents</a></li>
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul>
 <li><a href="#-consume">✅ Consume</a></li>
@@ -43,9 +43,9 @@
 </div>
 </div>
 
-<div id="outline-container-org905d753" class="outline-2">
-<h2 id="org905d753">Table of Contents</h2>
-<div class="outline-text-2" id="text-org905d753">
+<div id="outline-container-org0af7925" class="outline-2">
+<h2 id="org0af7925">Table of Contents</h2>
+<div class="outline-text-2" id="text-org0af7925">
 <ul class="org-ul">
 <li><a href="#memory-ordering-in-c">Memory Order in C++</a>
 <ul class="org-ul">
@@ -93,11 +93,16 @@ In x86, a <i>strongly-ordered</i> architecture, we can even see this model far s
 <div class="outline-text-3" id="text--consume">
 <p>
 This implies the <i>address-dependency partial load barrier</i> that was <a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">historically important</a> but not so much today.
+It ins't always obvious to identify the address-dependant load.
 </p>
 
 <p>
-It ins't always obvious to identify the address-dependant load.
-Good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
+In practice, all major compilers would simply decay 'consume' to 'acquire' as it's <a href="https://stackoverflow.com/a/65353549">un-implementable</a>.
+I'm not sure if we can get the <i>true</i> "consume" semantics in the C++ standard.
+</p>
+
+<p>
+One good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
 as in most modern platforms a load barrier implies a consume by default.
 </p>
 
@@ -107,7 +112,7 @@ for other platforms within C++'s memory model <a href="https://stackoverflow.com
 </p>
 
 <p>
-Yet, in my opinion I didn't witness a case where a consume is used in order to yield a better performance result myself though.
+Yet, in my opinion I didn't witness a case where a true <i>consume</i> optimization exists in modern C++'s toolchains.
 </p>
 </div>
 </div>
@@ -116,8 +121,12 @@ Yet, in my opinion I didn't witness a case where a consume is used in order to y
 <h3 id="-relaxed">✅ Relaxed</h3>
 <div class="outline-text-3" id="text--relaxed">
 <p>
-Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid
-<i>release-acquire,</i> <i>synchronize-with</i> relation.
+Since x86 doesn't support a relaxed load and store in the hardware level escalted to release/acquire by default.
+That'd yield a plain <b>MOV</b> instruction with no fences or lock prefixes.
+</p>
+
+<p>
+The concern remains correctly pairing atomic operations (<i>release-acquire,</i> <i>synchronize-with</i> relation) when we need stronger ordering.
 </p>
 </div>
 </div>
@@ -126,16 +135,17 @@ Since x86 doesn't support a relaxed load and store in the hardware level, our co
 <h3 id="-release--acquire">✅ Release / Acquire</h3>
 <div class="outline-text-3" id="text--release--acquire">
 <p>
-In most cases this pair is good enough for what we want to accomplish.
+In most cases this pair is good enough.
 </p>
 
 <p>
 Each operation is a specific partial ordering for a store and load pair.
-In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected (synchronized-with).
+A release on atomic A <i>synchorizes-with</i> an acquire on the same atomic A; the modification order is unaffected.
 </p>
 
 <p>
 In general, a strong lock instrucion like a <code>lock</code> prefix or <code>xchg</code> isn't emitted for a rel/acq operation by the compiler.
+For that, you'd need 'seq<sub>cst</sub>'.
 </p>
 </div>
 </div>
@@ -263,7 +273,7 @@ Here's the equivalent version where I only replaced his <a href="https://en.wiki
 <p>
 Given that each operation is atomic, the following table shows the possible outcomes:
 </p>
-<pre class="example" id="org1d7da52">
+<pre class="example" id="orga9be45d">
 ┌───────────────────────────────────────┐
 | case | T1   | T2   | Misc.            |
 |------+------+------+------------------|
@@ -303,7 +313,7 @@ The reason we're seeing the reordering is possibly each cache visibe to differnt
 <p>
 We can illsutrate that in the following diagram:
 </p>
-<pre class="example" id="org6ea6b6f">
+<pre class="example" id="orga9d1e8b">
                 ┌───────┐               ┌───────┐                                                
   CPU1          │ X=0   │               │ X=0   │         CPU2                      
 ┌───────┐       ├───────┤               ├───────┤       ┌───────┐             
@@ -375,9 +385,13 @@ Thus, the good ole <code>is_ready</code> practice in C is now available in the C
 <p>
 That's it. In fact, for most cases in atomic programming in general, a <i>rel-acq</i> fair is good enough.
 </p>
-<div class="tip" id="orgee8fc0e">
+<div class="tip" id="org1b69631">
 <p>
-In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
+In x86, a normal relaxed atomic operation is escalated by default to either release or acquire at least.
+</p>
+
+<p>
+Note that the CPU's TSO memory model in x86 simply provides stronger ordering than the C++ standard requires.
 </p>
 
 </div>

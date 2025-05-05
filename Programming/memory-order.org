@@ -42,33 +42,39 @@ In x86, a /strongly-ordered/ architecture, we can even see this model far simple
 :CUSTOM_ID: -consume
 :END:
 This implies the /address-dependency partial load barrier/ that was [[https://www.kernel.org/doc/Documentation/memory-barriers.txt][historically important]] but not so much today.
-
 It ins't always obvious to identify the address-dependant load.
-Good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
+
+In practice, all major compilers would simply decay 'consume' to 'acquire' as it's [[https://stackoverflow.com/a/65353549][un-implementable]].
+I'm not sure if we can get the /true/ "consume" semantics in the C++ standard.
+
+One good news is that if you aren't interested in writing a "portable" lock-free algorithm, which I'm not, you can probably ignore this
 as in most modern platforms a load barrier implies a consume by default.
 
 I'm not saying it's a deprecate trait as there's a valid use case against [[https://en.wikipedia.org/wiki/DEC_Alpha][DEC Alpha]] 64-bit instruction sets and as a compiler barrier
 for other platforms within C++'s memory model [[https://stackoverflow.com/a/58994136][providing the compiler as large the room for optimizations as possible]].
 
-Yet, in my opinion I didn't witness a case where a consume is used in order to yield a better performance result myself though.
+Yet, in my opinion I didn't witness a case where a true /consume/ optimization exists in modern C++'s toolchains.
 
 ** ✅ Relaxed
 :PROPERTIES:
 :CUSTOM_ID: -relaxed
 :END:
-Since x86 doesn't support a relaxed load and store in the hardware level, our concern narrows down to the compiler optimization where we make sure of a valid
-/release-acquire,/ /synchronize-with/ relation.
+Since x86 doesn't support a relaxed load and store in the hardware level escalted to release/acquire by default.
+That'd yield a plain *MOV* instruction with no fences or lock prefixes.
+
+The concern remains correctly pairing atomic operations (/release-acquire,/ /synchronize-with/ relation) when we need stronger ordering.
 
 ** ✅ Release / Acquire
 :PROPERTIES:
 :CUSTOM_ID: -release--acquire
 :END:
-In most cases this pair is good enough for what we want to accomplish.
+In most cases this pair is good enough.
 
 Each operation is a specific partial ordering for a store and load pair.
-In the C++ standard, they must be paired from each thread to be visible to the counterpart thread without the modification order affected (synchronized-with).
+A release on atomic A /synchorizes-with/ an acquire on the same atomic A; the modification order is unaffected.
 
 In general, a strong lock instrucion like a =lock= prefix or =xchg= isn't emitted for a rel/acq operation by the compiler.
+For that, you'd need 'seq_cst'.
 
 ** ✅ Sequencially-Consistent
 :PROPERTIES:
@@ -257,7 +263,7 @@ before the release /happens-before/ any atomic operations.
 
 The C++'s memory model essentially provides the same definition. When paired, the 'acquire-er' is guaranteed to have the same ordering.
 Thus, the good ole =is_ready= practice in C is now available in the C++ standard, as follows:
-#+BEGIN_SRC C++ :includes <memory> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
+#+BEGIN_SRC C++ :includes <atomic> :flags -std=c++20 :results silent raw :exports both :main no :noweb yes
   std::atomic<int> value;
   std::atomic<bool> is_ready;
 
@@ -278,7 +284,9 @@ Thus, the good ole =is_ready= practice in C is now available in the C++ standard
 
 That's it. In fact, for most cases in atomic programming in general, a /rel-acq/ fair is good enough.
 #+begin_tip
-In x86, a normal relaxed atomic operation isn't supported, being escalated to either release or acquire at least.
+In x86, a normal relaxed atomic operation is escalated by default to either release or acquire at least.
+
+Note that the CPU's TSO memory model in x86 simply provides stronger ordering than the C++ standard requires.
 #+end_tip
 
 One bonus is that, considering it's strongly ordered by default, there's no strong instrucution yield such as =lock= prefix or =mfence=.
