@@ -1,4 +1,4 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/html-theme-readtheorg.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="center.css"/>
 #+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Dean's Blog
@@ -17,7 +17,7 @@ Hello, my name is Dean Seo.
 #+ATTR_HTML: :width 200px :class center
 [[file:Images/profile_pic.jpg]]
 
-I am a seasoned C++ developer specializing in the creation of low-latency, high-performance applications.
+I am a senior C++ developer specializing in the creation of low-latency, high-performance applications.
 With a deep understanding of modern C++ techniques, I am dedicated to optimizing software to operate at the peak of efficiency.
 
 My passion lies in tackling complex coding challenges and transforming them into elegantly engineered solutions that push the boundaries of technological capabilities.
