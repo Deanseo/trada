@@ -1,4 +1,4 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: ../html-theme-readtheorg-local.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="../center.css"/>
 #+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Boxing 
