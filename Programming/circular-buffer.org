@@ -1,4 +1,4 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/setup/html-theme-readtheorg.setup
+#+SETUPFILE: ../html-theme-readtheorg-local.setup
 #+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Circular Buffer
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)

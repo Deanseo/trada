@@ -1,9 +1,9 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/html-theme-readtheorg.setup
+#+SETUPFILE: html-theme-readtheorg-local.setup
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="center.css"/>
 #+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: Dean's Blog
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
-#+DATE:  [2024-07-28 Sun]
+#+DATE:  [2026-08-10 Mon]
 #+HTML_HEAD: <style> #content{max-width:900px;}</style>>
 #+OPTIONS: timestamp:nil
 #+OPTIONS: num:nil
