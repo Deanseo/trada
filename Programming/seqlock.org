@@ -1,4 +1,4 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/setup/html-theme-readtheorg.setup
 #+HTML_HEAD: <script type="text/javascript">disableSearch();</script>
 #+TITLE: SeqLock
 #+AUTHOR: Dean Seo (deaniac.seo@gmail.com)
